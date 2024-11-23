@@ -13,14 +13,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import potatoes.server.config.BaseTimeEntity;
 import potatoes.server.constant.GatheringType;
 
-@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
 public class Gathering extends BaseTimeEntity {
 
 	@Id
@@ -62,4 +63,20 @@ public class Gathering extends BaseTimeEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+
+	@Builder
+	public Gathering(GatheringType type, String name, Instant dateTime, Instant registrationEnd, String location,
+		int capacity, String image, Instant canceledAt, User user) {
+		this.type = type;
+		this.name = name;
+		this.dateTime = dateTime;
+		this.registrationEnd = registrationEnd;
+		this.location = location;
+		this.participantCount = 0;
+		this.capacity = capacity;
+		this.image = image;
+		this.createdBy = user.getId();
+		this.canceledAt = canceledAt;
+		this.user = user;
+	}
 }

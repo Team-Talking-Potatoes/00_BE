@@ -11,12 +11,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
 public class UserGathering {
 
 	@Id
@@ -33,4 +34,11 @@ public class UserGathering {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "gathering_id")
 	private Gathering gathering;
+
+	@Builder
+	public UserGathering(Instant joinedAt, Gathering gathering, User user) {
+		this.joinedAt = joinedAt;
+		this.gathering = gathering;
+		this.user = user;
+	}
 }
