@@ -22,12 +22,6 @@ public class Review extends BaseTimeEntity {
 	@Column(name = "review_id", nullable = false)
 	private Long id;
 
-	@Column(name = "user_id", nullable = false)
-	private Long userId;
-
-	@Column(name = "gathering_id", nullable = false)
-	private Long gatheringId;
-
 	@Column(name = "score", nullable = false)
 	private int score = 0;
 
@@ -35,10 +29,10 @@ public class Review extends BaseTimeEntity {
 	private String comment;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", updatable = false)
+	@JoinColumn(name = "user_id")
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "gathering_id", updatable = false)
+	@JoinColumn(name = "gathering_id")
 	private Gathering gathering;
 }

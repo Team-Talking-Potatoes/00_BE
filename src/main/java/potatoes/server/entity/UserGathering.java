@@ -17,17 +17,16 @@ import lombok.NoArgsConstructor;
 public class UserGathering {
 
 	@EmbeddedId
-	@Column(name = "user_gathering_id", nullable = false)
 	private UserGatheringId userGatheringId;
 
 	@Column(name = "joined_at", nullable = false)
 	private Instant joinedAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", insertable = false, updatable = false)
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "gathering_id")
+	@JoinColumn(name = "gathering_id", insertable = false, updatable = false)
 	private Gathering gathering;
 }
