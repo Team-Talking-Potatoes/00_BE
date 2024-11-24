@@ -72,7 +72,7 @@ public class Gathering extends BaseTimeEntity {
 		this.dateTime = dateTime;
 		this.registrationEnd = registrationEnd;
 		this.location = location;
-		this.participantCount = 0;
+		this.participantCount = 1;
 		this.capacity = capacity;
 		this.image = image;
 		this.createdBy = user.getId();
