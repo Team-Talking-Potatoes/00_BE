@@ -53,4 +53,3 @@ public class AuthorizationArgumentResolver implements HandlerMethodArgumentResol
 		return Long.parseLong(jwtTokenProvider.getPayload(token));
 	}
 }
-
