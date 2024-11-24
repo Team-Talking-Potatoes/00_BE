@@ -23,6 +23,6 @@ public record CreateGatheringRequest(
 	int capacity,
 
 	@NotNull(message = "등록 마감일시는 필수입니다")
-	String registrationEnd
+	Instant registrationEnd
 ) {
 }
