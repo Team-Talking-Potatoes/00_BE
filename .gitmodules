@@ -1,0 +1,4 @@
+[submodule "00_BE_Secrets"]
+	path = 00_BE_Secrets
+	url = https://github.com/Team-Talking-Potatoes/00_BE_Secrets
+	ranch = main
