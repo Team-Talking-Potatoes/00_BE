@@ -1,5 +1,6 @@
 package potatoes.server.controller;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,10 +27,10 @@ public class GatheringController {
 	private final GatheringService gatheringService;
 
 	@GetMapping("/")
-	public GetGatheringResponse getGathering(
+	public Page<GetGatheringResponse> getGathering(
 		@RequestBody GetGatheringRequest req
 	) {
-
+		return gatheringService.getGatheringResponseList(req);
 	}
 
 	@PostMapping(
