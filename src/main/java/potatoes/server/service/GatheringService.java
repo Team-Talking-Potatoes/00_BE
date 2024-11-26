@@ -1,6 +1,8 @@
 package potatoes.server.service;
 
-import org.springframework.data.domain.Page;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,18 +26,18 @@ public class GatheringService {
 	private final GatheringRepository gatheringRepository;
 	private final PageableFactory pageableFactory;
 
-	public Page<GetGatheringResponse> getGatheringResponseList(GetGatheringRequest req) {
-		Pageable pageable = pageableFactory.create(req);
-
-		return gatheringRepository.findGatheringsWithConditions(
-			req.ids(),
-			req.type(),
-			req.location(),
-			req.getStartOfDay(),
-			req.getEndOfDay(),
-			req.createdBy(),
-			pageable
-		).map(GetGatheringResponse::from);
+	public List<GetGatheringResponse> getGatherings(GetGatheringRequest request, Pageable pageable) {
+		return gatheringRepository.findGatherings(
+				request.id(),
+				request.type(),
+				request.location(),
+				request.getStartOfDay(),
+				request.getEndOfDay(),
+				request.createdBy(),
+				pageable
+			).stream()
+			.map(GetGatheringResponse::from)
+			.collect(Collectors.toList());
 	}
 
 	@Transactional

@@ -1,6 +1,8 @@
 package potatoes.server.controller;
 
-import org.springframework.data.domain.Page;
+import java.util.List;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ import potatoes.server.dto.CreateGatheringResponse;
 import potatoes.server.dto.GetGatheringRequest;
 import potatoes.server.dto.GetGatheringResponse;
 import potatoes.server.service.GatheringService;
+import potatoes.server.utils.Pagination.PageableFactory;
 import potatoes.server.utils.annotation.Authorization;
 
 @RestController
@@ -25,14 +28,23 @@ import potatoes.server.utils.annotation.Authorization;
 public class GatheringController {
 
 	private final GatheringService gatheringService;
+	private final PageableFactory pageableFactory;
+
+	// @GetMapping("/")
+	// public Page<GetGatheringResponse> getGathering(
+	// 	@RequestBody GetGatheringRequest req
+	// ) {
+	// 	return gatheringService.getGatheringResponseList(req);
+	// }
 
 	@GetMapping("/")
-	public Page<GetGatheringResponse> getGathering(
+	public List<GetGatheringResponse> getGatherings(
 		@RequestBody GetGatheringRequest req
 	) {
-		return gatheringService.getGatheringResponseList(req);
+		Pageable pageable = pageableFactory.create(req);
+		return gatheringService.getGatherings(req, pageable);
 	}
-
+	
 	@PostMapping(
 		value = "/",
 		consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -44,4 +56,5 @@ public class GatheringController {
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile) {
 		return gatheringService.integrateGatheringCreation(request, multipartFile, memberId);
 	}
+
 }

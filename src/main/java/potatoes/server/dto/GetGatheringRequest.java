@@ -4,16 +4,18 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
-import java.util.List;
+
+import javax.swing.*;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.validation.constraints.Min;
 import potatoes.server.constant.GatheringType;
+import potatoes.server.constant.SortByType;
 import potatoes.server.utils.Pagination.Paginator;
 
 public record GetGatheringRequest(
-	List<Long> ids,
+	String id,
 
 	GatheringType type,
 
@@ -24,9 +26,9 @@ public record GetGatheringRequest(
 
 	Long createdBy,
 
-	String sortBy,
+	SortByType sortBy,
 
-	String sortOrder,
+	SortOrder sortOrder,
 
 	@Min(value = 1, message = "Limit의 최소값은 1입니다.") int limit,
 
@@ -45,12 +47,12 @@ public record GetGatheringRequest(
 
 	@Override
 	public String getSortBy() {
-		return sortBy != null ? sortBy : "dateTime";
+		return sortBy != null ? sortBy.name() : "dateTime";
 	}
 
 	@Override
 	public String getSortOrder() {
-		return sortOrder != null ? sortOrder : "desc";
+		return sortOrder != null ? sortOrder.name() : "desc";
 	}
 
 	public Instant getStartOfDay() {
