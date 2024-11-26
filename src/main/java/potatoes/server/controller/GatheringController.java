@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +22,7 @@ import potatoes.server.constant.GatheringType;
 import potatoes.server.constant.SortByType;
 import potatoes.server.dto.CreateGatheringRequest;
 import potatoes.server.dto.CreateGatheringResponse;
+import potatoes.server.dto.GetDetailedGatheringResponse;
 import potatoes.server.dto.GetGatheringRequest;
 import potatoes.server.dto.GetGatheringResponse;
 import potatoes.server.service.GatheringService;
@@ -66,10 +68,19 @@ public class GatheringController {
 	}
 
 	@PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public CreateGatheringResponse createGathering(@Authorization Long memberId,
+	public CreateGatheringResponse createGathering(
+		@Authorization Long memberId,
 		@RequestPart("gatheringInfo") @Valid CreateGatheringRequest request,
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile) {
 		return gatheringService.integrateGatheringCreation(request, multipartFile, memberId);
+	}
+
+	@GetMapping("/{id}")
+	public GetDetailedGatheringResponse getDetailedGathering(
+		@Authorization Long memberId,
+		@PathVariable Long id
+	) {
+		return gatheringService.getDetailedGathering(id);
 	}
 
 }

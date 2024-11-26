@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateGatheringRequest;
 import potatoes.server.dto.CreateGatheringResponse;
+import potatoes.server.dto.GetDetailedGatheringResponse;
 import potatoes.server.dto.GetGatheringRequest;
 import potatoes.server.dto.GetGatheringResponse;
 import potatoes.server.entity.Gathering;
@@ -67,5 +68,12 @@ public class GatheringService {
 	private String uploadGatheringImage(MultipartFile multipartFile) {
 		return "1";
 		// TODO 멀티파트 image로 변경하는 S3 로직 추가
+	}
+
+	public GetDetailedGatheringResponse getDetailedGathering(Long gatheringId) {
+		Gathering gathering = gatheringRepository.findById(gatheringId)
+			.orElseThrow(() -> new RuntimeException("Gathering not found with id: " + gatheringId));
+
+		return GetDetailedGatheringResponse.from(gathering);
 	}
 }
