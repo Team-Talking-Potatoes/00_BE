@@ -46,7 +46,7 @@ public record GetGatheringRequest(
 
 	@Override
 	public String getSortOrder() {
-		return sortOrder != null ? sortOrder.name() : "desc";
+		return sortOrder != null ? sortOrder() : "desc";
 	}
 
 }
