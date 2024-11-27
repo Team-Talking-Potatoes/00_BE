@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateUserRequest;
 import potatoes.server.entity.User;
-import potatoes.server.exception.AlreadyExistsEmailException;
+import potatoes.server.error.exception.AlreadyExistsEmailException;
 import potatoes.server.repository.UserRepository;
 
 @Service

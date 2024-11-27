@@ -7,7 +7,10 @@ public enum ErrorCode {
 	// Common
 	INTERNAL_SERVER_ERROR(500, "INTERNAL_SERVER_ERROR", "Server Error"),
 	INVALID_INPUT_VALUE(400, "INVALID_INPUT_VALUE", "Invalid Input Value"),
-	INVALID_TYPE_VALUE(400, "INVALID_TYPE_VALUE", "Invalid Type Value");
+	INVALID_TYPE_VALUE(400, "INVALID_TYPE_VALUE", "Invalid Type Value"),
+
+	// User
+	EMAIL_DUPLICATION(400, "EMAIL_DUPLICATION", "이미 가입된 이메일입니다.");
 
 	private final int status;
 	private final String code;

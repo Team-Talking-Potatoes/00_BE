@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import potatoes.server.dto.CreateUserRequest;
 import potatoes.server.entity.User;
-import potatoes.server.exception.AlreadyExistsEmailException;
+import potatoes.server.error.exception.AlreadyExistsEmailException;
 import potatoes.server.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)

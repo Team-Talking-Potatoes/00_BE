@@ -1,9 +1,12 @@
 package potatoes.server.controller;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static potatoes.server.error.ErrorCode.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +63,7 @@ class AuthControllerTest {
 	}
 
 	@Test
-	void 회원가입_유효하지_않은_이메일_주소() throws Exception {
+	void 회원가입_유효하지_않은_이메일_주소를_입력할_경우_에러메시지를_반환한다() throws Exception {
 		// given
 		CreateUserRequest createUserRequest = new CreateUserRequest("hellogmail.com", "1234", "newUserName",
 			"company");
@@ -70,13 +73,19 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(createUserRequest))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
-			.andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-			.andExpect(jsonPath("$.parameter.email").value("이메일 형식으로 입력해주세요."));
+			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
+			.andExpect(jsonPath("$.message").value(INVALID_INPUT_VALUE.getMessage()))
+			.andExpect(jsonPath("$.parameter", hasItems(
+				allOf(
+					hasEntry("field", "email"),
+					hasEntry("value", "hellogmail.com"),
+					hasEntry("reason", "이메일 형식으로 입력해주세요.")
+				)
+			)));
 	}
 
 	@Test
-	void 회원가입_이메일_중복() throws Exception {
+	void 회원가입_이메일_중복될_경우_에러메시지를_반환한다() throws Exception {
 		// given
 		CreateUserRequest user1 = new CreateUserRequest("hello@gmail.com", "1234", "user1",
 			"company2");
@@ -88,18 +97,17 @@ class AuthControllerTest {
 		CreateUserRequest user2 = new CreateUserRequest("hello@gmail.com", "4321", "user2",
 			"company2");
 
-		// expect
 		// expected
 		mockMvc.perform(post("/auths/signup")
 				.content(objectMapper.writeValueAsString(user2))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value("EMAIL_DUPLICATION"))
-			.andExpect(jsonPath("$.message").value("이미 가입된 이메일 입니다."));
+			.andExpect(jsonPath("$.message").value("이미 가입된 이메일입니다."));
 	}
 
 	@Test
-	void 회원가입_필수값_누락_이메일() throws Exception {
+	void 회원가입_이메일이_누락되었을_경우_에러메시지를_반환한다() throws Exception {
 		// given
 		CreateUserRequest createUserRequest = new CreateUserRequest("", "1234", "newUserName",
 			"company");
@@ -109,14 +117,20 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(createUserRequest))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
-			.andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-			.andExpect(jsonPath("$.parameter.email").value("이메일는 필수입니다."));
+			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
+			.andExpect(jsonPath("$.message").value(INVALID_INPUT_VALUE.getMessage()))
+			.andExpect(jsonPath("$.parameter", hasItems(
+				allOf(
+					hasEntry("field", "email"),
+					hasEntry("value", ""),
+					hasEntry("reason", "이메일는 필수입니다.")
+				)
+			)));
 		assertThat(userRepository.count()).isEqualTo(0L);
 	}
 
 	@Test
-	void 회원가입_필수값_누락_비밀번호() throws Exception {
+	void 회원가입_비밀번호가_누락되었을_경우_에러메시지를_반환한다() throws Exception {
 		// given
 		CreateUserRequest createUserRequest = new CreateUserRequest("hello@gmail.com", "", "newUserName",
 			"company");
@@ -126,14 +140,20 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(createUserRequest))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
-			.andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-			.andExpect(jsonPath("$.parameter.password").value("비밀번호는 필수입니다."));
+			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
+			.andExpect(jsonPath("$.message").value(INVALID_INPUT_VALUE.getMessage()))
+			.andExpect(jsonPath("$.parameter", hasItems(
+				allOf(
+					hasEntry("field", "password"),
+					hasEntry("value", ""),
+					hasEntry("reason", "비밀번호는 필수입니다.")
+				)
+			)));
 		assertThat(userRepository.count()).isEqualTo(0L);
 	}
 
 	@Test
-	void 회원가입_필수값_누락_이름() throws Exception {
+	void 회원가입_이름이_누락되었을_경우_에러메시지를_반환한다() throws Exception {
 		// given
 		CreateUserRequest createUserRequest = new CreateUserRequest("hello@gmail.com", "1234", "",
 			"company");
@@ -143,14 +163,20 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(createUserRequest))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
-			.andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-			.andExpect(jsonPath("$.parameter.name").value("이름은 필수입니다."));
+			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
+			.andExpect(jsonPath("$.message").value(INVALID_INPUT_VALUE.getMessage()))
+			.andExpect(jsonPath("$.parameter", hasItems(
+				allOf(
+					hasEntry("field", "name"),
+					hasEntry("value", ""),
+					hasEntry("reason", "이름은 필수입니다.")
+				)
+			)));
 		assertThat(userRepository.count()).isEqualTo(0L);
 	}
 
 	@Test
-	void 회원가입_필수값_누락_회사이름() throws Exception {
+	void 회원가입_회사이름이_누락되었을_경우_에러메시지를_반환한다() throws Exception {
 		// given
 		CreateUserRequest createUserRequest = new CreateUserRequest("hello@gmail.com", "1234", "user",
 			"");
@@ -160,14 +186,21 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(createUserRequest))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
-			.andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-			.andExpect(jsonPath("$.parameter.companyName").value("회사이름은 필수입니다."));
+			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
+			.andExpect(jsonPath("$.message").value(INVALID_INPUT_VALUE.getMessage()))
+			.andExpect(jsonPath("$.parameter", hasItems(
+				allOf(
+					hasEntry("field", "companyName"),
+					hasEntry("value", ""),
+					hasEntry("reason", "회사이름은 필수입니다.")
+				)
+			)));
+
 		assertThat(userRepository.count()).isEqualTo(0L);
 	}
 
 	@Test
-	void 회원가입_필수값_누락_여러개() throws Exception {
+	void 회원가입_필수값이_여러개_누락되었을_경우_에러메시지를_반환한다() throws Exception {
 		// given
 		CreateUserRequest createUserRequest = new CreateUserRequest("hello@gmail.com", "1234", "",
 			"");
@@ -177,10 +210,20 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(createUserRequest))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
-			.andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-			.andExpect(jsonPath("$.parameter.name").value("이름은 필수입니다."))
-			.andExpect(jsonPath("$.parameter.companyName").value("회사이름은 필수입니다."));
+			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
+			.andExpect(jsonPath("$.message").value(INVALID_INPUT_VALUE.getMessage()))
+			.andExpect(jsonPath("$.parameter", hasItems(
+				allOf(
+					hasEntry("field", "companyName"),
+					hasEntry("value", ""),
+					hasEntry("reason", "회사이름은 필수입니다.")
+				),
+				allOf(
+					hasEntry("field", "name"),
+					hasEntry("value", ""),
+					hasEntry("reason", "이름은 필수입니다.")
+				)
+			)));
 		assertThat(userRepository.count()).isEqualTo(0L);
 	}
 }
