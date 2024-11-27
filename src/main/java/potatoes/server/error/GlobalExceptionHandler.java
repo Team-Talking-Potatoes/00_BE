@@ -15,9 +15,8 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-		ErrorCode errorCode = INVALID_INPUT_VALUE;
-		ErrorResponse response = ErrorResponse.of(errorCode, e.getBindingResult());
-		return ResponseEntity.status(errorCode.getStatus()).body(response);
+		ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getBindingResult());
+		return ResponseEntity.status(INVALID_INPUT_VALUE.getStatus()).body(response);
 	}
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
