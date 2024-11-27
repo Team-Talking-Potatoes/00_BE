@@ -10,12 +10,14 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateGatheringRequest;
 import potatoes.server.dto.CreateGatheringResponse;
-import potatoes.server.dto.GetDetailedGatheringResponse;
+import potatoes.server.dto.GetGatheringParticipantRequest;
+import potatoes.server.dto.GetGatheringParticipantResponse;
 import potatoes.server.dto.GetGatheringRequest;
 import potatoes.server.dto.GetGatheringResponse;
 import potatoes.server.entity.Gathering;
 import potatoes.server.entity.User;
 import potatoes.server.repository.GatheringRepository;
+import potatoes.server.repository.UserGatheringRepository;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,6 +25,7 @@ import potatoes.server.repository.GatheringRepository;
 public class GatheringService {
 
 	private final GatheringRepository gatheringRepository;
+	private final UserGatheringRepository userGatheringRepository;
 
 	public List<GetGatheringResponse> getGatherings(GetGatheringRequest request, Pageable pageable) {
 		return gatheringRepository.findGatheringsWithFilters(
@@ -35,6 +38,15 @@ public class GatheringService {
 			)
 			.map(GetGatheringResponse::from)
 			.getContent();
+	}
+
+	public List<GetGatheringParticipantResponse> getGatheringParticipant(GetGatheringParticipantRequest request,
+		Pageable pageable) {
+		return userGatheringRepository.findParticipants(request.getGatheringId(), pageable)
+			.getContent()
+			.stream()
+			.map(GetGatheringParticipantResponse::of)
+			.toList();
 	}
 
 	@Transactional
@@ -68,12 +80,5 @@ public class GatheringService {
 	private String uploadGatheringImage(MultipartFile multipartFile) {
 		return "1";
 		// TODO 멀티파트 image로 변경하는 S3 로직 추가
-	}
-
-	public GetDetailedGatheringResponse getDetailedGathering(Long gatheringId) {
-		Gathering gathering = gatheringRepository.findById(gatheringId)
-			.orElseThrow(() -> new RuntimeException("Gathering not found with id: " + gatheringId));
-
-		return GetDetailedGatheringResponse.from(gathering);
 	}
 }

@@ -1,18 +1,18 @@
-package potatoes.server.example;
+package potatoes.server.config;
 
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ExampleConfig {
+public class GatheringConfig {
 	@Bean
-	public GroupedOpenApi getExampleApi() {
+	public GroupedOpenApi getGatheringApi() {
 		return GroupedOpenApi.builder()
-			.group("example")
-			.pathsToMatch("/example/ExampleController")
+			.group("gathering")
+			.pathsToMatch("/controller/GatheringController")
 			.pathsToExclude("")
-			.packagesToScan("potatoes.server.example")
+			.packagesToScan("potatoes.server.controller")
 			.build();
 	}
 }

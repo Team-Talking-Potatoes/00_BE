@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import potatoes.server.constant.GatheringType;
 import potatoes.server.entity.Gathering;
+import potatoes.server.entity.UserGathering;
 
 public interface GatheringRepository extends JpaRepository<Gathering, Long> {
 	@Query("""
@@ -30,4 +31,13 @@ public interface GatheringRepository extends JpaRepository<Gathering, Long> {
 		@Param("createdBy") Long createdBy,
 		Pageable pageable);
 
+	@Query("""
+		    SELECT ug
+		    FROM UserGathering ug
+		    JOIN FETCH ug.user
+		    JOIN FETCH ug.gathering
+		    WHERE ug.gathering.id = :gatheringId
+		    ORDER BY ug.joinedAt
+		""")
+	Page<UserGathering> findParticipants(Long gatheringId, Pageable pageable);
 }

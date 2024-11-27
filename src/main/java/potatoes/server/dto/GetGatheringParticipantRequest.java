@@ -1,45 +1,32 @@
 package potatoes.server.dto;
 
-import java.util.List;
-
 import lombok.Builder;
-import potatoes.server.constant.GatheringType;
+import lombok.Getter;
 import potatoes.server.utils.Pagination.Paginator;
 
+@Getter
 @Builder
-public record GetGatheringRequest(
-	List<Long> ids,
-
-	GatheringType type,
-
-	String location,
-
-	String date,
-
-	Long createdBy,
-
-	String sortBy,
-
-	String sortOrder,
-
+public record GetGatheringParticipantRequest(
+	Long userId,
+	Long gatheringId,
 	int limit,
-
-	int offset
+	int offset,
+	String sortBy,
+	String sortOrder
 ) implements Paginator {
-
 	@Override
 	public int getOffset() {
-		return offset;
+		return this.offset;
 	}
 
 	@Override
 	public int getLimit() {
-		return limit;
+		return this.limit;
 	}
 
 	@Override
 	public String getSortBy() {
-		return sortBy;
+		return this.sortBy();
 	}
 
 	@Override
