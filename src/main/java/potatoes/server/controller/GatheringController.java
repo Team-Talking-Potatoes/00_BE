@@ -19,7 +19,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.constant.GatheringType;
-import potatoes.server.constant.SortByType;
 import potatoes.server.dto.CreateGatheringRequest;
 import potatoes.server.dto.CreateGatheringResponse;
 import potatoes.server.dto.GetDetailedGatheringResponse;
@@ -41,10 +40,13 @@ public class GatheringController {
 	private static final String DEFAULT_SORT_ORDER = "desc";
 
 	@GetMapping("/")
-	public List<GetGatheringResponse> getGatherings(@RequestParam(required = false) String id,
-		@RequestParam(required = false) GatheringType type, @RequestParam(required = false) String location,
-		@RequestParam(required = false) String date, @RequestParam(required = false) Long createdBy,
-		@RequestParam(required = false, defaultValue = DEFAULT_SORT_BY) SortByType sortBy,
+	public List<GetGatheringResponse> getGatherings(
+		@RequestParam(required = false) String id,
+		@RequestParam(required = false) GatheringType type,
+		@RequestParam(required = false) String location,
+		@RequestParam(required = false) String date,
+		@RequestParam(required = false) Long createdBy,
+		@RequestParam(required = false, defaultValue = DEFAULT_SORT_BY) String sortBy,
 		@RequestParam(required = false, defaultValue = DEFAULT_SORT_ORDER) String sortOrder,
 		@RequestParam(required = false, defaultValue = "20") @Valid @Min(value = 1, message = "Limit의 최소값은 1입니다.") int limit,
 		@RequestParam(required = false, defaultValue = "0") @Valid @Min(value = 0, message = "offset의 최소값은 0입니다.") int offset) {
@@ -75,12 +77,12 @@ public class GatheringController {
 		return gatheringService.integrateGatheringCreation(request, multipartFile, memberId);
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping("/{gatheringId}")
 	public GetDetailedGatheringResponse getDetailedGathering(
 		@Authorization Long memberId,
-		@PathVariable Long id
+		@PathVariable Long gatheringId
 	) {
-		return gatheringService.getDetailedGathering(id);
+		return gatheringService.getDetailedGathering(gatheringId);
 	}
 
 }

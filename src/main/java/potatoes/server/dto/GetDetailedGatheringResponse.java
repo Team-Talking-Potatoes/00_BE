@@ -8,7 +8,6 @@ import potatoes.server.entity.Gathering;
 
 @Builder
 public record GetDetailedGatheringResponse(
-	Long teamId,
 	Long id,
 	GatheringType type,
 	String name,
@@ -19,7 +18,8 @@ public record GetDetailedGatheringResponse(
 	int capacity,
 	String image,
 	Long createdBy,
-	Instant canceledAt) {
+	Instant canceledAt
+) {
 	public static GetDetailedGatheringResponse from(Gathering gathering) {
 		return GetDetailedGatheringResponse.builder()
 			.id(gathering.getId())

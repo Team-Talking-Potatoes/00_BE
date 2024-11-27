@@ -22,8 +22,12 @@ public interface GatheringRepository extends JpaRepository<Gathering, Long> {
 		    AND (:createdBy IS NULL OR g.createdBy = :createdBy)
 		    AND (g.canceledAt IS NULL)
 		""")
-	Page<Gathering> findGatheringsWithFilters(@Param("ids") List<Long> ids, @Param("type") GatheringType type,
-		@Param("location") String location, @Param("date") String date, @Param("createdBy") Long createdBy,
+	Page<Gathering> findGatheringsWithFilters(
+		@Param("ids") List<Long> ids,
+		@Param("type") GatheringType type,
+		@Param("location") String location,
+		@Param("date") String date,
+		@Param("createdBy") Long createdBy,
 		Pageable pageable);
 
 }

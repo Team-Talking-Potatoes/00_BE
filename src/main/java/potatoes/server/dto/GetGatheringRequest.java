@@ -5,7 +5,6 @@ import java.util.List;
 import jakarta.validation.constraints.Min;
 import lombok.Builder;
 import potatoes.server.constant.GatheringType;
-import potatoes.server.constant.SortByType;
 import potatoes.server.utils.Pagination.Paginator;
 
 @Builder
@@ -20,7 +19,7 @@ public record GetGatheringRequest(
 
 	Long createdBy,
 
-	SortByType sortBy,
+	String sortBy,
 
 	String sortOrder,
 
@@ -41,7 +40,7 @@ public record GetGatheringRequest(
 
 	@Override
 	public String getSortBy() {
-		return sortBy != null ? sortBy.name() : "dateTime";
+		return sortBy;
 	}
 
 	@Override
