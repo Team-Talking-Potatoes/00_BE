@@ -105,4 +105,5 @@ public class GatheringController {
 		return gatheringService.getGatheringParticipant(request, pageable);
 	}
 	//TODO DTO 내부로 기본값 최솟값 이런거 넣어주기 현재는 컨트롤러에서 잡고있음
+	//TODO 변수명 통일
 }
