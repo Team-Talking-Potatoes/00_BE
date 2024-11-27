@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -27,6 +28,7 @@ import potatoes.server.dto.GetGatheringParticipantRequest;
 import potatoes.server.dto.GetGatheringParticipantResponse;
 import potatoes.server.dto.GetGatheringRequest;
 import potatoes.server.dto.GetGatheringResponse;
+import potatoes.server.dto.PutGatheringResponse;
 import potatoes.server.service.GatheringService;
 import potatoes.server.utils.Pagination.PageableFactory;
 import potatoes.server.utils.annotation.Authorization;
@@ -103,6 +105,14 @@ public class GatheringController {
 
 		Pageable pageable = pageableFactory.create(request);
 		return gatheringService.getGatheringParticipant(request, pageable);
+	}
+
+	@PutMapping("/{gatheringId}/cancel")
+	public PutGatheringResponse putGathering(
+		@Authorization @Parameter(hidden = true) Long userId,
+		@PathVariable Long gatheringId
+	) {
+		return gatheringService.putGathering(userId, gatheringId);
 	}
 	//TODO DTO 내부로 기본값 최솟값 이런거 넣어주기 현재는 컨트롤러에서 잡고있음
 	//TODO 변수명 통일

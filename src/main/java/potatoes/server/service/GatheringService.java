@@ -1,5 +1,6 @@
 package potatoes.server.service;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import potatoes.server.dto.GetGatheringParticipantRequest;
 import potatoes.server.dto.GetGatheringParticipantResponse;
 import potatoes.server.dto.GetGatheringRequest;
 import potatoes.server.dto.GetGatheringResponse;
+import potatoes.server.dto.PutGatheringResponse;
 import potatoes.server.entity.Gathering;
 import potatoes.server.entity.User;
 import potatoes.server.repository.GatheringRepository;
@@ -88,5 +90,16 @@ public class GatheringService {
 	private String uploadGatheringImage(MultipartFile multipartFile) {
 		return "1";
 		// TODO 멀티파트 image로 변경하는 S3 로직 추가
+	}
+
+	@Transactional
+	public PutGatheringResponse putGathering(Long userId, Long gatheringId) {
+		int updatedCount = gatheringRepository.cancelGathering(gatheringId, userId, Instant.now());
+		if (updatedCount == 0) {
+			throw new RuntimeException("모임 취소 권한이 없습니다.");
+		}
+		Gathering updatedGathering = gatheringRepository.findById(gatheringId).get();
+
+		return PutGatheringResponse.from(updatedGathering);
 	}
 }
