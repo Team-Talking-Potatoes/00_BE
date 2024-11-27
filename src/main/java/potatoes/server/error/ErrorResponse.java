@@ -20,14 +20,14 @@ public class ErrorResponse {
 	private List<FieldError> parameter;
 
 	private ErrorResponse(ErrorCode code, List<FieldError> errors) {
+		this.code = code.getCode();
 		this.message = code.getMessage();
 		this.parameter = errors;
-		this.code = code.getCode();
 	}
 
 	private ErrorResponse(ErrorCode code) {
-		this.message = code.getMessage();
 		this.code = code.getCode();
+		this.message = code.getMessage();
 		this.parameter = new ArrayList<>();
 	}
 
@@ -35,7 +35,7 @@ public class ErrorResponse {
 		return new ErrorResponse(code, FieldError.of(bindingResult));
 	}
 
-	public static ErrorResponse of(final ErrorCode code) {
+	public static ErrorResponse from(final ErrorCode code) {
 		return new ErrorResponse(code);
 	}
 
