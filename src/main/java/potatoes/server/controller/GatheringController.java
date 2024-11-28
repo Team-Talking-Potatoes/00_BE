@@ -85,10 +85,20 @@ public class GatheringController {
 		return gatheringService.getGatherings(request, pageable);
 	}
 
+	@Operation(summary = "모임 생성", description = "새로운 모임을 생성합니다")
 	@PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public CreateGatheringResponse createGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
-		@RequestPart("gatheringInfo") @Valid CreateGatheringRequest request,
+		@Parameter(description = """ 
+			1. location - 모임장소
+			2. type - 모임 서비스 종류
+			3. name - 모임 이름
+			4. dateTime - 모임 날짜 및 시간 (YYYY-MM-DDTHH:MM:SS)
+			5. capacity - 모집 정원 (최소 5인 이상)
+			6. registrationEnd - 모임 모집 마감 날짜 및 시간 (선택 사항, YYYY-MM-DDTHH:MM:SS)
+			""")
+		@RequestPart CreateGatheringRequest request,
+		@Parameter(description = "이미지")
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile
 	) {
 		return gatheringService.integrateGatheringCreation(request, multipartFile, userId);
