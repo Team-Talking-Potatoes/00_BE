@@ -7,9 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateUserRequest;
+import potatoes.server.dto.SignInUserRequest;
 import potatoes.server.entity.User;
-import potatoes.server.error.exception.AlreadyExistsEmailException;
+import potatoes.server.error.exception.AlreadyExistsEmail;
+import potatoes.server.error.exception.InvalidSignInInformation;
+import potatoes.server.error.exception.UserNotFound;
 import potatoes.server.repository.UserRepository;
+import potatoes.server.utils.crypto.PasswordEncoder;
+import potatoes.server.utils.jwt.JwtTokenUtil;
 
 @Service
 @Transactional(readOnly = true)
@@ -17,6 +22,8 @@ import potatoes.server.repository.UserRepository;
 public class AuthService {
 
 	private final UserRepository userRepository;
+	private final JwtTokenUtil jwtTokenUtil;
+	private final PasswordEncoder passwordEncoder;
 
 	@Transactional
 	public void register(CreateUserRequest request) {
@@ -33,5 +40,16 @@ public class AuthService {
 			.companyName(request.companyName())
 			.build();
 		userRepository.save(user);
+	}
+
+	public String signIn(SignInUserRequest request) {
+		User user = userRepository.findByEmail(request.email())
+			.orElseThrow(InvalidSignInInformation::new);
+
+		if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+			throw new InvalidSignInInformation();
+		}
+
+		return jwtTokenUtil.createToken(String.valueOf(user.getId()));
 	}
 }
