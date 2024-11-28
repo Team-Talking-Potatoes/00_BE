@@ -22,29 +22,28 @@ public record GetGatheringRequest(
 
 	String sortOrder,
 
-	int limit,
-
-	int offset
+	Integer limit,
+	Integer offset
 ) implements Paginator {
 
 	@Override
 	public int getOffset() {
-		return offset;
+		return offset != null ? offset : 20;
 	}
 
 	@Override
 	public int getLimit() {
-		return limit;
+		return limit != null ? limit : 0;
 	}
 
 	@Override
 	public String getSortBy() {
-		return sortBy;
+		return sortBy != null ? sortBy : "dateTime";
 	}
 
 	@Override
 	public String getSortOrder() {
-		return sortOrder != null ? sortOrder() : "asc";
+		return sortOrder != null ? sortOrder : "asc";
 	}
 
 }

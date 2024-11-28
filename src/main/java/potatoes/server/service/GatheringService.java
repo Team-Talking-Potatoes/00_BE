@@ -63,17 +63,17 @@ public class GatheringService {
 	public CreateGatheringResponse integrateGatheringCreation(
 		CreateGatheringRequest req,
 		MultipartFile multipartFile,
-		Long memberId
+		Long userId
 	) {
 		String imageUrl = uploadGatheringImage(multipartFile);
-		Gathering gathering = createGathering(req, imageUrl, memberId);
+		Gathering gathering = createGathering(req, imageUrl, userId);
 
 		gatheringRepository.save(gathering);
 
 		return CreateGatheringResponse.from(gathering);
 	}
 
-	private Gathering createGathering(CreateGatheringRequest req, String image, Long memberId) {
+	private Gathering createGathering(CreateGatheringRequest req, String image, Long userId) {
 		return Gathering.builder()
 			.type(req.type())
 			.name(req.name())
