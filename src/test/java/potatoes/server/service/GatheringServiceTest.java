@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -11,10 +12,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import potatoes.server.constant.GatheringType;
+import potatoes.server.constant.LocationType;
 import potatoes.server.dto.CreateGatheringRequest;
 import potatoes.server.dto.CreateGatheringResponse;
+import potatoes.server.dto.GetGatheringRequest;
+import potatoes.server.dto.GetGatheringResponse;
 import potatoes.server.dto.SuccessResponse;
 import potatoes.server.entity.Gathering;
 import potatoes.server.entity.User;
@@ -254,6 +262,118 @@ public class GatheringServiceTest {
 		assertThatThrownBy(() -> gatheringService.cancelGatheringParticipation(userId, gatheringId))
 			.isInstanceOf(RuntimeException.class)
 			.hasMessage("참여하지 않은 모임입니다.");
+	}
+
+	@Test
+	void 모임_목록_조회_성공() {
+		// Given
+		GetGatheringRequest request = GetGatheringRequest.builder()
+			.type(GatheringType.DALLAEMFIT)
+			.location(LocationType.홍대입구)
+			.date("2024-03-28")
+			.createdBy(1L)
+			.sortBy("dateTime")
+			.sortOrder("asc")
+			.limit(20)
+			.offset(0)
+			.build();
+
+		Pageable pageable = PageRequest.of(0, 20);
+
+		List<Gathering> gatherings = List.of(
+			Gathering.builder()
+				.type(GatheringType.DALLAEMFIT)
+				.name("모임1")
+				.dateTime(Instant.now())
+				.registrationEnd(Instant.now().plusSeconds(3600))
+				.location("홍대입구")
+				.capacity(10)
+				.user(User.builder().build())
+				.build(),
+			Gathering.builder()
+				.type(GatheringType.DALLAEMFIT)
+				.name("모임2")
+				.dateTime(Instant.now())
+				.registrationEnd(Instant.now().plusSeconds(3600))
+				.location("홍대입구")
+				.capacity(10)
+				.user(User.builder().build())
+				.build()
+		);
+
+		Page<Gathering> gatheringPage = new PageImpl<>(gatherings);
+
+		when(gatheringRepository.findGatheringsWithFilters(
+			request.ids(),
+			request.type(),
+			request.location(),
+			request.date(),
+			request.createdBy(),
+			pageable
+		)).thenReturn(gatheringPage);
+
+		// When
+		List<GetGatheringResponse> responses = gatheringService.getGatherings(request, pageable);
+
+		// Then
+		assertThat(responses).hasSize(2);
+		assertThat(responses.get(0).name()).isEqualTo("모임1");
+		assertThat(responses.get(1).name()).isEqualTo("모임2");
+		assertThat(responses.get(0).type()).isEqualTo(GatheringType.DALLAEMFIT);
+		assertThat(responses.get(0).location()).isEqualTo("홍대입구");
+
+		verify(gatheringRepository).findGatheringsWithFilters(
+			request.ids(),
+			request.type(),
+			request.location(),
+			request.date(),
+			request.createdBy(),
+			pageable
+		);
+	}
+
+	@Test
+	void 모임_목록_조회_결과없음() {
+		// Given
+		GetGatheringRequest request = GetGatheringRequest.builder()
+			.type(GatheringType.DALLAEMFIT)
+			.location(LocationType.신림)
+			.date("2024-03-28")
+			.createdBy(1L)
+			.sortBy("dateTime")
+			.sortOrder("asc")
+			.limit(20)
+			.offset(0)
+			.build();
+
+		Pageable pageable = PageRequest.of(0, 20);
+
+		// 빈 페이지 반환
+		Page<Gathering> emptyPage = new PageImpl<>(List.of());
+
+		when(gatheringRepository.findGatheringsWithFilters(
+			request.ids(),
+			request.type(),
+			request.location(),
+			request.date(),
+			request.createdBy(),
+			pageable
+		)).thenReturn(emptyPage);
+
+		// When
+		List<GetGatheringResponse> responses = gatheringService.getGatherings(request, pageable);
+
+		// Then
+		assertThat(responses).isEmpty();
+
+		verify(gatheringRepository).findGatheringsWithFilters(
+			request.ids(),
+			request.type(),
+			request.location(),
+			request.date(),
+			request.createdBy(),
+			pageable
+		);
 	}
 }
 
