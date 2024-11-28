@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -139,28 +140,38 @@ public class GatheringController {
 			.build();
 
 		Pageable pageable = pageableFactory.create(request);
-		return gatheringService.getGatheringParticipant(request, pageable);
+		return gatheringService.getGatheringParticipants(request, pageable);
 	}
 
 	@Operation(summary = "모임 취소", description = "모임을 취소합니다. 모임 생성자만 취소할 수 있습니다.")
 	@PutMapping("/{gatheringId}/cancel")
-	public PutGatheringResponse putGathering(
+	public PutGatheringResponse cancelGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
 		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId
 	) {
-		return gatheringService.putGathering(userId, gatheringId);
+		return gatheringService.cancelGathering(userId, gatheringId);
 	}
 
 	@Operation(summary = "모임 참여", description = "로그인한 사용자가 모임에 참여합니다")
 	@PostMapping("/{gatheringId}/join")
-	public void postGathering(
+	public String  joinGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
 		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId
 	) {
-		gatheringService.putGathering(userId, gatheringId);
+		return gatheringService.joinGathering(userId, gatheringId);
 	}
-	//TODO DTO 내부로 기본값 최솟값 이런거 넣어주기 현재는 컨트롤러에서 잡고있음
+
+	@Operation(summary = "모임 참여 취소", description = "사용자가 모임에서 참여 취소합니다. 이미 지난 모임은 참여 취소가 불가능합니다.")
+	@DeleteMapping("/{gatheringId}/leave")
+	public String cancelGatheringParticipation(
+		@Authorization @Parameter(hidden = true) Long userId,
+		@Parameter(description = "모임 ID")
+		@PathVariable Long gatheringId
+	) {
+		return gatheringService.cancelGatheringParticipation(userId, gatheringId);
+	}
+
 	//TODO 변수명 통일
 }

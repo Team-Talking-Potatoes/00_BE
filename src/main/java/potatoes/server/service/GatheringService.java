@@ -1,5 +1,6 @@
 package potatoes.server.service;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import potatoes.server.dto.GetGatheringResponse;
 import potatoes.server.dto.PutGatheringResponse;
 import potatoes.server.entity.Gathering;
 import potatoes.server.entity.User;
+import potatoes.server.entity.UserGathering;
 import potatoes.server.repository.GatheringRepository;
 import potatoes.server.repository.UserGatheringRepository;
 
@@ -34,16 +36,8 @@ public class GatheringService {
 		GetGatheringRequest request,
 		Pageable pageable
 	) {
-		return gatheringRepository.findGatheringsWithFilters(
-				request.ids(),
-				request.type(),
-				request.location(),
-				request.date(),
-				request.createdBy(),
-				pageable
-			)
-			.map(GetGatheringResponse::from)
-			.getContent();
+		return gatheringRepository.findGatheringsWithFilters(request.ids(), request.type(), request.location(),
+			request.date(), request.createdBy(), pageable).map(GetGatheringResponse::from).getContent();
 	}
 
 	public GetDetailedGatheringResponse getDetailedGathering(Long gatheringId) {
@@ -52,10 +46,8 @@ public class GatheringService {
 		return GetDetailedGatheringResponse.from(gathering);
 	}
 
-	public List<GetGatheringParticipantResponse> getGatheringParticipant(
-		GetGatheringParticipantRequest request,
-		Pageable pageable
-	) {
+	public List<GetGatheringParticipantResponse> getGatheringParticipants(GetGatheringParticipantRequest request,
+		Pageable pageable) {
 		return userGatheringRepository.findParticipants(request.gatheringId(), pageable)
 			.getContent()
 			.stream()
@@ -64,11 +56,8 @@ public class GatheringService {
 	}
 
 	@Transactional
-	public CreateGatheringResponse integrateGatheringCreation(
-		CreateGatheringRequest req,
-		MultipartFile multipartFile,
-		Long userId
-	) {
+	public CreateGatheringResponse integrateGatheringCreation(CreateGatheringRequest req, MultipartFile multipartFile,
+		Long userId) {
 		String imageUrl = uploadGatheringImage(multipartFile);
 		Gathering gathering = createGathering(req, imageUrl, userId);
 
@@ -97,7 +86,7 @@ public class GatheringService {
 	}
 
 	@Transactional
-	public PutGatheringResponse putGathering(Long userId, Long gatheringId) {
+	public PutGatheringResponse cancelGathering(Long userId, Long gatheringId) {
 		Gathering gathering = findNotCanceledGathering(gatheringId);
 
 		if (!gathering.getCreatedBy().equals(userId)) {
@@ -105,6 +94,9 @@ public class GatheringService {
 		}
 
 		gathering.cancel();
+
+		userGatheringRepository.findAllByGatheringIdAndCanceledAtIsNull(gatheringId)
+			.forEach(UserGathering::cancel);
 
 		return PutGatheringResponse.from(gathering);
 	}
@@ -119,5 +111,45 @@ public class GatheringService {
 		return gathering;
 	}
 
-	//TODO 더티체킹 확인
+	@Transactional
+	public String joinGathering(Long userId, Long gatheringId) {
+		Gathering gathering = findNotCanceledGathering(gatheringId);
+
+		if (userGatheringRepository.existsByUserIdAndGatheringIdAndCanceledAtIsNull(userId, gatheringId)) {
+			throw new RuntimeException("이미 참여한 모임입니다.");
+		}
+
+		gathering.increaseParticipantCount();
+
+		UserGathering userGathering = UserGathering.builder()
+			.user(User.builder().build())
+			.gathering(gathering)
+			.joinedAt(Instant.now())
+			.build();
+
+		// TODO 유저 정보 조회 추후 추가
+
+		userGatheringRepository.save(userGathering);
+
+		return "모임 참여가 완료되었습니다.";
+	}
+
+	@Transactional
+	public String cancelGatheringParticipation(Long userId, Long gatheringId) {
+		Gathering gathering = findNotCanceledGathering(gatheringId);
+
+		if (gathering.getDateTime().isBefore(Instant.now())) {
+			throw new RuntimeException("이미 지난 모임은 참여 취소가 불가능합니다.");
+		}
+
+		UserGathering userGathering = userGatheringRepository.findByUserIdAndGatheringIdAndCanceledAtIsNull(userId,
+			gatheringId).orElseThrow(() -> new RuntimeException("참여하지 않은 모임입니다."));
+
+		gathering.decreaseParticipantCount();
+
+		userGathering.cancel();
+
+		return "모임 참여 취소 성공";
+	}
+
 }

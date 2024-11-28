@@ -87,7 +87,7 @@ public class Gathering extends BaseTimeEntity {
 		this.participantCount += 1;
 	}
 
-	private void decreaseParticipantCount() {
+	public void decreaseParticipantCount() {
 		if (participantCount <= 1) {
 			throw new RuntimeException("더 이상 참가 취소할 수 없습니다.");
 		}
