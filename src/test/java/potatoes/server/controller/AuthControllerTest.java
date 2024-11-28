@@ -72,12 +72,12 @@ class AuthControllerTest {
 	@Test
 	void 회원가입_유효하지_않은_이메일_주소를_입력할_경우_에러메시지를_반환한다() throws Exception {
 		// given
-		CreateUserRequest createUserRequest = new CreateUserRequest("hellogmail.com", "1234", "newUserName",
+		CreateUserRequest request = new CreateUserRequest("hellogmail.com", "1234", "newUserName",
 			"company");
 
 		// expected
 		mockMvc.perform(post("/auths/signup")
-				.content(objectMapper.writeValueAsString(createUserRequest))
+				.content(objectMapper.writeValueAsString(request))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
@@ -85,7 +85,7 @@ class AuthControllerTest {
 			.andExpect(jsonPath("$.parameter", hasItems(
 				allOf(
 					hasEntry("field", "email"),
-					hasEntry("value", "hellogmail.com"),
+					hasEntry("value", request.email()),
 					hasEntry("reason", "이메일 형식으로 입력해주세요.")
 				)
 			)));
@@ -110,19 +110,19 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(newUser))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value("EMAIL_DUPLICATION"))
-			.andExpect(jsonPath("$.message").value("이미 가입된 이메일입니다."));
+			.andExpect(jsonPath("$.code").value(EMAIL_DUPLICATION.getCode()))
+			.andExpect(jsonPath("$.message").value(EMAIL_DUPLICATION.getMessage()));
 	}
 
 	@Test
 	void 회원가입_이메일이_누락되었을_경우_에러메시지를_반환한다() throws Exception {
 		// given
-		CreateUserRequest createUserRequest = new CreateUserRequest("", "1234", "newUserName",
+		CreateUserRequest request = new CreateUserRequest("", "1234", "newUserName",
 			"company");
 
 		// expected
 		mockMvc.perform(post("/auths/signup")
-				.content(objectMapper.writeValueAsString(createUserRequest))
+				.content(objectMapper.writeValueAsString(request))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
@@ -130,7 +130,7 @@ class AuthControllerTest {
 			.andExpect(jsonPath("$.parameter", hasItems(
 				allOf(
 					hasEntry("field", "email"),
-					hasEntry("value", ""),
+					hasEntry("value", request.email()),
 					hasEntry("reason", "이메일는 필수입니다.")
 				)
 			)));
@@ -140,12 +140,12 @@ class AuthControllerTest {
 	@Test
 	void 회원가입_비밀번호가_누락되었을_경우_에러메시지를_반환한다() throws Exception {
 		// given
-		CreateUserRequest createUserRequest = new CreateUserRequest("hello@gmail.com", "", "newUserName",
+		CreateUserRequest request = new CreateUserRequest("hello@gmail.com", "", "newUserName",
 			"company");
 
 		// expected
 		mockMvc.perform(post("/auths/signup")
-				.content(objectMapper.writeValueAsString(createUserRequest))
+				.content(objectMapper.writeValueAsString(request))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
@@ -153,7 +153,7 @@ class AuthControllerTest {
 			.andExpect(jsonPath("$.parameter", hasItems(
 				allOf(
 					hasEntry("field", "password"),
-					hasEntry("value", ""),
+					hasEntry("value", request.password()),
 					hasEntry("reason", "비밀번호는 필수입니다.")
 				)
 			)));
@@ -163,12 +163,12 @@ class AuthControllerTest {
 	@Test
 	void 회원가입_이름이_누락되었을_경우_에러메시지를_반환한다() throws Exception {
 		// given
-		CreateUserRequest createUserRequest = new CreateUserRequest("hello@gmail.com", "1234", "",
+		CreateUserRequest request = new CreateUserRequest("hello@gmail.com", "1234", "",
 			"company");
 
 		// expected
 		mockMvc.perform(post("/auths/signup")
-				.content(objectMapper.writeValueAsString(createUserRequest))
+				.content(objectMapper.writeValueAsString(request))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
@@ -176,7 +176,7 @@ class AuthControllerTest {
 			.andExpect(jsonPath("$.parameter", hasItems(
 				allOf(
 					hasEntry("field", "name"),
-					hasEntry("value", ""),
+					hasEntry("value", request.name()),
 					hasEntry("reason", "이름은 필수입니다.")
 				)
 			)));
@@ -186,12 +186,12 @@ class AuthControllerTest {
 	@Test
 	void 회원가입_회사이름이_누락되었을_경우_에러메시지를_반환한다() throws Exception {
 		// given
-		CreateUserRequest createUserRequest = new CreateUserRequest("hello@gmail.com", "1234", "user",
+		CreateUserRequest request = new CreateUserRequest("hello@gmail.com", "1234", "user",
 			"");
 
 		// expected
 		mockMvc.perform(post("/auths/signup")
-				.content(objectMapper.writeValueAsString(createUserRequest))
+				.content(objectMapper.writeValueAsString(request))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
@@ -199,23 +199,22 @@ class AuthControllerTest {
 			.andExpect(jsonPath("$.parameter", hasItems(
 				allOf(
 					hasEntry("field", "companyName"),
-					hasEntry("value", ""),
+					hasEntry("value", request.companyName()),
 					hasEntry("reason", "회사이름은 필수입니다.")
 				)
 			)));
-
 		assertThat(userRepository.count()).isEqualTo(0L);
 	}
 
 	@Test
 	void 회원가입_필수값이_여러개_누락되었을_경우_에러메시지를_반환한다() throws Exception {
 		// given
-		CreateUserRequest createUserRequest = new CreateUserRequest("hello@gmail.com", "1234", "",
+		CreateUserRequest request = new CreateUserRequest("hello@gmail.com", "1234", "",
 			"");
 
 		// expected
 		mockMvc.perform(post("/auths/signup")
-				.content(objectMapper.writeValueAsString(createUserRequest))
+				.content(objectMapper.writeValueAsString(request))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(INVALID_INPUT_VALUE.getCode()))
@@ -223,12 +222,12 @@ class AuthControllerTest {
 			.andExpect(jsonPath("$.parameter", hasItems(
 				allOf(
 					hasEntry("field", "companyName"),
-					hasEntry("value", ""),
+					hasEntry("value", request.companyName()),
 					hasEntry("reason", "회사이름은 필수입니다.")
 				),
 				allOf(
 					hasEntry("field", "name"),
-					hasEntry("value", ""),
+					hasEntry("value", request.name()),
 					hasEntry("reason", "이름은 필수입니다.")
 				)
 			)));
@@ -238,14 +237,15 @@ class AuthControllerTest {
 	@Test
 	void 로그인_성공() throws Exception {
 		// given
+		String password = "password";
 		User existingUser = User.builder()
 			.email("test@example.com")
 			.name("user1")
-			.password(passwordEncoder.encrypt("1234"))
+			.password(passwordEncoder.encrypt(password))
 			.companyName("Test Company")
 			.build();
 		userRepository.save(existingUser);
-		SignInUserRequest request = new SignInUserRequest(existingUser.getEmail(), "1234");
+		SignInUserRequest request = new SignInUserRequest(existingUser.getEmail(), password);
 
 		// expected
 		mockMvc.perform(post("/auths/signin")
@@ -261,7 +261,7 @@ class AuthControllerTest {
 		User existingUser = User.builder()
 			.email("test@example.com")
 			.name("user1")
-			.password(passwordEncoder.encrypt("1234"))
+			.password(passwordEncoder.encrypt("password"))
 			.companyName("Test Company")
 			.build();
 		userRepository.save(existingUser);
@@ -282,11 +282,11 @@ class AuthControllerTest {
 		User existingUser = User.builder()
 			.email("test@example.com")
 			.name("user1")
-			.password(passwordEncoder.encrypt("1234"))
+			.password(passwordEncoder.encrypt("password"))
 			.companyName("Test Company")
 			.build();
 		userRepository.save(existingUser);
-		SignInUserRequest request = new SignInUserRequest("test@gmail.com", "1234");
+		SignInUserRequest request = new SignInUserRequest("test@gmail.com", "password");
 
 		// expected
 		mockMvc.perform(post("/auths/signin")
@@ -373,7 +373,7 @@ class AuthControllerTest {
 	}
 
 	@Test
-	void 회원_정보_조회_토큰_누락되었을_경우_에러메시지를_반환한다() throws Exception {
+	void 회원_정보_조회_잘못된_토큰으로_요청하였을_경우_에러메시지를_반환한다() throws Exception {
 		// given
 		String token = "wrongToken";
 
@@ -383,6 +383,28 @@ class AuthControllerTest {
 			.andExpect(status().isUnauthorized())
 			.andExpect(jsonPath("$.code").value(UNAUTHORIZED.getCode()))
 			.andExpect(jsonPath("$.message").value(UNAUTHORIZED.getMessage()));
+	}
+
+	@Test
+	void 회원_정보_조회_토큰_누락되었을_경우_에러메시지를_반환한다() throws Exception {
+		// expect
+		mockMvc.perform(get("/auths/user"))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.code").value(AUTHORIZATION_HEADER_NULL.getCode()))
+			.andExpect(jsonPath("$.message").value(AUTHORIZATION_HEADER_NULL.getMessage()));
+	}
+
+	@Test
+	void 회원_정보_조회_토큰_bearer_누락시_에러메시지를_반환한다() throws Exception {
+		// given
+		String token = "Token";
+
+		// expect
+		mockMvc.perform(get("/auths/user")
+				.header("Authorization", token))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.code").value(INVALID_TOKEN_PREFIX.getCode()))
+			.andExpect(jsonPath("$.message").value(INVALID_TOKEN_PREFIX.getMessage()));
 	}
 
 	@Test
