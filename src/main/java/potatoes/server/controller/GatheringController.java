@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +34,7 @@ import potatoes.server.dto.GetGatheringParticipantResponse;
 import potatoes.server.dto.GetGatheringRequest;
 import potatoes.server.dto.GetGatheringResponse;
 import potatoes.server.dto.PutGatheringResponse;
+import potatoes.server.dto.SuccessResponse;
 import potatoes.server.service.GatheringService;
 import potatoes.server.utils.Pagination.PageableFactory;
 import potatoes.server.utils.annotation.Authorization;
@@ -47,7 +49,7 @@ public class GatheringController {
 
 	@Operation(summary = "모임 목록 조회", description = "모임의 종류, 위치, 날짜 등 다양한 조건으로 모임 목록을 조회합니다")
 	@GetMapping("/")
-	public List<GetGatheringResponse> getGatherings(
+	public ResponseEntity<List<GetGatheringResponse>> getGatherings(
 		@Parameter(description = "쉼표로 구분된 모임 ID 목록으로 필터링")
 		@RequestParam(required = false) String id,
 		@Parameter(description = "모임 종류로 필터링")
@@ -83,12 +85,12 @@ public class GatheringController {
 			.build();
 
 		Pageable pageable = pageableFactory.create(request);
-		return gatheringService.getGatherings(request, pageable);
+		return ResponseEntity.ok(gatheringService.getGatherings(request, pageable));
 	}
 
 	@Operation(summary = "모임 생성", description = "새로운 모임을 생성합니다")
 	@PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public CreateGatheringResponse createGathering(
+	public ResponseEntity<CreateGatheringResponse> createGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
 		@Parameter(description = """ 
 			### 1. location - 모임장소
@@ -102,22 +104,22 @@ public class GatheringController {
 		@Parameter(description = "이미지")
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile
 	) {
-		return gatheringService.integrateGatheringCreation(request, multipartFile, userId);
+		return ResponseEntity.ok(gatheringService.integrateGatheringCreation(request, multipartFile, userId));
 	}
 
 	@Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 조회합니다")
 	@GetMapping("/{gatheringId}")
-	public GetDetailedGatheringResponse getDetailedGathering(
+	public ResponseEntity<GetDetailedGatheringResponse> getDetailedGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
 		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId
 	) {
-		return gatheringService.getDetailedGathering(gatheringId);
+		return ResponseEntity.ok(gatheringService.getDetailedGathering(gatheringId));
 	}
 
 	@Operation(summary = "특정 모임의 참가자 목록 조회", description = "특정 모임의 참가자 목록을 페이지네이션하여 조회합니다.")
 	@GetMapping("/{gatheringId}/participants")
-	public List<GetGatheringParticipantResponse> getDetailedParticipantGathering(
+	public ResponseEntity<List<GetGatheringParticipantResponse>> getDetailedParticipantGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
 		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId,
@@ -140,38 +142,36 @@ public class GatheringController {
 			.build();
 
 		Pageable pageable = pageableFactory.create(request);
-		return gatheringService.getGatheringParticipants(request, pageable);
+		return ResponseEntity.ok(gatheringService.getGatheringParticipants(request, pageable));
 	}
 
 	@Operation(summary = "모임 취소", description = "모임을 취소합니다. 모임 생성자만 취소할 수 있습니다.")
 	@PutMapping("/{gatheringId}/cancel")
-	public PutGatheringResponse cancelGathering(
+	public ResponseEntity<PutGatheringResponse> cancelGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
 		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId
 	) {
-		return gatheringService.cancelGathering(userId, gatheringId);
+		return ResponseEntity.ok(gatheringService.cancelGathering(userId, gatheringId));
 	}
 
 	@Operation(summary = "모임 참여", description = "로그인한 사용자가 모임에 참여합니다")
 	@PostMapping("/{gatheringId}/join")
-	public String  joinGathering(
+	public ResponseEntity<SuccessResponse> joinGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
 		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId
 	) {
-		return gatheringService.joinGathering(userId, gatheringId);
+		return ResponseEntity.ok(gatheringService.joinGathering(userId, gatheringId));
 	}
 
 	@Operation(summary = "모임 참여 취소", description = "사용자가 모임에서 참여 취소합니다. 이미 지난 모임은 참여 취소가 불가능합니다.")
 	@DeleteMapping("/{gatheringId}/leave")
-	public String cancelGatheringParticipation(
+	public ResponseEntity<SuccessResponse> cancelGatheringParticipation(
 		@Authorization @Parameter(hidden = true) Long userId,
 		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId
 	) {
-		return gatheringService.cancelGatheringParticipation(userId, gatheringId);
+		return ResponseEntity.ok(gatheringService.cancelGatheringParticipation(userId, gatheringId));
 	}
-
-	//TODO 변수명 통일
 }

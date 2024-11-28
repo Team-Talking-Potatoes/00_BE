@@ -18,6 +18,7 @@ import potatoes.server.dto.GetGatheringParticipantResponse;
 import potatoes.server.dto.GetGatheringRequest;
 import potatoes.server.dto.GetGatheringResponse;
 import potatoes.server.dto.PutGatheringResponse;
+import potatoes.server.dto.SuccessResponse;
 import potatoes.server.entity.Gathering;
 import potatoes.server.entity.User;
 import potatoes.server.entity.UserGathering;
@@ -28,32 +29,8 @@ import potatoes.server.repository.UserGatheringRepository;
 @Transactional(readOnly = true)
 @Service
 public class GatheringService {
-
 	private final GatheringRepository gatheringRepository;
 	private final UserGatheringRepository userGatheringRepository;
-
-	public List<GetGatheringResponse> getGatherings(
-		GetGatheringRequest request,
-		Pageable pageable
-	) {
-		return gatheringRepository.findGatheringsWithFilters(request.ids(), request.type(), request.location(),
-			request.date(), request.createdBy(), pageable).map(GetGatheringResponse::from).getContent();
-	}
-
-	public GetDetailedGatheringResponse getDetailedGathering(Long gatheringId) {
-		Gathering gathering = findNotCanceledGathering(gatheringId);
-
-		return GetDetailedGatheringResponse.from(gathering);
-	}
-
-	public List<GetGatheringParticipantResponse> getGatheringParticipants(GetGatheringParticipantRequest request,
-		Pageable pageable) {
-		return userGatheringRepository.findParticipants(request.gatheringId(), pageable)
-			.getContent()
-			.stream()
-			.map(GetGatheringParticipantResponse::from)
-			.toList();
-	}
 
 	@Transactional
 	public CreateGatheringResponse integrateGatheringCreation(CreateGatheringRequest req, MultipartFile multipartFile,
@@ -86,33 +63,7 @@ public class GatheringService {
 	}
 
 	@Transactional
-	public PutGatheringResponse cancelGathering(Long userId, Long gatheringId) {
-		Gathering gathering = findNotCanceledGathering(gatheringId);
-
-		if (!gathering.getCreatedBy().equals(userId)) {
-			throw new RuntimeException("모임 취소 권한이 없습니다.");
-		}
-
-		gathering.cancel();
-
-		userGatheringRepository.findAllByGatheringIdAndCanceledAtIsNull(gatheringId)
-			.forEach(UserGathering::cancel);
-
-		return PutGatheringResponse.from(gathering);
-	}
-
-	private Gathering findNotCanceledGathering(Long gatheringId) {
-		Gathering gathering = gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId);
-
-		if (gathering == null) {
-			throw new NotFoundException("존재하지 않는 모임이거나 이미 취소된 모임입니다.");
-		}
-
-		return gathering;
-	}
-
-	@Transactional
-	public String joinGathering(Long userId, Long gatheringId) {
+	public SuccessResponse joinGathering(Long userId, Long gatheringId) {
 		Gathering gathering = findNotCanceledGathering(gatheringId);
 
 		if (userGatheringRepository.existsByUserIdAndGatheringIdAndCanceledAtIsNull(userId, gatheringId)) {
@@ -131,11 +82,50 @@ public class GatheringService {
 
 		userGatheringRepository.save(userGathering);
 
-		return "모임 참여가 완료되었습니다.";
+		return new SuccessResponse("모임에 참여했습니다");
+	}
+
+	public List<GetGatheringResponse> getGatherings(
+		GetGatheringRequest request,
+		Pageable pageable
+	) {
+		return gatheringRepository.findGatheringsWithFilters(request.ids(), request.type(), request.location(),
+			request.date(), request.createdBy(), pageable).map(GetGatheringResponse::from).getContent();
+	}
+
+	public GetDetailedGatheringResponse getDetailedGathering(Long gatheringId) {
+		Gathering gathering = findNotCanceledGathering(gatheringId);
+
+		return GetDetailedGatheringResponse.from(gathering);
+	}
+
+	public List<GetGatheringParticipantResponse> getGatheringParticipants(GetGatheringParticipantRequest request,
+		Pageable pageable) {
+		return userGatheringRepository.findParticipants(request.gatheringId(), pageable)
+			.getContent()
+			.stream()
+			.map(GetGatheringParticipantResponse::from)
+			.toList();
 	}
 
 	@Transactional
-	public String cancelGatheringParticipation(Long userId, Long gatheringId) {
+	public PutGatheringResponse cancelGathering(Long userId, Long gatheringId) {
+		Gathering gathering = findNotCanceledGathering(gatheringId);
+
+		if (!gathering.getCreatedBy().equals(userId)) {
+			throw new RuntimeException("모임 취소 권한이 없습니다.");
+		}
+
+		gathering.cancel();
+
+		userGatheringRepository.findAllByGatheringIdAndCanceledAtIsNull(gatheringId)
+			.forEach(UserGathering::cancel);
+
+		return PutGatheringResponse.from(gathering);
+	}
+
+	@Transactional
+	public SuccessResponse cancelGatheringParticipation(Long userId, Long gatheringId) {
 		Gathering gathering = findNotCanceledGathering(gatheringId);
 
 		if (gathering.getDateTime().isBefore(Instant.now())) {
@@ -149,7 +139,16 @@ public class GatheringService {
 
 		userGathering.cancel();
 
-		return "모임 참여 취소 성공";
+		return new SuccessResponse("모임을 참여 취소했습니다.");
 	}
 
+	private Gathering findNotCanceledGathering(Long gatheringId) {
+		Gathering gathering = gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId);
+
+		if (gathering == null) {
+			throw new NotFoundException("존재하지 않는 모임이거나 이미 취소된 모임입니다.");
+		}
+
+		return gathering;
+	}
 }
