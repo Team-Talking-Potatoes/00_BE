@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.constant.GatheringType;
+import potatoes.server.constant.LocationType;
 import potatoes.server.dto.CreateGatheringRequest;
 import potatoes.server.dto.CreateGatheringResponse;
 import potatoes.server.dto.GetDetailedGatheringResponse;
@@ -42,17 +44,26 @@ public class GatheringController {
 	private final GatheringService gatheringService;
 	private final PageableFactory pageableFactory;
 
-	@Operation(summary = "모임 목록 조회", description = "Authorize에 토큰을 넣으세요")
+	@Operation(summary = "모임 목록 조회", description = "모임의 종류, 위치, 날짜 등 다양한 조건으로 모임 목록을 조회합니다")
 	@GetMapping("/")
 	public List<GetGatheringResponse> getGatherings(
+		@Parameter(description = "쉼표로 구분된 모임 ID 목록으로 필터링")
 		@RequestParam(required = false) String id,
+		@Parameter(description = "모임 종류로 필터링")
 		@RequestParam(required = false) GatheringType type,
-		@RequestParam(required = false) String location,
-		@RequestParam(required = false) String date,
+		@Parameter(description = "모임 종류로 필터링")
+		@RequestParam(required = false) LocationType location,
+		@Parameter(description = "모임 날짜로 필터링 (YYYY-MM-DD 형식)")
+		@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String date,
+		@Parameter(description = "모임 생성자로 필터링")
 		@RequestParam(required = false) Long createdBy,
+		@Parameter(description = "정렬 기준 미입력시 dateTime")
 		@RequestParam(required = false) String sortBy,
+		@Parameter(description = "정렬 순서 (asc 또는 desc) 미입력시 asc")
 		@RequestParam(required = false) String sortOrder,
+		@Parameter(description = "한 번에 조회할 모임 수 (최소 1) 미입력시 20")
 		@RequestParam(required = false) @Valid @Min(value = 1, message = "Limit의 최소값은 1입니다.") Integer limit,
+		@Parameter(description = "조회 시작 위치 (최소 0) 미입력시 0")
 		@RequestParam(required = false) @Valid @Min(value = 0, message = "offset의 최소값은 0입니다.") Integer offset
 	) {
 		List<Long> idList = id != null ?
