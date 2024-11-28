@@ -1,19 +1,16 @@
 package potatoes.server.repository;
 
-import java.time.Instant;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import potatoes.server.constant.GatheringType;
 import potatoes.server.constant.LocationType;
 import potatoes.server.entity.Gathering;
-import potatoes.server.entity.UserGathering;
 
 public interface GatheringRepository extends JpaRepository<Gathering, Long> {
 	@Query("""
@@ -34,18 +31,5 @@ public interface GatheringRepository extends JpaRepository<Gathering, Long> {
 		@Param("createdBy") Long createdBy,
 		Pageable pageable);
 
-	@Query("""
-		    SELECT ug
-		    FROM UserGathering ug
-		    JOIN FETCH ug.user
-		    JOIN FETCH ug.gathering
-		    WHERE ug.gathering.id = :gatheringId
-		    ORDER BY ug.joinedAt
-		""")
-	Page<UserGathering> findParticipants(Long gatheringId, Pageable pageable);
-
-	@Modifying
-	@Query("UPDATE Gathering g SET g.canceledAt = :now WHERE g.id = :gatheringId AND g.createdBy = :userId")
-	int cancelGathering(@Param("gatheringId") Long gatheringId, @Param("userId") Long userId,
-		@Param("now") Instant now);
+	Gathering findByIdAndCanceledAtIsNull(Long id);
 }

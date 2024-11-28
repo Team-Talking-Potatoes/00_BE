@@ -1,12 +1,12 @@
 package potatoes.server.service;
 
-import java.time.Instant;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.webjars.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateGatheringRequest;
@@ -94,12 +94,26 @@ public class GatheringService {
 
 	@Transactional
 	public PutGatheringResponse putGathering(Long userId, Long gatheringId) {
-		int updatedCount = gatheringRepository.cancelGathering(gatheringId, userId, Instant.now());
-		if (updatedCount == 0) {
+		Gathering gathering = findNotCanceledGathering(gatheringId);
+
+		if (!gathering.getCreatedBy().equals(userId)) {
 			throw new RuntimeException("모임 취소 권한이 없습니다.");
 		}
-		Gathering updatedGathering = gatheringRepository.findById(gatheringId).get();
 
-		return PutGatheringResponse.from(updatedGathering);
+		gathering.cancel();
+
+		return PutGatheringResponse.from(gathering);
 	}
+
+	private Gathering findNotCanceledGathering(Long gatheringId) {
+		Gathering gathering = gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId);
+
+		if (gathering == null) {
+			throw new NotFoundException("존재하지 않는 모임이거나 이미 취소된 모임입니다.");
+		}
+
+		return gathering;
+	}
+
+	//TODO 더티체킹 확인
 }

@@ -23,18 +23,18 @@ public record GetGatheringRequest(
 
 	String sortOrder,
 
-	Integer limit,
-	Integer offset
+	int limit,
+	int offset
 ) implements Paginator {
 
 	@Override
 	public int getOffset() {
-		return offset != null ? offset : 20;
+		return this.offset;
 	}
 
 	@Override
 	public int getLimit() {
-		return limit != null ? limit : 0;
+		return this.limit;
 	}
 
 	@Override

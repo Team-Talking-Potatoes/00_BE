@@ -61,10 +61,10 @@ public class GatheringController {
 		@RequestParam(required = false) String sortBy,
 		@Parameter(description = "정렬 순서 (asc 또는 desc) 미입력시 asc")
 		@RequestParam(required = false) String sortOrder,
-		@Parameter(description = "한 번에 조회할 모임 수 (최소 1) 미입력시 20")
-		@RequestParam(required = false) @Valid @Min(value = 1, message = "Limit의 최소값은 1입니다.") Integer limit,
-		@Parameter(description = "조회 시작 위치 (최소 0) 미입력시 0")
-		@RequestParam(required = false) @Valid @Min(value = 0, message = "offset의 최소값은 0입니다.") Integer offset
+		@Parameter(description = "한 번에 조회할 모임 수 (최소 1)")
+		@RequestParam(required = false, defaultValue = "20") @Valid @Min(value = 1, message = "Limit의 최소값은 1입니다.") int limit,
+		@Parameter(description = "조회 시작 위치 (최소 0)")
+		@RequestParam(required = false, defaultValue = "0") @Valid @Min(value = 0, message = "offset의 최소값은 0입니다.") int offset
 	) {
 		List<Long> idList = id != null ?
 			Arrays.stream(id.split(",")).map(String::trim).map(Long::parseLong).collect(Collectors.toList()) : null;
@@ -114,14 +114,20 @@ public class GatheringController {
 		return gatheringService.getDetailedGathering(gatheringId);
 	}
 
+	@Operation(summary = "특정 모임의 참가자 목록 조회", description = "특정 모임의 참가자 목록을 페이지네이션하여 조회합니다.")
 	@GetMapping("/{gatheringId}/participants")
 	public List<GetGatheringParticipantResponse> getDetailedParticipantGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
+		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId,
+		@Parameter(description = "정렬 기준")
 		@RequestParam(required = false) String sortBy,
+		@Parameter(description = "정렬 순서")
 		@RequestParam(required = false) String sortOrder,
-		@RequestParam(required = false, defaultValue = "5") @Valid @Min(value = 1, message = "Limit의 최소값은 1입니다.") Integer limit,
-		@RequestParam(required = false, defaultValue = "0") @Valid @Min(value = 0, message = "offset의 최소값은 0입니다.") Integer offset
+		@Parameter(description = "페이지당 참가자 수")
+		@RequestParam(required = false, defaultValue = "5") @Valid @Min(value = 1, message = "Limit의 최소값은 1입니다.") int limit,
+		@Parameter(description = "페이지 오프셋")
+		@RequestParam(required = false, defaultValue = "0") @Valid @Min(value = 0, message = "offset의 최소값은 0입니다.") int offset
 	) {
 		GetGatheringParticipantRequest request = GetGatheringParticipantRequest.builder()
 			.userId(userId)
@@ -136,17 +142,21 @@ public class GatheringController {
 		return gatheringService.getGatheringParticipant(request, pageable);
 	}
 
+	@Operation(summary = "모임 취소", description = "모임을 취소합니다. 모임 생성자만 취소할 수 있습니다.")
 	@PutMapping("/{gatheringId}/cancel")
 	public PutGatheringResponse putGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
+		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId
 	) {
 		return gatheringService.putGathering(userId, gatheringId);
 	}
 
+	@Operation(summary = "모임 참여", description = "로그인한 사용자가 모임에 참여합니다\"")
 	@PostMapping("/{gatheringId}/join")
 	public void postGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
+		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId
 	) {
 		gatheringService.putGathering(userId, gatheringId);

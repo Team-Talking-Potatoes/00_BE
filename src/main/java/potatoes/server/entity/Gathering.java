@@ -79,4 +79,8 @@ public class Gathering extends BaseTimeEntity {
 		this.canceledAt = canceledAt;
 		this.user = user;
 	}
+
+	public void cancel(){
+		this.canceledAt = Instant.now();
+	}
 }
