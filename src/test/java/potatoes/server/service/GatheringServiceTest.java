@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -162,6 +163,97 @@ public class GatheringServiceTest {
 		assertThat(gathering.getParticipantCount()).isEqualTo(1);
 
 		verify(userGatheringRepository, never()).save(any(UserGathering.class));
+	}
+
+	@Test
+	void 모임_참여취소_성공() {
+		// Given
+		Long userId = 1L;
+		Long gatheringId = 1L;
+		Instant futureDateTime = Instant.now().plusSeconds(3600);
+
+		Gathering gathering = Gathering.builder()
+			.type(GatheringType.DALLAEMFIT)
+			.name("테스트 모임")
+			.dateTime(futureDateTime)
+			.registrationEnd(futureDateTime)
+			.location("테스트 장소")
+			.capacity(10)
+			.user(User.builder().build())
+			.build();
+
+		gathering.increaseParticipantCount();
+
+		UserGathering userGathering = UserGathering.builder()
+			.user(User.builder().build())
+			.gathering(gathering)
+			.joinedAt(Instant.now())
+			.build();
+
+		when(gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId)).thenReturn(gathering);
+		when(userGatheringRepository.findByUserIdAndGatheringIdAndCanceledAtIsNull(userId, gatheringId))
+			.thenReturn(Optional.of(userGathering));
+
+		// When
+		SuccessResponse response = gatheringService.cancelGatheringParticipation(userId, gatheringId);
+
+		// Then
+		assertThat(response).isNotNull();
+		assertThat(response.message()).isEqualTo("모임을 참여 취소했습니다.");
+		assertThat(gathering.getParticipantCount()).isEqualTo(1);
+		assertThat(userGathering.getCanceledAt()).isNotNull();
+	}
+
+	@Test
+	void 모임_참여취소_실패_이미_지난_모임() {
+		// Given
+		Long userId = 1L;
+		Long gatheringId = 1L;
+		Instant pastDateTime = Instant.now().minusSeconds(3600);  // 과거 시간
+
+		Gathering gathering = Gathering.builder()
+			.type(GatheringType.DALLAEMFIT)
+			.name("테스트 모임")
+			.dateTime(pastDateTime)
+			.registrationEnd(pastDateTime)
+			.location("테스트 장소")
+			.capacity(10)
+			.user(User.builder().build())
+			.build();
+
+		when(gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId)).thenReturn(gathering);
+
+		// When & Then
+		assertThatThrownBy(() -> gatheringService.cancelGatheringParticipation(userId, gatheringId))
+			.isInstanceOf(RuntimeException.class)
+			.hasMessage("이미 지난 모임은 참여 취소가 불가능합니다.");
+	}
+
+	@Test
+	void 모임_참여취소_실패_참여하지_않은_모임() {
+		// Given
+		Long userId = 1L;
+		Long gatheringId = 1L;
+		Instant futureDateTime = Instant.now().plusSeconds(3600);
+
+		Gathering gathering = Gathering.builder()
+			.type(GatheringType.DALLAEMFIT)
+			.name("테스트 모임")
+			.dateTime(futureDateTime)
+			.registrationEnd(futureDateTime)
+			.location("테스트 장소")
+			.capacity(10)
+			.user(User.builder().build())
+			.build();
+
+		when(gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId)).thenReturn(gathering);
+		when(userGatheringRepository.findByUserIdAndGatheringIdAndCanceledAtIsNull(userId, gatheringId))
+			.thenReturn(Optional.empty());
+
+		// When & Then
+		assertThatThrownBy(() -> gatheringService.cancelGatheringParticipation(userId, gatheringId))
+			.isInstanceOf(RuntimeException.class)
+			.hasMessage("참여하지 않은 모임입니다.");
 	}
 }
 
