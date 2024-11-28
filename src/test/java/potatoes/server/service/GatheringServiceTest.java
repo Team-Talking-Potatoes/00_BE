@@ -16,11 +16,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.webjars.NotFoundException;
 
 import potatoes.server.constant.GatheringType;
 import potatoes.server.constant.LocationType;
 import potatoes.server.dto.CreateGatheringRequest;
 import potatoes.server.dto.CreateGatheringResponse;
+import potatoes.server.dto.GetDetailedGatheringResponse;
 import potatoes.server.dto.GetGatheringRequest;
 import potatoes.server.dto.GetGatheringResponse;
 import potatoes.server.dto.SuccessResponse;
@@ -374,6 +376,48 @@ public class GatheringServiceTest {
 			request.createdBy(),
 			pageable
 		);
+	}
+
+	@Test
+	void 특정_모임_상세조회_성공() {
+		// Given
+		Long gatheringId = 1L;
+
+		Gathering gathering = Gathering.builder()
+			.type(GatheringType.DALLAEMFIT)
+			.name("테스트 모임")
+			.dateTime(Instant.now())
+			.registrationEnd(Instant.now().plusSeconds(3600))
+			.location("홍대입구")
+			.capacity(10)
+			.user(User.builder().build())
+			.build();
+
+		when(gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId)).thenReturn(gathering);
+
+		// When
+		GetDetailedGatheringResponse response = gatheringService.getDetailedGathering(gatheringId);
+
+		// Then
+		assertThat(response).isNotNull();
+		assertThat(response.name()).isEqualTo("테스트 모임");
+		assertThat(response.type()).isEqualTo(GatheringType.DALLAEMFIT);
+		assertThat(response.location()).isEqualTo("홍대입구");
+		assertThat(response.capacity()).isEqualTo(10);
+		assertThat(response.participantCount()).isEqualTo(1);
+	}
+
+	@Test
+	void 특정_모임_상세조회_실패_존재하지않는모임() {
+		// Given
+		Long gatheringId = 999L;
+
+		when(gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId)).thenReturn(null);
+
+		// When & Then
+		assertThatThrownBy(() -> gatheringService.getDetailedGathering(gatheringId))
+			.isInstanceOf(NotFoundException.class)
+			.hasMessage("존재하지 않는 모임이거나 이미 취소된 모임입니다.");
 	}
 }
 
