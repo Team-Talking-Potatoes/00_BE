@@ -52,10 +52,10 @@ public class GatheringService {
 
 	public List<GetGatheringParticipantResponse> getGatheringParticipant(
 		GetGatheringParticipantRequest request, Pageable pageable) {
-		return userGatheringRepository.findParticipants(request.getGatheringId(), pageable)
+		return userGatheringRepository.findParticipants(request.gatheringId(), pageable)
 			.getContent()
 			.stream()
-			.map(GetGatheringParticipantResponse::of)  // from 대신 of 사용
+			.map(GetGatheringParticipantResponse::from)
 			.toList();
 	}
 

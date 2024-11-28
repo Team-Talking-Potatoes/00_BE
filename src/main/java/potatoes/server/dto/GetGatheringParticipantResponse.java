@@ -12,7 +12,7 @@ public record GetGatheringParticipantResponse(
 	Instant joinedAt,
 	UserInfo user
 ) {
-	public static GetGatheringParticipantResponse of(UserGathering entity) {
+	public static GetGatheringParticipantResponse from(UserGathering entity) {
 		return GetGatheringParticipantResponse.builder()
 			.userId(entity.getUser().getId())
 			.gatheringId(entity.getGathering().getId())
