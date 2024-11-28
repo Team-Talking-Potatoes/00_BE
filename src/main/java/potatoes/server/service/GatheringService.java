@@ -30,7 +30,10 @@ public class GatheringService {
 	private final GatheringRepository gatheringRepository;
 	private final UserGatheringRepository userGatheringRepository;
 
-	public List<GetGatheringResponse> getGatherings(GetGatheringRequest request, Pageable pageable) {
+	public List<GetGatheringResponse> getGatherings(
+		GetGatheringRequest request,
+		Pageable pageable
+	) {
 		return gatheringRepository.findGatheringsWithFilters(
 				request.ids(),
 				request.type(),
@@ -44,14 +47,15 @@ public class GatheringService {
 	}
 
 	public GetDetailedGatheringResponse getDetailedGathering(Long gatheringId) {
-		Gathering gathering = gatheringRepository.findById(gatheringId)
-			.orElseThrow(() -> new RuntimeException("Gathering not found with id: " + gatheringId));
+		Gathering gathering = findNotCanceledGathering(gatheringId);
 
 		return GetDetailedGatheringResponse.from(gathering);
 	}
 
 	public List<GetGatheringParticipantResponse> getGatheringParticipant(
-		GetGatheringParticipantRequest request, Pageable pageable) {
+		GetGatheringParticipantRequest request,
+		Pageable pageable
+	) {
 		return userGatheringRepository.findParticipants(request.gatheringId(), pageable)
 			.getContent()
 			.stream()

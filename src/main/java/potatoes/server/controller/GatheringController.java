@@ -152,7 +152,7 @@ public class GatheringController {
 		return gatheringService.putGathering(userId, gatheringId);
 	}
 
-	@Operation(summary = "모임 참여", description = "로그인한 사용자가 모임에 참여합니다\"")
+	@Operation(summary = "모임 참여", description = "로그인한 사용자가 모임에 참여합니다")
 	@PostMapping("/{gatheringId}/join")
 	public void postGathering(
 		@Authorization @Parameter(hidden = true) Long userId,

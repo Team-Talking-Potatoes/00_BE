@@ -80,7 +80,22 @@ public class Gathering extends BaseTimeEntity {
 		this.user = user;
 	}
 
+	public void increaseParticipantCount() {
+		if (participantCount >= capacity) {
+			throw new RuntimeException("모임 정원이 초과되었습니다.");
+		}
+		this.participantCount += 1;
+	}
+
+	private void decreaseParticipantCount() {
+		if (participantCount <= 1) {
+			throw new RuntimeException("더 이상 참가 취소할 수 없습니다.");
+		}
+		this.participantCount -= 1;
+	}
+
 	public void cancel(){
 		this.canceledAt = Instant.now();
+		decreaseParticipantCount();
 	}
 }
