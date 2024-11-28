@@ -7,7 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateUserRequest;
+import potatoes.server.dto.GetUserResponse;
 import potatoes.server.dto.SignInUserRequest;
+import potatoes.server.dto.UpdateUserRequest;
 import potatoes.server.entity.User;
 import potatoes.server.error.exception.AlreadyExistsEmail;
 import potatoes.server.error.exception.InvalidSignInInformation;
@@ -30,12 +32,12 @@ public class AuthService {
 
 		Optional<User> optionalUser = userRepository.findByEmail(request.email());
 		if (optionalUser.isPresent()) {
-			throw new AlreadyExistsEmailException();
+			throw new AlreadyExistsEmail();
 		}
 
 		User user = User.builder()
 			.email(request.email())
-			.password(request.password())
+			.password(passwordEncoder.encrypt(request.password()))
 			.name(request.name())
 			.companyName(request.companyName())
 			.build();
@@ -51,5 +53,20 @@ public class AuthService {
 		}
 
 		return jwtTokenUtil.createToken(String.valueOf(user.getId()));
+	}
+
+	public GetUserResponse find(Long id) {
+		User user = userRepository.findById(id)
+			.orElseThrow(UserNotFound::new);
+
+		return GetUserResponse.fromEntity(user);
+	}
+
+	@Transactional
+	public GetUserResponse update(Long id, UpdateUserRequest request) {
+		User user = userRepository.findById(id)
+			.orElseThrow(UserNotFound::new);
+		user.updateUserData(request.companyName(), request.image());
+		return GetUserResponse.fromEntity(user);
 	}
 }

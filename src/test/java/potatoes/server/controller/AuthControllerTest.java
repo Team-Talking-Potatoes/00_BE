@@ -234,6 +234,7 @@ class AuthControllerTest {
 			)));
 		assertThat(userRepository.count()).isEqualTo(0L);
 	}
+
 	@Test
 	void 로그인_성공() throws Exception {
 		// given
@@ -343,4 +344,92 @@ class AuthControllerTest {
 			)));
 	}
 
+	@Test
+	void 회원_정보_조회_성공() throws Exception {
+		// given
+		User existingUser = User.builder()
+			.email("test@example.com")
+			.name("user1")
+			.password(passwordEncoder.encrypt("1234"))
+			.companyName("Test Company")
+			.build();
+		userRepository.save(existingUser);
+
+		SignInUserRequest loginRequest = new SignInUserRequest(existingUser.getEmail(), "1234");
+		MvcResult loginReturn = mockMvc.perform(post("/auths/signin")
+				.content(objectMapper.writeValueAsString(loginRequest))
+				.contentType(APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andReturn();
+		String token = JsonPath.parse(loginReturn.getResponse().getContentAsString()).read("$.token");
+
+		// expected
+		mockMvc.perform(get("/auths/user")
+				.header("Authorization", "Bearer " + token))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.email").value(existingUser.getEmail()))
+			.andExpect(jsonPath("$.name").value(existingUser.getName()))
+			.andExpect(jsonPath("$.companyName").value(existingUser.getCompanyName()));
+	}
+
+	@Test
+	void 회원_정보_조회_토큰_누락되었을_경우_에러메시지를_반환한다() throws Exception {
+		// given
+		String token = "wrongToken";
+
+		// expect
+		mockMvc.perform(get("/auths/user")
+				.header("Authorization", "Bearer " + token))
+			.andExpect(status().isUnauthorized())
+			.andExpect(jsonPath("$.code").value(UNAUTHORIZED.getCode()))
+			.andExpect(jsonPath("$.message").value(UNAUTHORIZED.getMessage()));
+	}
+
+	@Test
+	void 회원_정보_변경_성공() throws Exception {
+		// given
+		User existingUser = User.builder()
+			.email("test@example.com")
+			.name("user1")
+			.password(passwordEncoder.encrypt("1234"))
+			.companyName("Test Company")
+			.build();
+		userRepository.save(existingUser);
+
+		SignInUserRequest loginRequest = new SignInUserRequest(existingUser.getEmail(), "1234");
+		MvcResult loginReturn = mockMvc.perform(post("/auths/signin")
+				.content(objectMapper.writeValueAsString(loginRequest))
+				.contentType(APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andReturn();
+		String token = JsonPath.parse(loginReturn.getResponse().getContentAsString()).read("$.token");
+		UpdateUserRequest request = new UpdateUserRequest("newCompany", "newImage");
+
+		// when
+		mockMvc.perform(put("/auths/user")
+				.header("Authorization", "Bearer " + token)
+				.content(objectMapper.writeValueAsString(request))
+				.contentType(APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andDo(print());
+
+		// then
+		User user = userRepository.findById(existingUser.getId()).orElseThrow(UserNotFound::new);
+		assertThat(user.getCompanyName()).isEqualTo(request.companyName());
+		assertThat(user.getImage()).isEqualTo(request.image());
+		assertThat(user.getCreatedAt().isBefore(user.getUpdatedAt())).isTrue();
+	}
+
+	@Test
+	void 회원_정보_변경_토큰_누락되었을_경우_에러메시지를_반환한다() throws Exception {
+		// given
+		String token = "wrongToken";
+
+		// expect
+		mockMvc.perform(put("/auths/user")
+				.header("Authorization", "Bearer " + token))
+			.andExpect(status().isUnauthorized())
+			.andExpect(jsonPath("$.code").value(UNAUTHORIZED.getCode()))
+			.andExpect(jsonPath("$.message").value(UNAUTHORIZED.getMessage()));
+	}
 }
