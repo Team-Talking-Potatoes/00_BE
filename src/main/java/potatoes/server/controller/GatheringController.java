@@ -90,12 +90,12 @@ public class GatheringController {
 	public CreateGatheringResponse createGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
 		@Parameter(description = """ 
-			1. location - 모임장소
-			2. type - 모임 서비스 종류
-			3. name - 모임 이름
-			4. dateTime - 모임 날짜 및 시간 (YYYY-MM-DDTHH:MM:SS)
-			5. capacity - 모집 정원 (최소 5인 이상)
-			6. registrationEnd - 모임 모집 마감 날짜 및 시간 (선택 사항, YYYY-MM-DDTHH:MM:SS)
+			### 1. location - 모임장소
+			### 2. type - 모임 서비스 종류
+			### 3. name - 모임 이름
+			### 4. dateTime - 모임 날짜 및 시간 (YYYY-MM-DDTHH:MM:SS)
+			### 5. capacity - 모집 정원 (최소 5인 이상)
+			### 6. registrationEnd - 모임 모집 마감 날짜 및 시간 (선택 사항, YYYY-MM-DDTHH:MM:SS)
 			""")
 		@RequestPart CreateGatheringRequest request,
 		@Parameter(description = "이미지")
@@ -104,9 +104,11 @@ public class GatheringController {
 		return gatheringService.integrateGatheringCreation(request, multipartFile, userId);
 	}
 
+	@Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 조회합니다")
 	@GetMapping("/{gatheringId}")
 	public GetDetailedGatheringResponse getDetailedGathering(
 		@Authorization @Parameter(hidden = true) Long userId,
+		@Parameter(description = "모임 ID")
 		@PathVariable Long gatheringId
 	) {
 		return gatheringService.getDetailedGathering(gatheringId);
