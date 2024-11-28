@@ -41,18 +41,17 @@ public class GatheringController {
 	private final GatheringService gatheringService;
 	private final PageableFactory pageableFactory;
 
-	private static final String DEFAULT_SORT_BY = "createdAt";
-	private static final String DEFAULT_SORT_ORDER = "desc";
-
 	@GetMapping("")
 	public List<GetGatheringResponse> getGatherings(
 		@RequestParam(required = false) String id,
-		@RequestParam(required = false) GatheringType type, @RequestParam(required = false) String location,
-		@RequestParam(required = false) String date, @RequestParam(required = false) Long createdBy,
-		@RequestParam(required = false, defaultValue = DEFAULT_SORT_BY) String sortBy,
-		@RequestParam(required = false, defaultValue = DEFAULT_SORT_ORDER) String sortOrder,
-		@RequestParam(required = false, defaultValue = "20") @Valid @Min(value = 1, message = "Limit의 최소값은 1입니다.") int limit,
-		@RequestParam(required = false, defaultValue = "0") @Valid @Min(value = 0, message = "offset의 최소값은 0입니다.") int offset) {
+		@RequestParam(required = false) GatheringType type,
+		@RequestParam(required = false) String location,
+		@RequestParam(required = false) String date,
+		@RequestParam(required = false) Long createdBy,
+		@RequestParam(required = false) String sortBy,
+		@RequestParam(required = false) String sortOrder,
+		@RequestParam(required = false) @Valid @Min(value = 1, message = "Limit의 최소값은 1입니다.") Integer limit,
+		@RequestParam(required = false) @Valid @Min(value = 0, message = "offset의 최소값은 0입니다.") Integer offset) {
 		List<Long> idList = id != null ?
 			Arrays.stream(id.split(",")).map(String::trim).map(Long::parseLong).collect(Collectors.toList()) : null;
 
@@ -73,14 +72,14 @@ public class GatheringController {
 	}
 
 	@PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public CreateGatheringResponse createGathering(@Authorization @Parameter(hidden = true) Long memberId,
+	public CreateGatheringResponse createGathering(@Authorization @Parameter(hidden = true) Long userId,
 		@RequestPart("gatheringInfo") @Valid CreateGatheringRequest request,
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile) {
-		return gatheringService.integrateGatheringCreation(request, multipartFile, memberId);
+		return gatheringService.integrateGatheringCreation(request, multipartFile, userId);
 	}
 
 	@GetMapping("/{gatheringId}")
-	public GetDetailedGatheringResponse getDetailedGathering(@Authorization @Parameter(hidden = true) Long memberId,
+	public GetDetailedGatheringResponse getDetailedGathering(@Authorization @Parameter(hidden = true) Long userId,
 		@PathVariable Long gatheringId) {
 		return gatheringService.getDetailedGathering(gatheringId);
 	}
@@ -113,6 +112,14 @@ public class GatheringController {
 		@PathVariable Long gatheringId
 	) {
 		return gatheringService.putGathering(userId, gatheringId);
+	}
+
+	@PostMapping("/{gatheringId}/join")
+	public void postGathering(
+		@Authorization @Parameter(hidden = true) Long userId,
+		@PathVariable Long gatheringId
+	) {
+		gatheringService.putGathering(userId, gatheringId);
 	}
 	//TODO DTO 내부로 기본값 최솟값 이런거 넣어주기 현재는 컨트롤러에서 잡고있음
 	//TODO 변수명 통일
