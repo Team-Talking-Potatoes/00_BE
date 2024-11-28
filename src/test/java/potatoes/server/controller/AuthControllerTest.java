@@ -33,6 +33,8 @@ class AuthControllerTest {
 
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@BeforeEach
 	void clean() {
@@ -57,7 +59,7 @@ class AuthControllerTest {
 
 		User user = userRepository.findAll().get(0);
 		assertThat(user.getEmail()).isEqualTo(request.email());
-		assertThat(user.getPassword()).isEqualTo(request.password());
+		assertThat(passwordEncoder.matches(request.password(), user.getPassword())).isTrue();
 		assertThat(user.getName()).isEqualTo(request.name());
 		assertThat(user.getCompanyName()).isEqualTo(request.companyName());
 	}
@@ -87,19 +89,20 @@ class AuthControllerTest {
 	@Test
 	void 회원가입_이메일_중복될_경우_에러메시지를_반환한다() throws Exception {
 		// given
-		CreateUserRequest user1 = new CreateUserRequest("hello@gmail.com", "1234", "user1",
-			"company2");
-		mockMvc.perform(post("/auths/signup")
-				.content(objectMapper.writeValueAsString(user1))
-				.contentType(APPLICATION_JSON))
-			.andExpect(status().isOk());
+		User existingUser = User.builder()
+			.email("test@example.com")
+			.name("user1")
+			.password(passwordEncoder.encrypt("1234"))
+			.companyName("Test Company")
+			.build();
+		userRepository.save(existingUser);
 
-		CreateUserRequest user2 = new CreateUserRequest("hello@gmail.com", "4321", "user2",
+		CreateUserRequest newUser = new CreateUserRequest(existingUser.getEmail(), "4321", "newUser",
 			"company2");
 
 		// expected
 		mockMvc.perform(post("/auths/signup")
-				.content(objectMapper.writeValueAsString(user2))
+				.content(objectMapper.writeValueAsString(newUser))
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value("EMAIL_DUPLICATION"))

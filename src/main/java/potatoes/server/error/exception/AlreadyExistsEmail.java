@@ -2,9 +2,9 @@ package potatoes.server.error.exception;
 
 import potatoes.server.error.ErrorCode;
 
-public class AlreadyExistsEmailException extends CustomException {
+public class AlreadyExistsEmail extends CustomException {
 
-	public AlreadyExistsEmailException() {
+	public AlreadyExistsEmail() {
 		super(ErrorCode.EMAIL_DUPLICATION);
 	}
 }
