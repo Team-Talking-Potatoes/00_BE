@@ -11,7 +11,7 @@ public record GetUserResponse(
 	long createdAt,
 	long updatedAt
 ) {
-	public static GetUserResponse fromEntity(User user) {
+	public static GetUserResponse from(User user) {
 		return new GetUserResponse(
 			user.getId(),
 			user.getEmail(),

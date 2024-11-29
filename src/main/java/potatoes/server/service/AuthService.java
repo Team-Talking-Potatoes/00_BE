@@ -29,7 +29,6 @@ public class AuthService {
 
 	@Transactional
 	public void register(CreateUserRequest request) {
-
 		Optional<User> optionalUser = userRepository.findByEmail(request.email());
 		if (optionalUser.isPresent()) {
 			throw new AlreadyExistsEmail();
@@ -59,7 +58,7 @@ public class AuthService {
 		User user = userRepository.findById(id)
 			.orElseThrow(UserNotFound::new);
 
-		return GetUserResponse.fromEntity(user);
+		return GetUserResponse.from(user);
 	}
 
 	@Transactional
@@ -67,6 +66,6 @@ public class AuthService {
 		User user = userRepository.findById(id)
 			.orElseThrow(UserNotFound::new);
 		user.updateUserData(request.companyName(), request.image());
-		return GetUserResponse.fromEntity(user);
+		return GetUserResponse.from(user);
 	}
 }
