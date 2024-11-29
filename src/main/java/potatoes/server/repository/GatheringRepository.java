@@ -1,6 +1,7 @@
 package potatoes.server.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,5 +32,5 @@ public interface GatheringRepository extends JpaRepository<Gathering, Long> {
 		@Param("createdBy") Long createdBy,
 		Pageable pageable);
 
-	Gathering findByIdAndCanceledAtIsNull(Long id);
+	Optional<Gathering> findByIdAndCanceledAtIsNull(Long id);
 }

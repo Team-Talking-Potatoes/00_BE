@@ -143,12 +143,8 @@ public class GatheringService {
 	}
 
 	private Gathering findNotCanceledGathering(Long gatheringId) {
-		Gathering gathering = gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId);
-
-		if (gathering == null) {
-			throw new NotFoundException("존재하지 않는 모임이거나 이미 취소된 모임입니다.");
-		}
-
-		return gathering;
+		return gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId).orElseThrow(
+			() -> new NotFoundException("존재하지 않는 모임이거나 이미 취소된 모입입니다.")
+		);
 	}
 }
