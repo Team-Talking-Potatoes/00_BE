@@ -21,18 +21,18 @@ public record GetDetailedGatheringResponse(
 	Instant canceledAt
 ) {
 	public static GetDetailedGatheringResponse from(Gathering gathering) {
-		return GetDetailedGatheringResponse.builder()
-			.id(gathering.getId())
-			.type(gathering.getType())
-			.name(gathering.getName())
-			.dateTime(gathering.getDateTime())
-			.registrationEnd(gathering.getRegistrationEnd())
-			.location(gathering.getLocation())
-			.participantCount(gathering.getParticipantCount())
-			.capacity(gathering.getCapacity())
-			.image(gathering.getImage())
-			.createdBy(gathering.getCreatedBy())
-			.canceledAt(gathering.getCanceledAt())
-			.build();
+		return new GetDetailedGatheringResponse(
+			gathering.getId(),
+			gathering.getType(),
+			gathering.getName(),
+			gathering.getDateTime(),
+			gathering.getRegistrationEnd(),
+			gathering.getLocation(),
+			gathering.getParticipantCount(),
+			gathering.getCapacity(),
+			gathering.getImage(),
+			gathering.getCreatedBy(),
+			gathering.getCanceledAt()
+		);
 	}
 }

@@ -20,18 +20,18 @@ public record PutGatheringResponse(
 	Instant canceledAt
 ) {
 	public static PutGatheringResponse from(Gathering entity) {
-		return PutGatheringResponse.builder()
-			.id(entity.getId())
-			.type(entity.getType().name())
-			.name(entity.getName())
-			.dateTime(entity.getDateTime())
-			.registrationEnd(entity.getRegistrationEnd())
-			.location(entity.getLocation())
-			.participantCount(entity.getParticipantCount())
-			.capacity(entity.getCapacity())
-			.image(entity.getImage())
-			.createdBy(entity.getCreatedBy())
-			.canceledAt(entity.getCanceledAt())
-			.build();
+		return new PutGatheringResponse(
+			entity.getId(),
+			entity.getType().name(),
+			entity.getName(),
+			entity.getDateTime(),
+			entity.getRegistrationEnd(),
+			entity.getLocation(),
+			entity.getParticipantCount(),
+			entity.getCapacity(),
+			entity.getImage(),
+			entity.getCreatedBy(),
+			entity.getCanceledAt()
+		);
 	}
 }

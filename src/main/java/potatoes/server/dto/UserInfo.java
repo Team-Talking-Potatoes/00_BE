@@ -12,12 +12,12 @@ public record UserInfo(
 	String image
 ) {
 	public static UserInfo from(User entity) {
-		return UserInfo.builder()
-			.id(entity.getId())
-			.email(entity.getEmail())
-			.name(entity.getName())
-			.companyName(entity.getCompanyName())
-			.image(entity.getImage())
-			.build();
+		return new UserInfo(
+			entity.getId(),
+			entity.getEmail(),
+			entity.getName(),
+			entity.getCompanyName(),
+			entity.getImage()
+		);
 	}
 }

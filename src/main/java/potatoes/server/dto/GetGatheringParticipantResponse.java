@@ -13,11 +13,11 @@ public record GetGatheringParticipantResponse(
 	UserInfo user
 ) {
 	public static GetGatheringParticipantResponse from(UserGathering entity) {
-		return GetGatheringParticipantResponse.builder()
-			.userId(entity.getUser().getId())
-			.gatheringId(entity.getGathering().getId())
-			.joinedAt(entity.getJoinedAt())
-			.user(UserInfo.from(entity.getUser()))
-			.build();
+		return new GetGatheringParticipantResponse(
+			entity.getUser().getId(),
+			entity.getGathering().getId(),
+			entity.getJoinedAt(),
+			UserInfo.from(entity.getUser())
+		);
 	}
 }
