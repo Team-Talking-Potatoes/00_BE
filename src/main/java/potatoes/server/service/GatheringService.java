@@ -33,24 +33,25 @@ public class GatheringService {
 	private final UserGatheringRepository userGatheringRepository;
 
 	@Transactional
-	public CreateGatheringResponse integrateGatheringCreation(CreateGatheringRequest req, MultipartFile multipartFile,
+	public CreateGatheringResponse integrateGatheringCreation(CreateGatheringRequest request,
+		MultipartFile multipartFile,
 		Long userId) {
 		String imageUrl = uploadGatheringImage(multipartFile);
-		Gathering gathering = createGathering(req, imageUrl, userId);
+		Gathering gathering = createGathering(request, imageUrl, userId);
 
 		gatheringRepository.save(gathering);
 
 		return CreateGatheringResponse.from(gathering);
 	}
 
-	private Gathering createGathering(CreateGatheringRequest req, String image, Long userId) {
+	private Gathering createGathering(CreateGatheringRequest request, String image, Long userId) {
 		return Gathering.builder()
-			.type(req.type())
-			.name(req.name())
-			.dateTime(req.dateTime())
-			.registrationEnd(req.registrationEnd())
-			.location(req.location())
-			.capacity(req.capacity())
+			.type(request.type())
+			.name(request.name())
+			.dateTime(request.dateTime())
+			.registrationEnd(request.registrationEnd())
+			.location(request.location())
+			.capacity(request.capacity())
 			.image(image)
 			.user(User.builder().build())
 			// TODO 유저 조회 기능으로 넣을 예정
