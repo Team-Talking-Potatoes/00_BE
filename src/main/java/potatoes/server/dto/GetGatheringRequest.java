@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Builder;
 import potatoes.server.constant.GatheringType;
 import potatoes.server.constant.LocationType;
-import potatoes.server.utils.Pagination.Paginator;
+import potatoes.server.utils.pagination.Paginator;
 
 @Builder
 public record GetGatheringRequest(

@@ -1,7 +1,7 @@
 package potatoes.server.dto;
 
 import lombok.Builder;
-import potatoes.server.utils.Pagination.Paginator;
+import potatoes.server.utils.pagination.Paginator;
 
 @Builder
 public record GetGatheringParticipantRequest(

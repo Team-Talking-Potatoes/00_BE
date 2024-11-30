@@ -1,4 +1,4 @@
-package potatoes.server.utils.Pagination;
+package potatoes.server.utils.pagination;
 
 public interface Paginator {
 	int getOffset();

@@ -1,4 +1,4 @@
-package potatoes.server.utils.Pagination;
+package potatoes.server.utils.pagination;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
