@@ -1,5 +1,7 @@
 package potatoes.server.service;
 
+import static potatoes.server.utils.time.DateTimeUtils.*;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -24,6 +26,7 @@ import potatoes.server.entity.User;
 import potatoes.server.entity.UserGathering;
 import potatoes.server.repository.GatheringRepository;
 import potatoes.server.repository.UserGatheringRepository;
+import potatoes.server.repository.UserRepository;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,6 +34,7 @@ import potatoes.server.repository.UserGatheringRepository;
 public class GatheringService {
 	private final GatheringRepository gatheringRepository;
 	private final UserGatheringRepository userGatheringRepository;
+	private final UserRepository userRepository;
 
 	@Transactional
 	public CreateGatheringResponse integrateGatheringCreation(CreateGatheringRequest request,
@@ -53,8 +57,7 @@ public class GatheringService {
 			.location(request.location())
 			.capacity(request.capacity())
 			.image(image)
-			.user(User.builder().build())
-			// TODO 유저 조회 기능으로 넣을 예정
+			.user(findByUser(userId))
 			.build();
 	}
 
@@ -90,8 +93,15 @@ public class GatheringService {
 		GetGatheringRequest request,
 		Pageable pageable
 	) {
-		return gatheringRepository.findGatheringsWithFilters(request.ids(), request.type(), request.location(),
-			request.date(), request.createdBy(), pageable).map(GetGatheringResponse::from).getContent();
+		return gatheringRepository.findGatheringsWithFilters(
+			request.ids(),
+			request.type(),
+			request.location(),
+			getStartOfDay(request.date()),
+			getEndOfDay(request.date()),
+			request.createdBy(),
+			pageable
+		).map(GetGatheringResponse::from).getContent();
 	}
 
 	public GetDetailedGatheringResponse getDetailedGathering(Long gatheringId) {
@@ -147,5 +157,10 @@ public class GatheringService {
 		return gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId).orElseThrow(
 			() -> new NotFoundException("존재하지 않는 모임이거나 이미 취소된 모입입니다.")
 		);
+	}
+
+	private User findByUser(Long userId){
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
 	}
 }

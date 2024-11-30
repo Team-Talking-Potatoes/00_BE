@@ -1,5 +1,6 @@
 package potatoes.server.repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +21,8 @@ public interface GatheringRepository extends JpaRepository<Gathering, Long> {
 		    WHERE (:ids IS NULL OR g.id IN :ids)
 		    AND (:type IS NULL OR g.type = :type)
 		    AND (:location IS NULL OR g.location = :location)
-		    AND (:date IS NULL OR DATE(g.dateTime) = :date)
+		    AND (:startOfDay IS NULL OR g.dateTime >= :startOfDay)
+		    AND (:endOfDay IS NULL OR g.dateTime < :endOfDay)
 		    AND (:createdBy IS NULL OR g.createdBy = :createdBy)
 		    AND (g.canceledAt IS NULL)
 		""")
@@ -28,7 +30,8 @@ public interface GatheringRepository extends JpaRepository<Gathering, Long> {
 		@Param("ids") List<Long> ids,
 		@Param("type") GatheringType type,
 		@Param("location") LocationType location,
-		@Param("date") String date,
+		@Param("startOfDay") Instant startOfDay,
+		@Param("endOfDay") Instant endOfDay,
 		@Param("createdBy") Long createdBy,
 		Pageable pageable);
 
