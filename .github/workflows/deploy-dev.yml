@@ -51,7 +51,6 @@ jobs:
 
       - name: 도커 빌드
         run: |
-          cd ./doonut-app-external-api
           docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }} .
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
 
