@@ -28,6 +28,7 @@ import potatoes.server.error.exception.GatheringNotFoundException;
 import potatoes.server.error.exception.NotParticipatingGatheringException;
 import potatoes.server.error.exception.PastGatheringException;
 import potatoes.server.error.exception.UnauthorizedGatheringCancelException;
+import potatoes.server.error.exception.UserNotFoundException;
 import potatoes.server.repository.GatheringRepository;
 import potatoes.server.repository.UserGatheringRepository;
 import potatoes.server.repository.UserRepository;
