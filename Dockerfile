@@ -1,6 +1,6 @@
 FROM openjdk:17
 
-EXPOSE 8081 8081
+EXPOSE 8080 8080
 
 ARG JAR_FILE=./build/libs/*.jar
 COPY ${JAR_FILE} app.jar
