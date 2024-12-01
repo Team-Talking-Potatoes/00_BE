@@ -1,0 +1,80 @@
+name: Deploy Dev server
+
+on:
+  push:
+    branches:
+      - "develop"
+      - "deployment/#21"
+
+permissions: write-all
+
+jobs:
+  build:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 리포지토리를 가져옵니다
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          token: ${{ secrets.SUBMODULE_TOKEN }}
+
+      - name: JDK 17을 설치합니다
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Gradle 캐싱
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: gradlew 파일에 실행 권한을 부여합니다
+        run: chmod +x gradlew
+
+      - name: 빌드를 수행합니다
+        run: |
+          ./gradlew bootJar --stacktrace
+
+      - name: 도커 로그인
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 도커 빌드
+        run: |
+          cd ./doonut-app-external-api
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
+
+      - name: AWS Credentials 설정
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: 개발 서버 배포
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_AWS_EC2_PUBLIC_IP }}
+          username: ec2-user
+          key: ${{ secrets.AWS_EC2_PEM_KEY }}
+          script: |
+            cd /home/ec2-user/potatoes/dev
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker stop develop-server
+            docker rm develop-server
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}:latest
+            docker-compose up -d
+            docker image prune -f
+
