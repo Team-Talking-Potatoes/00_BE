@@ -28,7 +28,7 @@ import potatoes.server.error.exception.GatheringNotFoundException;
 import potatoes.server.error.exception.NotParticipatingGatheringException;
 import potatoes.server.error.exception.PastGatheringException;
 import potatoes.server.error.exception.UnauthorizedGatheringCancelException;
-import potatoes.server.error.exception.UserNotFoundException;
+import potatoes.server.error.exception.UserNotFound;
 import potatoes.server.repository.GatheringRepository;
 import potatoes.server.repository.UserGatheringRepository;
 import potatoes.server.repository.UserRepository;
@@ -166,7 +166,7 @@ public class GatheringService {
 
 	private User findByUser(Long userId){
 		return userRepository.findById(userId)
-			.orElseThrow(UserNotFoundException::new);
+			.orElseThrow(UserNotFound::new);
 	}
 
 }
