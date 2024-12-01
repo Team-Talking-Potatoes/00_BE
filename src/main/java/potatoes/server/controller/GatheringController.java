@@ -36,8 +36,8 @@ import potatoes.server.dto.GetGatheringResponse;
 import potatoes.server.dto.PutGatheringResponse;
 import potatoes.server.dto.SuccessResponse;
 import potatoes.server.service.GatheringService;
-import potatoes.server.utils.Pagination.PageableFactory;
 import potatoes.server.utils.annotation.Authorization;
+import potatoes.server.utils.pagination.PageableFactory;
 
 @RestController
 @RequestMapping("/gatherings")
@@ -100,7 +100,7 @@ public class GatheringController {
 			### 5. capacity - 모집 정원 (최소 5인 이상)
 			### 6. registrationEnd - 모임 모집 마감 날짜 및 시간 (선택 사항, YYYY-MM-DDTHH:MM:SS)
 			""")
-		@RequestPart CreateGatheringRequest request,
+		@RequestPart(value = "request") CreateGatheringRequest request,
 		@Parameter(description = "이미지")
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile
 	) {
