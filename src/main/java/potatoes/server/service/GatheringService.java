@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.webjars.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateGatheringRequest;
@@ -24,6 +23,11 @@ import potatoes.server.dto.SuccessResponse;
 import potatoes.server.entity.Gathering;
 import potatoes.server.entity.User;
 import potatoes.server.entity.UserGathering;
+import potatoes.server.error.exception.AlreadyJoinedGatheringException;
+import potatoes.server.error.exception.GatheringNotFoundException;
+import potatoes.server.error.exception.NotParticipatingGatheringException;
+import potatoes.server.error.exception.PastGatheringException;
+import potatoes.server.error.exception.UnauthorizedGatheringCancelException;
 import potatoes.server.repository.GatheringRepository;
 import potatoes.server.repository.UserGatheringRepository;
 import potatoes.server.repository.UserRepository;
@@ -71,7 +75,7 @@ public class GatheringService {
 		Gathering gathering = findNotCanceledGathering(gatheringId);
 
 		if (userGatheringRepository.existsByUserIdAndGatheringIdAndCanceledAtIsNull(userId, gatheringId)) {
-			throw new RuntimeException("이미 참여한 모임입니다.");
+			throw new AlreadyJoinedGatheringException();
 		}
 
 		gathering.increaseParticipantCount();
@@ -124,7 +128,7 @@ public class GatheringService {
 		Gathering gathering = findNotCanceledGathering(gatheringId);
 
 		if (!gathering.getCreatedBy().equals(userId)) {
-			throw new RuntimeException("모임 취소 권한이 없습니다.");
+			throw new UnauthorizedGatheringCancelException();
 		}
 
 		gathering.cancel();
@@ -140,11 +144,11 @@ public class GatheringService {
 		Gathering gathering = findNotCanceledGathering(gatheringId);
 
 		if (gathering.getDateTime().isBefore(Instant.now())) {
-			throw new RuntimeException("이미 지난 모임은 참여 취소가 불가능합니다.");
+			throw new PastGatheringException();
 		}
 
 		UserGathering userGathering = userGatheringRepository.findByUserIdAndGatheringIdAndCanceledAtIsNull(userId,
-			gatheringId).orElseThrow(() -> new RuntimeException("참여하지 않은 모임입니다."));
+			gatheringId).orElseThrow(NotParticipatingGatheringException::new);
 
 		gathering.decreaseParticipantCount();
 
@@ -155,12 +159,13 @@ public class GatheringService {
 
 	private Gathering findNotCanceledGathering(Long gatheringId) {
 		return gatheringRepository.findByIdAndCanceledAtIsNull(gatheringId).orElseThrow(
-			() -> new NotFoundException("존재하지 않는 모임이거나 이미 취소된 모입입니다.")
+			GatheringNotFoundException::new
 		);
 	}
 
 	private User findByUser(Long userId){
 		return userRepository.findById(userId)
-			.orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
+			.orElseThrow(UserNotFoundException::new);
 	}
+
 }
