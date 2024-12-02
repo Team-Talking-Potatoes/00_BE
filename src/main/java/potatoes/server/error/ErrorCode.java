@@ -15,7 +15,14 @@ public enum ErrorCode {
 	// User
 	EMAIL_DUPLICATION(400, "EMAIL_DUPLICATION", "이미 가입된 이메일입니다."),
 	INVALID_CREDENTIALS(400, "INVALID_CREDENTIALS", "잘못된 이메일 또는 비밀번호입니다."),
-	USER_NOT_FOUND(400, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
+	USER_NOT_FOUND(400, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다."),
+
+	// Gathering
+	NOT_PARTICIPATING_GATHERING(400, "ALREADY_PARTICIPATING_GATHERING", "참여하지 않은 모임입니다"),
+	ALREADY_JOINED_GATHERING(400, "ALREADY_JOINED_GATHERING", "이미 참여한 모임입니다."),
+	GATHERING_NOT_FOUND_OR_CANCELED(400, "GATHERING_NOT_FOUND_OR_CANCELED", "존재하지 않는 모임이거나 이미 취소된 모임입니다."),
+	UNAUTHORIZED_GATHERING_CANCEL_EXCEPTION(403, "UNAUTHORIZED_GATHERING_CANCEL_EXCEPTION", "모임 취소 권한이 없습니다"),
+	PAST_GATHERING_LEAVE_FORBIDDEN(404, "PAST_GATHERING_LEAVE_FORBIDDEN", "이미 지난 모임은 참여 취소가 불가능합니다.");
 
 	private final int status;
 	private final String code;

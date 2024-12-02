@@ -35,10 +35,18 @@ public class UserGathering {
 	@JoinColumn(name = "gathering_id")
 	private Gathering gathering;
 
+	@Column(name = "canceled_at")
+	private Instant canceledAt;
+
 	@Builder
-	public UserGathering(Instant joinedAt, Gathering gathering, User user) {
+	public UserGathering(Instant joinedAt, Gathering gathering, User user, Instant canceledAt) {
 		this.joinedAt = joinedAt;
 		this.gathering = gathering;
 		this.user = user;
+		this.canceledAt = canceledAt;
+	}
+
+	public void cancel() {
+		this.canceledAt = Instant.now();
 	}
 }
