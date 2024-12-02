@@ -54,18 +54,19 @@ public class AuthService {
 		return jwtTokenUtil.createToken(String.valueOf(user.getId()));
 	}
 
-	public GetUserResponse find(Long id) {
-		User user = userRepository.findById(id)
+	public GetUserResponse find(Long userId) {
+		User user = userRepository.findById(userId)
 			.orElseThrow(UserNotFound::new);
 
 		return GetUserResponse.from(user);
 	}
 
 	@Transactional
-	public GetUserResponse update(Long id, UpdateUserRequest request) {
-		User user = userRepository.findById(id)
+	public GetUserResponse update(Long userId, UpdateUserRequest request) {
+		User user = userRepository.findById(userId)
 			.orElseThrow(UserNotFound::new);
 		user.updateUserData(request.companyName(), request.image());
+
 		return GetUserResponse.from(user);
 	}
 }
