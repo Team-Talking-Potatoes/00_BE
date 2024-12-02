@@ -39,10 +39,10 @@ public class Review extends BaseTimeEntity {
 	private Gathering gathering;
 
 	@Builder
-	public Review(String comment, User user, Gathering gathering) {
+	public Review(String comment, User user, Gathering gathering, int score) {
 		this.comment = comment;
 		this.user = user;
 		this.gathering = gathering;
-		this.score = 0;
+		this.score = score;
 	}
 }
