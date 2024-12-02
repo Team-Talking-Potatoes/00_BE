@@ -49,4 +49,11 @@ public class User extends BaseTimeEntity {
 		this.companyName = companyName;
 		this.image = image;
 	}
+
+	public void updateUserData(String companyName, String image) {
+		this.companyName = companyName;
+		if (image != null) {
+			this.image = image;
+		}
+	}
 }

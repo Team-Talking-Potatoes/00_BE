@@ -1,5 +1,7 @@
 package potatoes.server.utils.annotation;
 
+import static potatoes.server.error.ErrorCode.*;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -9,6 +11,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import jakarta.servlet.http.HttpServletRequest;
+import potatoes.server.error.exception.JwtAuthException;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 
 @Component
@@ -17,10 +20,6 @@ public class AuthorizationArgumentResolver implements HandlerMethodArgumentResol
 	private final JwtTokenUtil jwtTokenProvider;
 
 	private static final int BEARER_PREFIX_LEN = 7;
-
-	private static final String AUTHORIZATION_HEADER_NULL = "인증 헤더가 null입니다.";
-
-	private static final String INVALID_TOKEN_PREFIX = "Bearer값이 아닙니다";
 
 	public AuthorizationArgumentResolver(JwtTokenUtil jwtTokenProvider) {
 		this.jwtTokenProvider = jwtTokenProvider;
@@ -42,11 +41,11 @@ public class AuthorizationArgumentResolver implements HandlerMethodArgumentResol
 
 		String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (authorizationHeader == null) {
-			throw new RuntimeException(AUTHORIZATION_HEADER_NULL);
+			throw new JwtAuthException(AUTHORIZATION_HEADER_NULL);
 		}
 
 		if (!authorizationHeader.startsWith("Bearer ")) {
-			throw new RuntimeException(INVALID_TOKEN_PREFIX);
+			throw new JwtAuthException(INVALID_TOKEN_PREFIX);
 		}
 
 		String token = authorizationHeader.substring(BEARER_PREFIX_LEN);

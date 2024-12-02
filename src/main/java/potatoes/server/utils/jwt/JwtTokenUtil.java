@@ -11,6 +11,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import potatoes.server.error.exception.Unauthorized;
 
 @Component
 public class JwtTokenUtil {
@@ -20,7 +21,6 @@ public class JwtTokenUtil {
 	@Value("${security.jwt.token.expire-length}")
 	Long expiration;
 
-	private final static String INVALID_TOKEN_ERROR_MESSAGE = "유효하지 않은 토큰입니다.";
 	private Key key;
 
 	@PostConstruct
@@ -49,7 +49,7 @@ public class JwtTokenUtil {
 				.getBody()
 				.getSubject();
 		} catch (JwtException e) {
-			throw new RuntimeException(INVALID_TOKEN_ERROR_MESSAGE);
+			throw new Unauthorized();
 		}
 	}
 }
