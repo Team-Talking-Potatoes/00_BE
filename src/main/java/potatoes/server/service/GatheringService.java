@@ -164,7 +164,7 @@ public class GatheringService {
 		);
 	}
 
-	private User findByUser(Long userId){
+	private User findByUser(Long userId) {
 		return userRepository.findById(userId)
 			.orElseThrow(UserNotFound::new);
 	}
