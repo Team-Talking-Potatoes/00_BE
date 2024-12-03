@@ -12,12 +12,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import potatoes.server.config.BaseTimeEntity;
 
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Entity
-public class Review extends BaseTimeEntity {
+public class TravelImage {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -27,13 +26,6 @@ public class Review extends BaseTimeEntity {
 	@JoinColumn(name = "travel_id")
 	private Travel travel;
 
-	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "commenter_id")
-	private User commenter;
-
-	@Column(name = "title", nullable = false)
-	private String title;
-
-	@Column(name = "comment", nullable = false)
-	private String comment;
+	@Column(name = "image", nullable = false)
+	private String image;
 }

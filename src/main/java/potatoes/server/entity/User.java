@@ -1,26 +1,24 @@
 package potatoes.server.entity;
 
-import java.time.Instant;
+import static jakarta.persistence.GenerationType.*;
+import static lombok.AccessLevel.*;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import potatoes.server.config.BaseTimeEntity;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 @Entity
 public class User extends BaseTimeEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_id", nullable = false)
+	@GeneratedValue(strategy = IDENTITY)
 	private Long id;
 
 	@Column(name = "email", nullable = false, unique = true)
@@ -29,31 +27,28 @@ public class User extends BaseTimeEntity {
 	@Column(name = "password", nullable = false)
 	private String password;
 
-	@Column(name = "name", nullable = false)
-	private String name;
+	@Column(name = "nickname", nullable = false)
+	private String nickname;
 
-	@Column(name = "company_name", nullable = false)
-	private String companyName;
+	@Column(name = "birth_date", nullable = false)
+	private Integer birthDate;
 
-	@Column(name = "image")
-	private String image;
+	@Column(name = "contact", nullable = false)
+	private String contact;
 
-	@Column(name = "deleted_at")
-	private Instant deletedAt;
+	@Column(name = "profile_image")
+	private String profileImage;
 
 	@Builder
-	public User(String email, String password, String name, String companyName, String image) {
+	public User(String email, String password, String nickname, Integer birthDate, String contact) {
 		this.email = email;
 		this.password = password;
-		this.name = name;
-		this.companyName = companyName;
-		this.image = image;
+		this.nickname = nickname;
+		this.birthDate = birthDate;
+		this.contact = contact;
 	}
 
-	public void updateUserData(String companyName, String image) {
-		this.companyName = companyName;
-		if (image != null) {
-			this.image = image;
-		}
+	public void updateProfileImage(String profileImage) {
+		this.profileImage = profileImage;
 	}
 }
