@@ -2,6 +2,7 @@ package potatoes.server.utils.s3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,12 +19,18 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.error.exception.InvalidFileFormat;
 import potatoes.server.error.exception.S3FileUploadFailed;
+import potatoes.server.utils.time.DateTimeUtils;
 
 @RequiredArgsConstructor
 @Component
 public class S3UtilsProvider {
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
+
+	@Value("${spring.profiles.active:local}")
+	private String profile;
+
+	private static final String FOLDER_DELIMITER = "/";
 
 	private final AmazonS3Client amazonS3;
 
@@ -68,9 +75,13 @@ public class S3UtilsProvider {
 		}
 	}
 
-	private static class FileNameGenerator {
+	private class FileNameGenerator {
 		String generate(String originalFileName) {
-			return UUID.randomUUID().toString().concat(getFileExtension(originalFileName));
+			String randomUUID = UUID.randomUUID().toString();
+			String extension = getFileExtension(originalFileName);
+			String date = DateTimeUtils.getYearMonthDay(Instant.now());
+
+			return profile + FOLDER_DELIMITER + date + FOLDER_DELIMITER + randomUUID + extension;
 		}
 
 		private String getFileExtension(String fileName) {
