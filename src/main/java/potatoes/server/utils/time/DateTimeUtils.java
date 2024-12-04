@@ -6,9 +6,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class DateTimeUtils {
 	private static final String KST_ZONE_ID = "Asia/Seoul";
 
