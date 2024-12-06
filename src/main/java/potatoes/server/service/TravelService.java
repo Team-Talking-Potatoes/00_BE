@@ -1,8 +1,8 @@
 package potatoes.server.service;
 
-import static java.time.Duration.*;
 import static potatoes.server.error.ErrorCode.*;
 
+import java.time.Period;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -23,6 +23,7 @@ import potatoes.server.repository.TravelRepository;
 import potatoes.server.repository.TravelUserRepository;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.s3.S3UtilsProvider;
+import potatoes.server.utils.time.DateTimeUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,13 +48,13 @@ public class TravelService {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_HASHTAGS_VALUE);
 		}
 
-		if (between(request.getStartAt(), request.getEndAt()).toDays() != (long)(request.getTripDuration() - 1) ||
-			request.getStartAt().isAfter(request.getEndAt())) {
+		int tripDuration = Period.between(request.getStartAt(), request.getEndAt()).getDays();
+		if (tripDuration < 0 || request.getStartAt().isAfter(request.getEndAt())) {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_DATE);
 		}
 
 		for (CreateTravelRequest.DetailTravelRequest detailTravelRequest : request.getDetailTravel()) {
-			if (detailTravelRequest.getTripDay() > request.getTripDuration()) {
+			if (detailTravelRequest.getTripDay() > tripDuration) {
 				throw new WrongValueInCreateTravel(INVALID_TRAVEL_DETAIL_INFO);
 			}
 		}
@@ -72,9 +73,9 @@ public class TravelService {
 			.isDomestic(request.getIsDomestic())
 			.travelLocation(request.getTravelLocation())
 			.departureLocation(request.getDepartureLocation())
-			.startAt(request.getStartAt())
-			.endAt(request.getEndAt())
-			.tripDuration(request.getTripDuration())
+			.startAt(DateTimeUtils.localDateToInstant(request.getStartAt()))
+			.endAt(DateTimeUtils.localDateToInstant(request.getEndAt()))
+			.tripDuration(tripDuration)
 			.build();
 		travelRepository.save(travel);
 

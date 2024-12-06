@@ -1,8 +1,9 @@
 package potatoes.server.dto;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
@@ -49,17 +50,15 @@ public class CreateTravelRequest {
 
 	private String departureLocation;
 
-	@NotNull(message = "여행 시작 시간을 정해주세요.")
-	@Future(message = "선택할 수 없는 날짜입니다.")
-	private Instant startAt;
-
 	@NotNull(message = "여행 종료 시간을 정해주세요.")
 	@Future(message = "선택할 수 없는 날짜입니다.")
-	private Instant endAt;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDate startAt;
 
-	@NotNull(message = "여행 진행기간을 입력해주세요.")
-	@Positive(message = "올바른 값을 입력해주세요.")
-	private Integer tripDuration;
+	@NotNull(message = "여행 시작 시간을 정해주세요.")
+	@Future(message = "선택할 수 없는 날짜입니다.")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDate endAt;
 
 	@NotEmpty(message = "여행 상세일정을 입력해주세요.")
 	@Valid
