@@ -18,7 +18,7 @@ public enum ErrorCode {
 	USER_NOT_FOUND(400, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다."),
 
 	// Tavel
-	INVALID_TRAVEL_MATE_COUNT(400, "INVALID_TRAVEL_MATE_COUNT", "참가자 최소 인원은 최최대 인원을 초과할 수 없습니다."),
+	INVALID_TRAVEL_MATE_COUNT(400, "INVALID_TRAVEL_MATE_COUNT", "참가자 최소 인원은 최대 인원을 초과할 수 없습니다."),
 	INVALID_TRAVEL_DETAIL_INFO(400, "INVALID_TRAVEL_DETAIL_INFO", "상세 일정의 날은 전체 일정의 날을 초과할 수 없습니다."),
 	INVALID_TRAVEL_DATE(400, "INVALID_TRAVEL_DATE", "출발일자/종료일자 값이 잘못되었습니다."),
 	INVALID_TRAVEL_HASHTAGS_VALUE(400, "INVALID_TRAVEL_HASHTAGS_VALUE", "해시태그 최대 횟수를 초과하였습니다."),
