@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import potatoes.server.config.BaseTimeEntity;
@@ -27,8 +28,17 @@ public class Travel extends BaseTimeEntity {
 	@Column(name = "description", nullable = false)
 	private String description;
 
-	@Column(name = "travel_mate_count", nullable = false)
-	private int travelMateCount;
+	@Column(name = "image", nullable = false)
+	private String image;
+
+	@Column(name = "expected_Trip_cost", nullable = false)
+	private int expectedTripCost;
+
+	@Column(name = "min_travel_mate_count", nullable = false)
+	private int minTravelMateCount;
+
+	@Column(name = "max_travel_mate_count", nullable = false)
+	private int maxTravelMateCount;
 
 	@Column(name = "hash_tags", nullable = false)
 	private String hashTags;
@@ -39,7 +49,7 @@ public class Travel extends BaseTimeEntity {
 	@Column(name = "travel_location", nullable = false)
 	private String travelLocation;
 
-	@Column(name = "departure_location", nullable = false)
+	@Column(name = "departure_location")
 	private String departureLocation;
 
 	@Column(name = "start_at", nullable = false)
@@ -50,4 +60,23 @@ public class Travel extends BaseTimeEntity {
 
 	@Column(name = "trip_duration", nullable = false)
 	private int tripDuration;
+
+	@Builder
+	public Travel(String name, String description, String image, int expectedTripCost, int minTravelMateCount,
+		int maxTravelMateCount, String hashTags, boolean isDomestic, String travelLocation, String departureLocation,
+		Instant startAt, Instant endAt, int tripDuration) {
+		this.name = name;
+		this.description = description;
+		this.image = image;
+		this.expectedTripCost = expectedTripCost;
+		this.minTravelMateCount = minTravelMateCount;
+		this.maxTravelMateCount = maxTravelMateCount;
+		this.hashTags = hashTags;
+		this.isDomestic = isDomestic;
+		this.travelLocation = travelLocation;
+		this.departureLocation = departureLocation;
+		this.startAt = startAt;
+		this.endAt = endAt;
+		this.tripDuration = tripDuration;
+	}
 }
