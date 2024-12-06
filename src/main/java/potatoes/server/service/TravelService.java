@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import potatoes.server.constant.ParticipantRole;
 import potatoes.server.dto.CreateTravelRequest;
 import potatoes.server.entity.Travel;
@@ -23,6 +24,7 @@ import potatoes.server.repository.TravelUserRepository;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.s3.S3UtilsProvider;
 
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
@@ -36,55 +38,56 @@ public class TravelService {
 
 	@Transactional
 	public void createTravel(Long userId, CreateTravelRequest request) {
-		if (request.minTravelMateCount() > request.maxTravelMateCount()) {
+
+		if (request.getMinTravelMateCount() > request.getMaxTravelMateCount()) {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_MATE_COUNT);
 		}
 
-		if (request.hashTags().split("#").length > 5) {
+		if (request.getHashTags().split("#").length > 5) {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_HASHTAGS_VALUE);
 		}
 
-		if (between(request.startAt(), request.endAt()).toDays() != (long)(request.tripDuration() - 1) ||
-			request.startAt().isAfter(request.endAt())) {
+		if (between(request.getStartAt(), request.getEndAt()).toDays() != (long)(request.getTripDuration() - 1) ||
+			request.getStartAt().isAfter(request.getEndAt())) {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_DATE);
 		}
 
-		for (CreateTravelRequest.DetailTravelRequest detailTravelRequest : request.detailTravel()) {
-			if (detailTravelRequest.tripDay() > request.tripDuration()) {
+		for (CreateTravelRequest.DetailTravelRequest detailTravelRequest : request.getDetailTravel()) {
+			if (detailTravelRequest.getTripDay() > request.getTripDuration()) {
 				throw new WrongValueInCreateTravel(INVALID_TRAVEL_DETAIL_INFO);
 			}
 		}
 
 		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
 
-		String travelImageUrl = s3.uploadFile(request.travelImage());
+		String travelImageUrl = s3.uploadFile(request.getTravelImage());
 		Travel travel = Travel.builder()
-			.name(request.travelName())
-			.description(request.travelDescription())
+			.name(request.getTravelName())
+			.description(request.getTravelDescription())
 			.image(travelImageUrl)
-			.expectedTripCost(request.expectedTripCost())
-			.minTravelMateCount(request.minTravelMateCount())
-			.maxTravelMateCount(request.maxTravelMateCount())
-			.hashTags(request.hashTags())
-			.isDomestic(request.isDomestic())
-			.travelLocation(request.travelLocation())
-			.departureLocation(request.departureLocation())
-			.startAt(request.startAt())
-			.endAt(request.endAt())
-			.tripDuration(request.tripDuration())
+			.expectedTripCost(request.getExpectedTripCost())
+			.minTravelMateCount(request.getMinTravelMateCount())
+			.maxTravelMateCount(request.getMaxTravelMateCount())
+			.hashTags(request.getHashTags())
+			.isDomestic(request.getIsDomestic())
+			.travelLocation(request.getTravelLocation())
+			.departureLocation(request.getDepartureLocation())
+			.startAt(request.getStartAt())
+			.endAt(request.getEndAt())
+			.tripDuration(request.getTripDuration())
 			.build();
 		travelRepository.save(travel);
 
-		List<TravelPlan> travelPlanList = request.detailTravel().stream()
+		List<TravelPlan> travelPlanList = request.getDetailTravel().stream()
 			.map(details -> {
-				String destinationImageUrl = s3.uploadFile(details.destinationImage());
+				String destinationImageUrl = s3.uploadFile(details.getDestinationImage());
 				return TravelPlan.builder()
 					.travel(travel)
 					.image(destinationImageUrl)
-					.tripDay(details.tripDay())
-					.tripOrderNumber(details.tripOrderNumber())
-					.destination(details.destination())
-					.description(details.description())
+					.tripDay(details.getTripDay())
+					.tripOrderNumber(details.getTripOrderNumber())
+					.destination(details.getDestination())
+					.description(details.getDescription())
 					.build();
 			}).toList();
 		travelPlanRepository.saveAll(travelPlanList);

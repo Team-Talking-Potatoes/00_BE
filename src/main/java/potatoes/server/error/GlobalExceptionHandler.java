@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import lombok.extern.slf4j.Slf4j;
 import potatoes.server.error.exception.CustomException;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -35,6 +37,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	protected ResponseEntity<ErrorResponse> handleException(Exception e) {
+		log.error("error", e);
 		ErrorResponse response = ErrorResponse.from(INTERNAL_SERVER_ERROR);
 		return ResponseEntity.status(INTERNAL_SERVER_ERROR.getStatus()).body(response);
 	}
