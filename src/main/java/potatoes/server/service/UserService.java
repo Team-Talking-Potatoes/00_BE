@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SignInRequest;
 import potatoes.server.dto.SignUpRequest;
 import potatoes.server.entity.User;
+import potatoes.server.error.exception.DuplicationEmail;
 import potatoes.server.error.exception.InvalidSignInInformation;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.crypto.PasswordEncoder;
@@ -37,6 +38,8 @@ public class UserService {
 
 	@Transactional
 	public void signUp(SignUpRequest request) {
+		userRepository.findByEmail(request.email()).orElseThrow(DuplicationEmail::new);
+
 		User createdUser = User.builder()
 			.email(request.email())
 			.password(passwordEncoder.encrypt(request.password()))
