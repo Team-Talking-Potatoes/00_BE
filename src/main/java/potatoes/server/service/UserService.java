@@ -39,7 +39,7 @@ public class UserService {
 	@Transactional
 	public void signUp(SignUpRequest request) {
 		userRepository.findByEmail(request.email()).orElseThrow(DuplicationEmail::new);
-
+		//TODO 전화번호 중복 허용? 에대해서는 보류해야 할듯합니다.
 		User createdUser = User.builder()
 			.email(request.email())
 			.password(passwordEncoder.encrypt(request.password()))
