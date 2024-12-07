@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SignInRequest;
@@ -21,6 +22,7 @@ public class UserController {
 
 	private final UserService userService;
 
+	@Operation(summary = "로그인", description = "로그인을 성공하면 SET_COOKIE형태로 토큰이 설정됩니다.")
 	@PostMapping("/sign-in")
 	public ResponseEntity<Void> signIn(@RequestBody SignInRequest request) {
 		return ResponseEntity.ok()
@@ -28,6 +30,7 @@ public class UserController {
 			.build();
 	}
 
+	@Operation(summary = "회원가입", description = "")
 	@PostMapping("/sign-up")
 	public ResponseEntity<Void> signUp(@RequestBody SignUpRequest request) {
 		userService.signUp(request);
