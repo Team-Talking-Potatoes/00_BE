@@ -25,14 +25,14 @@ public class MailController {
 	private final MailService mailService;
 
 	@Operation(summary = "메일 전송", description = "인증번호 메일전송")
-	@PostMapping("/mail-send")
+	@PostMapping("/emails")
 	public ResponseEntity<Void> sendMail(@RequestBody SendMailRequest request) {
 		mailService.sendMail(request);
 		return ResponseEntity.ok().build();
 	}
 
 	@Operation(summary = "인증번호 확인", description = "인증번호 유효시간은 4분으로 잡았지만 프론트단에서 3분으로 막아주세요 (서버처리 시간때문에 넉넉히 1분 더잡았습니다.)")
-	@GetMapping("/mail-check")
+	@GetMapping("/emails/verify")
 	public ResponseEntity<Void> verifyNumber(
 		@RequestParam @Pattern(regexp = "^[0-9]{6}$", message = "인증번호는 6자리 숫자여야 합니다.") String verifyNumber,
 		@RequestParam @Email String email
