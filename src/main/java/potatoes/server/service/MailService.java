@@ -12,6 +12,9 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SendMailRequest;
+import potatoes.server.error.exception.MailSendFailed;
+import potatoes.server.error.exception.MailVerifyNumberExpired;
+import potatoes.server.error.exception.MailVerifyNumberNotValid;
 import potatoes.server.utils.GenerateRandomNumber;
 
 @RequiredArgsConstructor
@@ -81,19 +84,20 @@ public class MailService {
 			javaMailSender.send(mimeMessage);
 
 		} catch (MessagingException e) {
-			throw new RuntimeException(e);
+			throw new MailSendFailed();
 		}
 	}
 
 	public void verifyNumberByEmail(String verifyNumber, String email) {
 		String storedAuthNumber = redisTemplate.opsForValue().get(email);
 		if (storedAuthNumber == null) {
-			throw new RuntimeException();
+			throw new MailVerifyNumberExpired();
 		}
 
-		if (storedAuthNumber.equals(verifyNumber)) {
-			redisTemplate.delete(email);
+		if (!storedAuthNumber.equals(verifyNumber)) {
+			throw new MailVerifyNumberNotValid();
 		}
+		redisTemplate.delete(email);
 	}
 
 	private String createVerification(String email) {
