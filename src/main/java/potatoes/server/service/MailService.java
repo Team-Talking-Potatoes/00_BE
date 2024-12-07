@@ -75,7 +75,7 @@ public class MailService {
 				    </div>
 				</body>
 				</html>
-				""",verifyNumber);
+				""", verifyNumber);
 
 			mimeMessageHelper.setText(content, true);
 			javaMailSender.send(mimeMessage);
@@ -85,30 +85,21 @@ public class MailService {
 		}
 	}
 
+	public void verifyNumberByEmail(String verifyNumber, String email) {
+		String storedAuthNumber = redisTemplate.opsForValue().get(email);
+		if (storedAuthNumber == null) {
+			throw new RuntimeException();
+		}
+
+		if (storedAuthNumber.equals(verifyNumber)) {
+			redisTemplate.delete(email);
+		}
+	}
+
 	private String createVerification(String email) {
 		String verifyNumber = GenerateRandomNumber.generateNumber();
 		redisTemplate.opsForValue()
 			.set(email, verifyNumber, EXPIRATION);
 		return verifyNumber;
 	}
-
-	// 인증번호 확인
-	private boolean verifyEmail(String email, String authNumber) {
-		String storedAuthNumber = redisTemplate.opsForValue().get(email);
-		if (storedAuthNumber == null) {
-			return false; // 유효시간 만료 또는 없는 이메일
-		}
-
-		if (storedAuthNumber.equals(authNumber)) {
-			redisTemplate.delete(email);
-			return true;
-		}
-		return false;
-	}
-
-	// 현재 저장된 인증번호 조회 (테스트용)
-	public String getStoredAuthNumber(String email) {
-		return redisTemplate.opsForValue().get(email);
-	}
-
 }
