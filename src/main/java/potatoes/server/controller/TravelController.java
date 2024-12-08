@@ -24,7 +24,7 @@ public class TravelController {
 
 	private final TravelService travelService;
 
-	@Operation(summary = "여행 등록", description = "")
+	@Operation(summary = "여행 등록", description = "여행을 등록합니다. 자세한 파라미터는 API명세서를 참고해주세요.")
 	@PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Void> createTravel(
 		@Authorization @Parameter(hidden = true) Long userId,
