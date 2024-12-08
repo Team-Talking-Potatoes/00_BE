@@ -24,7 +24,7 @@ public class MailService {
 
 	private final JavaMailSender javaMailSender;
 	private final RedisTemplate<String, String> redisTemplate;
-	private static final Duration EXPIRATION = Duration.ofMinutes(4);
+	private static final Duration EXPIRATION = Duration.ofMinutes(5);
 
 	@Transactional
 	public void sendMail(SendMailRequest request) {
