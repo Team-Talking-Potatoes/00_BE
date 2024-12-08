@@ -16,6 +16,10 @@ public class DateTimeUtils {
 		return DATE_TIME_FORMATTER.format(instant);
 	}
 
+	public static Instant localDateToInstant(LocalDate localDate) {
+		return localDate.atStartOfDay(ZoneOffset.UTC).toInstant();
+	}
+
 	public static Instant getStartOfDay(String dateStr) {
 		if (dateStr == null) {
 			return null;

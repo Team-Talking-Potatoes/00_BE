@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,6 +30,9 @@ public class TravelPlan {
 	@Column(name = "trip_day", nullable = false)
 	private int tripDay;
 
+	@Column(name = "trip_order_number", nullable = false)
+	private int tripOrderNumber;
+
 	@Column(name = "destination", nullable = false)
 	private String destination;
 
@@ -37,4 +41,15 @@ public class TravelPlan {
 
 	@Column(name = "description", nullable = false)
 	private String description;
+
+	@Builder
+	public TravelPlan(Travel travel, int tripDay, int tripOrderNumber, String destination, String image,
+		String description) {
+		this.travel = travel;
+		this.tripDay = tripDay;
+		this.tripOrderNumber = tripOrderNumber;
+		this.destination = destination;
+		this.image = image;
+		this.description = description;
+	}
 }
