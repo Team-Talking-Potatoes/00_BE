@@ -3,6 +3,7 @@ package potatoes.server.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import potatoes.server.controller.TravelController;
 
 @Configuration
 public class SwaggerConfig implements WebMvcConfigurer {
@@ -43,5 +45,15 @@ public class SwaggerConfig implements WebMvcConfigurer {
 		Info info = new Info().title("talking-potatoes-api").description("").version("1.0");
 
 		return new OpenAPI().components(components).info(info).addSecurityItem(securityRequirement);
+	}
+
+	@Bean
+	public GroupedOpenApi getTravelApi() {
+		return GroupedOpenApi.builder()
+			.group("travel")
+			.addOpenApiMethodFilter(method ->
+				method.getDeclaringClass().equals(TravelController.class))
+			.packagesToScan("potatoes.server.controller")
+			.build();
 	}
 }
