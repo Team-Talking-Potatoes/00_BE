@@ -14,8 +14,13 @@ public enum ErrorCode {
 
 	// User
 	EMAIL_DUPLICATION(400, "EMAIL_DUPLICATION", "이미 가입된 이메일입니다."),
-	INVALID_CREDENTIALS(400, "INVALID_CREDENTIALS", "잘못된 이메일 또는 비밀번호입니다."),
 	USER_NOT_FOUND(400, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다."),
+	INVALID_CREDENTIALS(401, "INVALID_CREDENTIALS", "잘못된 이메일 또는 비밀번호입니다."),
+
+	// Mail(SMTP)
+	MAIL_VERIFY_NUMBER_NOT_VALID(400, "NUMBER_NOT_VALID", "번호가 일치하지 않습니다."),
+	MAIL_VERIFY_NUMBER_EXPIRED(400, "NUMBER_EXPIRED", "번호의 유효시간이 끝났습니다"),
+	MAIL_SEND_EXCEPTION(502, "MAIL_SEND_EXCEPTION", "메일을 전송하지 못했습니다"),
 
 	// Tavel
 	INVALID_TRAVEL_MATE_COUNT(400, "INVALID_TRAVEL_MATE_COUNT", "참가자 최소 인원은 최대 인원을 초과할 수 없습니다."),
