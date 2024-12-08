@@ -1,5 +1,7 @@
 package potatoes.server.service;
 
+import java.util.Optional;
+
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +40,12 @@ public class UserService {
 
 	@Transactional
 	public void signUp(SignUpRequest request) {
-		userRepository.findByEmail(request.email()).orElseThrow(DuplicationEmail::new);
+		Optional<User> user = userRepository.findByEmail(request.email());
+
+		if (user.isPresent()) {
+			throw new DuplicationEmail();
+		}
+
 		//TODO 전화번호 중복 허용? 에대해서는 보류해야 할듯합니다.
 		User createdUser = User.builder()
 			.email(request.email())
