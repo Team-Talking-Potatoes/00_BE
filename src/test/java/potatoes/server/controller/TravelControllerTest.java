@@ -1,11 +1,9 @@
 package potatoes.server.controller;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static potatoes.server.error.ErrorCode.*;
 
@@ -97,7 +95,7 @@ class TravelControllerTest {
 		);
 
 		// expect
-		mockMvc.perform(multipart("/api/travel")
+		mockMvc.perform(multipart("/travel")
 				.file(travelImage)
 				.file(destinationImage)
 				.param("travelName", "Test Travel")
@@ -149,7 +147,7 @@ class TravelControllerTest {
 		);
 
 		// when
-		mockMvc.perform(multipart("/api/travel")
+		mockMvc.perform(multipart("/travel")
 				.file(travelImage)
 				.file(destinationImage)
 				.param("travelName", "Test Travel")
@@ -196,7 +194,7 @@ class TravelControllerTest {
 		);
 
 		// expect
-		mockMvc.perform(multipart("/api/travel")
+		mockMvc.perform(multipart("/travel")
 				.file(travelImage)
 				.param("travelName", "Test Travel")
 				.param("expectedTripCost", "1000")
@@ -251,7 +249,7 @@ class TravelControllerTest {
 		);
 
 		// when
-		mockMvc.perform(multipart("/api/travel")
+		mockMvc.perform(multipart("/travel")
 				.file(travelImage)
 				.file(destinationImage)
 				.param("travelName", "Test Travel")
@@ -305,7 +303,7 @@ class TravelControllerTest {
 		);
 
 		// when
-		mockMvc.perform(multipart("/api/travel")
+		mockMvc.perform(multipart("/travel")
 				.file(travelImage)
 				.file(destinationImage)
 				.param("travelName", "Test Travel")
@@ -359,7 +357,7 @@ class TravelControllerTest {
 		);
 
 		// when
-		mockMvc.perform(multipart("/api/travel")
+		mockMvc.perform(multipart("/travel")
 				.file(travelImage)
 				.file(destinationImage)
 				.param("travelName", "Test Travel")
@@ -425,7 +423,7 @@ class TravelControllerTest {
 		);
 
 		// when
-		mockMvc.perform(multipart("/api/travel")
+		mockMvc.perform(multipart("/travel")
 				.file(travelImage)
 				.file(destinationImage)
 				.param("travelName", "Test Travel")

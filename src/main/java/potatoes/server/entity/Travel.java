@@ -44,7 +44,7 @@ public class Travel extends BaseTimeEntity {
 	private String hashTags;
 
 	@Column(name = "is_domestic", nullable = false)
-	boolean isDomestic;
+	private boolean isDomestic;
 
 	@Column(name = "travel_location", nullable = false)
 	private String travelLocation;

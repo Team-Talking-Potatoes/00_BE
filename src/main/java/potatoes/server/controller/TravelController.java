@@ -2,6 +2,8 @@ package potatoes.server.controller;
 
 import static org.springframework.http.MediaType.*;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +18,7 @@ import potatoes.server.service.TravelService;
 import potatoes.server.utils.annotation.Authorization;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/travel")
+@RequestMapping("/travel")
 @RestController
 public class TravelController {
 
@@ -24,9 +26,10 @@ public class TravelController {
 
 	@Operation(summary = "여행 등록", description = "")
 	@PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
-	public void createTravel(
-		@Authorization @Parameter(hidden = true) Long id,
+	public ResponseEntity<Void> createTravel(
+		@Authorization @Parameter(hidden = true) Long userId,
 		@ModelAttribute @Valid CreateTravelRequest createTravelRequest) {
-		travelService.createTravel(id, createTravelRequest);
+		travelService.createTravel(userId, createTravelRequest);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }
