@@ -11,9 +11,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.AccessToken;
 import potatoes.server.dto.EmailVerifyRequest;
 import potatoes.server.dto.SendMailRequest;
+import potatoes.server.dto.VerifyResponse;
 import potatoes.server.service.MailVerificationService;
 
 @Tag(name = "Mail", description = "Mail API")
@@ -41,10 +41,10 @@ public class MailController {
 
 	@Operation(summary = "인증번호 확인", description = "인증번호 유효시간은 5분, 반환에 인증토큰 바디로 날라옴")
 	@PostMapping("emails/verify")
-	public ResponseEntity<AccessToken> verifyNumber(
+	public ResponseEntity<VerifyResponse> verifyNumber(
 		@RequestBody @Valid EmailVerifyRequest request
 	) {
-		AccessToken accessToken = mailVerificationService.verifyNumberAndCreateToken(request.verifyNumber(), request.email());
-		return ResponseEntity.ok().body(accessToken);
+		VerifyResponse verifyResponse = mailVerificationService.verifyNumberAndCreateToken(request.verifyNumber(), request.email());
+		return ResponseEntity.ok().body(verifyResponse);
 	}
 }

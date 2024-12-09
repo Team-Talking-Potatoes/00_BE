@@ -1,6 +1,6 @@
 package potatoes.server.dto;
 
-public record AccessToken(
+public record VerifyResponse(
 	String accessToken
 ) {
 }

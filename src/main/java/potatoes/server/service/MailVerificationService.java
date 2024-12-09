@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.AccessToken;
 import potatoes.server.dto.SendMailRequest;
+import potatoes.server.dto.VerifyResponse;
 import potatoes.server.error.exception.MailVerifyNumberExpired;
 import potatoes.server.error.exception.MailVerifyNumberNotValid;
 import potatoes.server.utils.GenerateRandomNumber;
@@ -40,7 +40,7 @@ public class MailVerificationService {
 		customMailSender.sendVerificationMail(request, verifyNumber);
 	}
 
-	public AccessToken verifyNumberAndCreateToken(String verifyNumber, String email) {
+	public VerifyResponse verifyNumberAndCreateToken(String verifyNumber, String email) {
 		verifyNumberByEmail(verifyNumber, email);
 		return createAccessToken();
 	}
@@ -63,7 +63,7 @@ public class MailVerificationService {
 		redisStore.remove(email);
 	}
 
-	private AccessToken createAccessToken() {
-		return new AccessToken(jwtTokenUtil.createToken(LocalDateTime.now().toString()));
+	private VerifyResponse createAccessToken() {
+		return new VerifyResponse(jwtTokenUtil.createToken(LocalDateTime.now().toString()));
 	}
 }
