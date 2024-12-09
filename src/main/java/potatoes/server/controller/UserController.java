@@ -2,6 +2,7 @@ package potatoes.server.controller;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,13 @@ public class UserController {
 	@PostMapping("/sign-up")
 	public ResponseEntity<Void> signUp(@RequestBody @Valid SignUpRequest request) {
 		userService.signUp(request);
+		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "토큰 유효성 검사", description = "토큰의 유효성을 검사합니다. 조작된 토큰이면 예외를 터트립니다")
+	@GetMapping("/token/verify")
+	public ResponseEntity<Void> validateToken(String token) {
+		userService.verifyTokenSignature(token);
 		return ResponseEntity.ok().build();
 	}
 }

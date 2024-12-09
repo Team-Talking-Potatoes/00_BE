@@ -52,6 +52,9 @@ public class UserService {
 		userRepository.save(createdUser);
 	}
 
+	public void verifyTokenSignature(String token) {
+		jwtTokenUtil.validateToken(token);
+	}
 
 	public void validateEmailNotExists(String email) {
 		if (userRepository.existsByEmail(email)) {
