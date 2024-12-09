@@ -78,7 +78,7 @@ public class MailSender {
 			            </div>
 			           \s
 			            <p style="color: #999999; font-size: 14px; margin-top: 30px;">
-			                인증번호는 3분간 유효합니다.<br>
+			                인증번호는 5분간 유효합니다.<br>
 			                본 메일은 발신전용이므로 회신이 불가합니다.
 			            </p>
 			        </div>
