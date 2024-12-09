@@ -1,6 +1,7 @@
 package potatoes.server.service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +20,8 @@ import potatoes.server.utils.redis.RedisVerificationStore;
 @Service
 public class MailVerificationService {
 
-	private final MailSender mailSender;
 	private final UserService userService;
+	private final CustomMailSender customMailSender;
 	private final RedisVerificationStore redisStore;
 	private final JwtTokenUtil jwtTokenUtil;
 	private static final Duration EXPIRATION = Duration.ofMinutes(5);
@@ -29,14 +30,14 @@ public class MailVerificationService {
 	public void sendSignupEmail(SendMailRequest request) {
 		userService.validateEmailNotExists(request.email());
 		String verifyNumber = createAndStoreVerificationNumber(request.email());
-		mailSender.sendVerificationMail(request, verifyNumber);
+		customMailSender.sendVerificationMail(request, verifyNumber);
 	}
 
 	@Transactional
 	public void sendPasswordResetEmail(SendMailRequest request) {
 		userService.validateEmailExists(request.email());
 		String verifyNumber = createAndStoreVerificationNumber(request.email());
-		mailSender.sendVerificationMail(request, verifyNumber);
+		customMailSender.sendVerificationMail(request, verifyNumber);
 	}
 
 	public AccessToken verifyNumberAndCreateToken(String verifyNumber, String email) {
@@ -63,6 +64,6 @@ public class MailVerificationService {
 	}
 
 	private AccessToken createAccessToken() {
-		return new AccessToken(jwtTokenUtil.createToken("verification"));
+		return new AccessToken(jwtTokenUtil.createToken(LocalDateTime.now().toString()));
 	}
 }
