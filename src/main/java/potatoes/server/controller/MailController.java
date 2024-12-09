@@ -2,21 +2,19 @@ package potatoes.server.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import potatoes.server.dto.AccessToken;
+import potatoes.server.dto.EmailVerifyRequest;
 import potatoes.server.dto.SendMailRequest;
-import potatoes.server.service.MailService;
+import potatoes.server.service.MailVerificationService;
 
 @Tag(name = "Mail", description = "Mail API")
 @RequestMapping("/auth")
@@ -25,22 +23,28 @@ import potatoes.server.service.MailService;
 @RestController
 public class MailController {
 
-	private final MailService mailService;
+	private final MailVerificationService mailVerificationService;
 
-	@Operation(summary = "메일 전송", description = "인증번호 메일전송")
-	@PostMapping("/emails")
-	public ResponseEntity<Void> sendMail(@RequestBody @Valid SendMailRequest request) {
-		mailService.sendMail(request);
+	@Operation(summary = "메일 전송(회원가입)", description = "회원가입용 메일 전송, 이메일이 존재하면 예외터트림")
+	@PostMapping("/sign-up/emails")
+	public ResponseEntity<Void> sendSignupVerificationEmail(@RequestBody @Valid SendMailRequest request) {
+		mailVerificationService.sendSignupEmail(request);
 		return ResponseEntity.ok().build();
 	}
 
-	@Operation(summary = "인증번호 확인", description = "인증번호 유효시간은 4분으로 잡았지만 프론트단에서 3분으로 막아주세요 (서버처리 시간때문에 넉넉히 1분 더잡았습니다.)")
-	@GetMapping("/emails/verify")
-	public ResponseEntity<Void> verifyNumber(
-		@RequestParam @Pattern(regexp = "^[0-9]{6}$", message = "인증번호는 6자리 숫자여야 합니다.") String verifyNumber,
-		@RequestParam @Email String email
-	) {
-		mailService.verifyNumberByEmail(verifyNumber, email);
+	@Operation(summary = "메일 전송(비밀번호찾기)", description = "비밀번호용 메일 전송, 이메일이 존재하지 않으면 예외터트림")
+	@PostMapping("/password/emails")
+	public ResponseEntity<Void> validateEmailExistsForPasswordReset(@RequestBody @Valid SendMailRequest request) {
+		mailVerificationService.sendPasswordResetEmail(request);
 		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "인증번호 확인", description = "인증번호 유효시간은 5분, 반환에 인증토큰 바디로 날라옴")
+	@PostMapping("emails/verify")
+	public ResponseEntity<AccessToken> verifyNumber(
+		@RequestBody @Valid EmailVerifyRequest request
+	) {
+		AccessToken accessToken = mailVerificationService.verifyNumberAndCreateToken(request.verifyNumber(), request.email());
+		return ResponseEntity.ok().body(accessToken);
 	}
 }
