@@ -15,7 +15,7 @@ import potatoes.server.error.exception.MailSendFailed;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class MailSender {
+public class CustomMailSender {
 
 	private final JavaMailSender javaMailSender;
 
