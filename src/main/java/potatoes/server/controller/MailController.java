@@ -1,6 +1,7 @@
 package potatoes.server.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import potatoes.server.service.MailService;
 @Tag(name = "Mail", description = "Mail API")
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Validated
 @RestController
 public class MailController {
 
@@ -26,7 +29,7 @@ public class MailController {
 
 	@Operation(summary = "메일 전송", description = "인증번호 메일전송")
 	@PostMapping("/emails")
-	public ResponseEntity<Void> sendMail(@RequestBody SendMailRequest request) {
+	public ResponseEntity<Void> sendMail(@RequestBody @Valid SendMailRequest request) {
 		mailService.sendMail(request);
 		return ResponseEntity.ok().build();
 	}
