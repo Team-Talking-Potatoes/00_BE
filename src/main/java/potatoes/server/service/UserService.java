@@ -10,7 +10,6 @@ import potatoes.server.dto.SignUpRequest;
 import potatoes.server.entity.User;
 import potatoes.server.error.exception.DuplicationEmail;
 import potatoes.server.error.exception.InvalidSignInInformation;
-import potatoes.server.error.exception.Unauthorized;
 import potatoes.server.error.exception.UserNotFound;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.crypto.PasswordEncoder;
@@ -51,15 +50,6 @@ public class UserService {
 			.build();
 
 		userRepository.save(createdUser);
-	}
-
-	public void verifyAuthorizationHeader(String authHeader) {
-		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-			throw new Unauthorized();
-		}
-
-		String token = authHeader.substring(7);
-		jwtTokenUtil.validateToken(token);
 	}
 
 	public void validateEmailNotExists(String email) {

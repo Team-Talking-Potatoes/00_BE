@@ -2,6 +2,7 @@ package potatoes.server.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +65,7 @@ public class MailVerificationService {
 	}
 
 	private VerifyResponse createAccessToken() {
-		return new VerifyResponse(jwtTokenUtil.createToken(LocalDateTime.now().toString()));
+		return new VerifyResponse(
+			jwtTokenUtil.createToken(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))));
 	}
 }
