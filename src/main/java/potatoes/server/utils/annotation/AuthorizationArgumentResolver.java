@@ -12,6 +12,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import jakarta.servlet.http.HttpServletRequest;
 import potatoes.server.error.exception.JwtAuthException;
+import potatoes.server.error.exception.Unauthorized;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 
 @Component
@@ -49,6 +50,11 @@ public class AuthorizationArgumentResolver implements HandlerMethodArgumentResol
 		}
 
 		String token = authorizationHeader.substring(BEARER_PREFIX_LEN);
+
+		if (!jwtTokenProvider.validateToken(token)) {
+			throw new Unauthorized();
+		}
+
 		return Long.parseLong(jwtTokenProvider.getPayload(token));
 	}
 }
