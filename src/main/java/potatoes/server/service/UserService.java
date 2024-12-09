@@ -1,7 +1,5 @@
 package potatoes.server.service;
 
-import java.util.Optional;
-
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +10,7 @@ import potatoes.server.dto.SignUpRequest;
 import potatoes.server.entity.User;
 import potatoes.server.error.exception.DuplicationEmail;
 import potatoes.server.error.exception.InvalidSignInInformation;
+import potatoes.server.error.exception.UserNotFound;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.crypto.PasswordEncoder;
 import potatoes.server.utils.crypto.TokenCookie;
@@ -40,12 +39,6 @@ public class UserService {
 
 	@Transactional
 	public void signUp(SignUpRequest request) {
-		Optional<User> user = userRepository.findByEmail(request.email());
-
-		if (user.isPresent()) {
-			throw new DuplicationEmail();
-		}
-
 		//TODO 전화번호 중복 허용? 에대해서는 보류해야 할듯합니다.
 		User createdUser = User.builder()
 			.email(request.email())
@@ -57,5 +50,18 @@ public class UserService {
 			.build();
 
 		userRepository.save(createdUser);
+	}
+
+
+	public void validateEmailNotExists(String email) {
+		if (userRepository.existsByEmail(email)) {
+			throw new DuplicationEmail();
+		}
+	}
+
+	public void validateEmailExists(String email) {
+		if (!userRepository.existsByEmail(email)) {
+			throw new UserNotFound();
+		}
 	}
 }
