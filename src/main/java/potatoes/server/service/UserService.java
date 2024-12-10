@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import potatoes.server.dto.DeleteUserRequest;
 import potatoes.server.dto.ResetPasswordRequest;
 import potatoes.server.entity.User;
 import potatoes.server.error.exception.PasswordMismatch;
@@ -24,11 +25,7 @@ public class UserService {
 	@Transactional
 	public void resetPassword(ResetPasswordRequest request, Long userId) {
 		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
-		boolean isPasswordMatched = passwordEncoder.matches(request.currentPassword(), getUser.getPassword());
-
-		if (!isPasswordMatched) {
-			throw new PasswordMismatch();
-		}
+		validatePassword(request.currentPassword(), getUser.getPassword());
 
 		String newPassword = passwordEncoder.encrypt(request.newPassword());
 
@@ -49,5 +46,20 @@ public class UserService {
 	private String uploadAndReturnUrl(MultipartFile image) {
 		String filaName = s3.uploadFile(image);
 		return s3.getFileUrl(filaName);
+	}
+
+	@Transactional
+	public void deleteUser(DeleteUserRequest request, Long userId) {
+		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		validatePassword(request.password(), getUser.getPassword());
+		userRepository.delete(getUser);
+	}
+
+	private void validatePassword(String rawPassword, String encrpytedPassword) {
+		boolean isPasswordMatched = passwordEncoder.matches(rawPassword, encrpytedPassword);
+
+		if (!isPasswordMatched) {
+			throw new PasswordMismatch();
+		}
 	}
 }

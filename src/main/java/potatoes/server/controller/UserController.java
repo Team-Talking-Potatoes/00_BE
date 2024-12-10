@@ -1,6 +1,7 @@
 package potatoes.server.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import potatoes.server.dto.DeleteUserRequest;
 import potatoes.server.dto.ResetPasswordRequest;
 import potatoes.server.service.UserService;
 import potatoes.server.utils.annotation.Authorization;
@@ -34,6 +36,16 @@ public class UserController {
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		userService.updateUserProfile(profileImage, nickname, description, userId);
+		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "회원탈퇴", description = "토큰과 패스워드를 받는다")
+	@DeleteMapping("")
+	public ResponseEntity<Void> deleteUser(
+		@RequestBody @Valid DeleteUserRequest request,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		userService.deleteUser(request, userId);
 		return ResponseEntity.ok().build();
 	}
 
