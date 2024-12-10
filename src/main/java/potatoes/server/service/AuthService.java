@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SignInRequest;
 import potatoes.server.dto.SignUpRequest;
+import potatoes.server.dto.UnauthorizedPasswordResetRequest;
 import potatoes.server.entity.User;
 import potatoes.server.error.exception.DuplicationEmail;
 import potatoes.server.error.exception.InvalidSignInInformation;
@@ -19,7 +20,7 @@ import potatoes.server.utils.jwt.JwtTokenUtil;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class UserService {
+public class AuthService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -50,6 +51,14 @@ public class UserService {
 			.build();
 
 		userRepository.save(createdUser);
+	}
+
+	@Transactional
+	public void unauthorizedPasswordReset(UnauthorizedPasswordResetRequest request) {
+		User getUser = userRepository.findByEmail(request.email()).orElseThrow(UserNotFound::new);
+
+		String newPassword = passwordEncoder.encrypt(request.newPassword());
+		getUser.resetPassword(newPassword);
 	}
 
 	public void validateEmailNotExists(String email) {
