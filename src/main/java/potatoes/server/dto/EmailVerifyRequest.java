@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public record EmailVerifyRequest(
-
 	@Email
 	@NotBlank(message = "이메일은 필수입니다")
 	String email,
