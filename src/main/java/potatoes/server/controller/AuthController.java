@@ -47,7 +47,7 @@ public class AuthController {
 	@PutMapping("/password")
 	public ResponseEntity<Void> resetPassword(
 		@RequestBody @Valid UnauthorizedPasswordResetRequest request,
-		@Authorization @Parameter(hidden = true) Long token
+		@Authorization @Parameter(hidden = true) Long time
 	) {
 		authService.unauthorizedPasswordReset(request);
 		return ResponseEntity.ok().build();
