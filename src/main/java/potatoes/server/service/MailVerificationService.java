@@ -21,7 +21,7 @@ import potatoes.server.utils.redis.RedisVerificationStore;
 @Service
 public class MailVerificationService {
 
-	private final UserService userService;
+	private final AuthService authService;
 	private final CustomMailSender customMailSender;
 	private final RedisVerificationStore redisStore;
 	private final JwtTokenUtil jwtTokenUtil;
@@ -29,14 +29,14 @@ public class MailVerificationService {
 
 	@Transactional
 	public void sendSignupEmail(SendMailRequest request) {
-		userService.validateEmailNotExists(request.email());
+		authService.validateEmailNotExists(request.email());
 		String verifyNumber = createAndStoreVerificationNumber(request.email());
 		customMailSender.sendVerificationMail(request, verifyNumber);
 	}
 
 	@Transactional
 	public void sendPasswordResetEmail(SendMailRequest request) {
-		userService.validateEmailExists(request.email());
+		authService.validateEmailExists(request.email());
 		String verifyNumber = createAndStoreVerificationNumber(request.email());
 		customMailSender.sendVerificationMail(request, verifyNumber);
 	}
