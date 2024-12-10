@@ -4,7 +4,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,6 +24,18 @@ import potatoes.server.utils.annotation.Authorization;
 public class UserController {
 
 	private final UserService userService;
+
+	@Operation(summary = "회원정보 수정", description = "프로필이미지, 닉네임, 설명에 대한 정보 수정")
+	@PutMapping("")
+	public ResponseEntity<Void> updateUserProfile(
+		@RequestParam(required = false) MultipartFile profileImage,
+		@RequestParam(required = false) String nickname,
+		@RequestParam(required = false) String description,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		userService.updateUserProfile(profileImage, nickname, description, userId);
+		return ResponseEntity.ok().build();
+	}
 
 	@Operation(summary = "비밀번호 재설정", description = "로그인 된 상황에 대한 비밀번호 재설정")
 	@PutMapping("/password")
