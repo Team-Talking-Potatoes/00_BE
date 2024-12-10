@@ -16,6 +16,7 @@ public enum ErrorCode {
 	EMAIL_DUPLICATION(400, "EMAIL_DUPLICATION", "이미 가입된 이메일입니다."),
 	USER_NOT_FOUND(400, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다."),
 	INVALID_CREDENTIALS(401, "INVALID_CREDENTIALS", "잘못된 이메일 또는 비밀번호입니다."),
+	PASSWORD_MISMATCH(400, "PASSWORD_MISMATCH", "비밀번호가 일치하지 않습니다."),
 
 	// Mail(SMTP)
 	MAIL_VERIFY_NUMBER_NOT_VALID(400, "NUMBER_NOT_VALID", "번호가 일치하지 않습니다."),
