@@ -2,6 +2,7 @@ package potatoes.server.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.DeleteUserRequest;
+import potatoes.server.dto.GetUserProfileResponse;
 import potatoes.server.dto.ResetPasswordRequest;
 import potatoes.server.service.UserService;
 import potatoes.server.utils.annotation.Authorization;
@@ -26,6 +28,14 @@ import potatoes.server.utils.annotation.Authorization;
 public class UserController {
 
 	private final UserService userService;
+
+	@Operation(summary = "회원정보 조회", description = "이메일, 닉네임, 프로필이미지, 자기소개 조회")
+	@GetMapping("")
+	public ResponseEntity<GetUserProfileResponse> getUserProfile(
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		return ResponseEntity.ok(userService.getUserProfile(userId));
+	}
 
 	@Operation(summary = "회원정보 수정", description = "프로필이미지, 닉네임, 설명에 대한 정보 수정")
 	@PutMapping("")

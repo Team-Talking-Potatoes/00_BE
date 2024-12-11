@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.DeleteUserRequest;
+import potatoes.server.dto.GetUserProfileResponse;
 import potatoes.server.dto.ResetPasswordRequest;
 import potatoes.server.entity.User;
 import potatoes.server.error.exception.PasswordMismatch;
@@ -21,6 +22,17 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final S3UtilsProvider s3;
+
+	public GetUserProfileResponse getUserProfile(Long userId) {
+		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+
+		return new GetUserProfileResponse(
+			getUser.getEmail(),
+			getUser.getNickname(),
+			getUser.getProfileImage(),
+			getUser.getDescription()
+		);
+	}
 
 	@Transactional
 	public void resetPassword(ResetPasswordRequest request, Long userId) {
