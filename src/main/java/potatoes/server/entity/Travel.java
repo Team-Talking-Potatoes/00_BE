@@ -31,7 +31,7 @@ public class Travel extends BaseTimeEntity {
 	@Column(name = "image", nullable = false)
 	private String image;
 
-	@Column(name = "expected_Trip_cost", nullable = false)
+	@Column(name = "expected_trip_cost", nullable = false)
 	private int expectedTripCost;
 
 	@Column(name = "min_travel_mate_count", nullable = false)
