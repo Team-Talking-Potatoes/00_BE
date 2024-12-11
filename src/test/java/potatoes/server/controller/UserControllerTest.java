@@ -23,7 +23,7 @@ import potatoes.server.dto.SignInRequest;
 import potatoes.server.dto.SignUpRequest;
 import potatoes.server.error.exception.DuplicationEmail;
 import potatoes.server.error.exception.InvalidSignInInformation;
-import potatoes.server.service.UserService;
+import potatoes.server.service.AuthService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -34,7 +34,7 @@ class UserControllerTest {
 	private MockMvc mockMvc;
 
 	@MockBean
-	private UserService userService;
+	private AuthService authService;
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -48,7 +48,7 @@ class UserControllerTest {
 			.path("/")
 			.build();
 
-		when(userService.signIn(any(SignInRequest.class)))
+		when(authService.signIn(any(SignInRequest.class)))
 			.thenReturn(mockCookie);
 
 		// when & then
@@ -74,7 +74,7 @@ class UserControllerTest {
 		);
 
 		doThrow(new DuplicationEmail())
-			.when(userService).signUp(any(SignUpRequest.class));
+			.when(authService).signUp(any(SignUpRequest.class));
 
 		// when & then
 		mockMvc.perform(post("/auth/sign-up")
@@ -89,7 +89,7 @@ class UserControllerTest {
 		// given
 		SignInRequest request = new SignInRequest("test@example.com", "wrongPassword");
 
-		when(userService.signIn(any(SignInRequest.class)))
+		when(authService.signIn(any(SignInRequest.class)))
 			.thenThrow(new InvalidSignInInformation());
 
 		// when & then
@@ -119,6 +119,6 @@ class UserControllerTest {
 			.andDo(print())
 			.andExpect(status().isOk());
 
-		verify(userService).signUp(any(SignUpRequest.class));
+		verify(authService).signUp(any(SignUpRequest.class));
 	}
 }

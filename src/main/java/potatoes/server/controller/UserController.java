@@ -1,40 +1,71 @@
 package potatoes.server.controller;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.SignInRequest;
-import potatoes.server.dto.SignUpRequest;
+import potatoes.server.dto.DeleteUserRequest;
+import potatoes.server.dto.GetUserProfileResponse;
+import potatoes.server.dto.ResetPasswordRequest;
 import potatoes.server.service.UserService;
+import potatoes.server.utils.annotation.Authorization;
 
-@Tag(name = "Auth", description = "Auth API")
-@RequestMapping("/auth")
+@Tag(name = "User", description = "User API")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @RestController
 public class UserController {
 
 	private final UserService userService;
 
-	@Operation(summary = "로그인", description = "로그인을 성공하면 SET_COOKIE형태로 토큰이 설정됩니다.")
-	@PostMapping("/sign-in")
-	public ResponseEntity<Void> signIn(@RequestBody @Valid SignInRequest request) {
-		return ResponseEntity.ok()
-			.header(HttpHeaders.SET_COOKIE, userService.signIn(request).toString())
-			.build();
+	@Operation(summary = "회원정보 조회", description = "이메일, 닉네임, 프로필이미지, 자기소개 조회")
+	@GetMapping("")
+	public ResponseEntity<GetUserProfileResponse> getUserProfile(
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		return ResponseEntity.ok(userService.getUserProfile(userId));
 	}
 
-	@Operation(summary = "회원가입", description = "")
-	@PostMapping("/sign-up")
-	public ResponseEntity<Void> signUp(@RequestBody @Valid SignUpRequest request) {
-		userService.signUp(request);
+	@Operation(summary = "회원정보 수정", description = "프로필이미지, 닉네임, 설명에 대한 정보 수정")
+	@PutMapping("")
+	public ResponseEntity<Void> updateUserProfile(
+		@RequestParam(required = false) MultipartFile profileImage,
+		@RequestParam(required = false) String nickname,
+		@RequestParam(required = false) String description,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		userService.updateUserProfile(profileImage, nickname, description, userId);
+		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "회원탈퇴", description = "토큰과 패스워드를 받는다")
+	@DeleteMapping("")
+	public ResponseEntity<Void> deleteUser(
+		@RequestBody @Valid DeleteUserRequest request,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		userService.deleteUser(request, userId);
+		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "비밀번호 재설정", description = "로그인 된 상황에 대한 비밀번호 재설정")
+	@PutMapping("/password")
+	public ResponseEntity<Void> resetPassword(
+		@RequestBody @Valid ResetPasswordRequest request,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		userService.resetPassword(request, userId);
 		return ResponseEntity.ok().build();
 	}
 }

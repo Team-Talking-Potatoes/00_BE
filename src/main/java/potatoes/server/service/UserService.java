@@ -1,61 +1,77 @@
 package potatoes.server.service;
 
-import java.util.Optional;
-
-import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.SignInRequest;
-import potatoes.server.dto.SignUpRequest;
+import potatoes.server.dto.DeleteUserRequest;
+import potatoes.server.dto.GetUserProfileResponse;
+import potatoes.server.dto.ResetPasswordRequest;
 import potatoes.server.entity.User;
-import potatoes.server.error.exception.DuplicationEmail;
-import potatoes.server.error.exception.InvalidSignInInformation;
+import potatoes.server.error.exception.PasswordMismatch;
+import potatoes.server.error.exception.UserNotFound;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.crypto.PasswordEncoder;
-import potatoes.server.utils.crypto.TokenCookie;
-import potatoes.server.utils.jwt.JwtTokenUtil;
+import potatoes.server.utils.s3.S3UtilsProvider;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
 public class UserService {
-
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final JwtTokenUtil jwtTokenUtil;
+	private final S3UtilsProvider s3;
 
-	public ResponseCookie signIn(SignInRequest request) {
-		User getUser = userRepository.findByEmail(request.email()).orElseThrow(InvalidSignInInformation::new);
+	public GetUserProfileResponse getUserProfile(Long userId) {
+		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
 
-		boolean isPasswordMatched = passwordEncoder.matches(request.password(), getUser.getPassword());
-		if (!isPasswordMatched) {
-			throw new InvalidSignInInformation();
-		}
-		String accessToken = jwtTokenUtil.createToken(getUser.getId().toString());
-
-		return new TokenCookie(accessToken).generateCookie();
+		return new GetUserProfileResponse(
+			getUser.getEmail(),
+			getUser.getNickname(),
+			getUser.getProfileImage(),
+			getUser.getDescription()
+		);
 	}
 
 	@Transactional
-	public void signUp(SignUpRequest request) {
-		Optional<User> user = userRepository.findByEmail(request.email());
+	public void resetPassword(ResetPasswordRequest request, Long userId) {
+		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		validatePassword(request.currentPassword(), getUser.getPassword());
 
-		if (user.isPresent()) {
-			throw new DuplicationEmail();
+		String newPassword = passwordEncoder.encrypt(request.newPassword());
+
+		getUser.resetPassword(newPassword);
+	}
+
+	@Transactional
+	public void updateUserProfile(MultipartFile profileImage, String nickname, String description, Long userId) {
+		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+
+		String imageUrl = profileImage != null ? uploadAndReturnUrl(profileImage) : getUser.getProfileImage();
+		String updatedNickname = nickname != null ? nickname : getUser.getNickname();
+		String updatedDescription = description != null ? description : getUser.getDescription();
+
+		getUser.updateProfile(imageUrl, updatedNickname, updatedDescription);
+	}
+
+	private String uploadAndReturnUrl(MultipartFile image) {
+		String filaName = s3.uploadFile(image);
+		return s3.getFileUrl(filaName);
+	}
+
+	@Transactional
+	public void deleteUser(DeleteUserRequest request, Long userId) {
+		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		validatePassword(request.password(), getUser.getPassword());
+		userRepository.delete(getUser);
+	}
+
+	private void validatePassword(String rawPassword, String encrpytedPassword) {
+		boolean isPasswordMatched = passwordEncoder.matches(rawPassword, encrpytedPassword);
+
+		if (!isPasswordMatched) {
+			throw new PasswordMismatch();
 		}
-
-		//TODO 전화번호 중복 허용? 에대해서는 보류해야 할듯합니다.
-		User createdUser = User.builder()
-			.email(request.email())
-			.password(passwordEncoder.encrypt(request.password()))
-			.name(request.name())
-			.nickname(request.nickname())
-			.birthDate(Integer.parseInt(request.birthDate()))
-			.contact(request.contact())
-			.build();
-
-		userRepository.save(createdUser);
 	}
 }
