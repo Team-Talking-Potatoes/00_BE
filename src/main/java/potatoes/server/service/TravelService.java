@@ -78,7 +78,7 @@ public class TravelService {
 			.departureLocation(request.getDepartureLocation())
 			.startAt(request.getStartAt().toInstant(ZoneOffset.UTC))
 			.endAt(request.getStartAt().toInstant(ZoneOffset.UTC))
-			.endAt(request.getRegistrationEnd().toInstant(ZoneOffset.UTC))
+			.registrationEnd(request.getRegistrationEnd().toInstant(ZoneOffset.UTC))
 			.tripDuration((int)tripDuration)
 			.build();
 		travelRepository.save(travel);
