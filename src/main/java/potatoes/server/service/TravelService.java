@@ -75,6 +75,7 @@ public class TravelService {
 			.departureLocation(request.getDepartureLocation())
 			.startAt(DateTimeUtils.localDateToInstant(request.getStartAt()))
 			.endAt(DateTimeUtils.localDateToInstant(request.getEndAt()))
+			.registrationEnd(DateTimeUtils.localDateToInstant(request.getEndAt()))
 			.tripDuration(tripDuration)
 			.build();
 		travelRepository.save(travel);

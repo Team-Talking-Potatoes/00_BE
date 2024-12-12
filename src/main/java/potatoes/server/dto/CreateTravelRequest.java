@@ -50,15 +50,20 @@ public class CreateTravelRequest {
 
 	private String departureLocation;
 
-	@NotNull(message = "여행 종료 시간을 정해주세요.")
+	@NotNull(message = "여행 시작 시간 정해주세요.")
 	@Future(message = "선택할 수 없는 날짜입니다.")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-ddThh:mm")
 	private LocalDate startAt;
 
-	@NotNull(message = "여행 시작 시간을 정해주세요.")
+	@NotNull(message = "여행 종료 시간 정해주세요.")
 	@Future(message = "선택할 수 없는 날짜입니다.")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-ddThh:mm")
 	private LocalDate endAt;
+
+	@NotNull(message = "마감 종료 시간 정해주세요.")
+	@Future(message = "선택할 수 없는 날짜입니다.")
+	@DateTimeFormat(pattern = "yyyy-MM-ddThh:mm")
+	private LocalDate registrationEnd;
 
 	@NotEmpty(message = "여행 상세일정을 입력해주세요.")
 	@Valid
