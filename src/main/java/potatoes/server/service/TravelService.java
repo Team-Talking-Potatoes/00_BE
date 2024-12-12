@@ -2,7 +2,9 @@ package potatoes.server.service;
 
 import static potatoes.server.error.ErrorCode.*;
 
+import java.time.Duration;
 import java.time.Period;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -48,7 +50,8 @@ public class TravelService {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_HASHTAGS_VALUE);
 		}
 
-		int tripDuration = Period.between(request.getStartAt(), request.getEndAt()).getDays();
+		Duration duration = Duration.between(request.getStartAt(), request.getEndAt());
+		long tripDuration = duration.toDays();
 		if (tripDuration < 0 || request.getStartAt().isAfter(request.getEndAt())) {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_DATE);
 		}
@@ -73,10 +76,10 @@ public class TravelService {
 			.isDomestic(request.getIsDomestic())
 			.travelLocation(request.getTravelLocation())
 			.departureLocation(request.getDepartureLocation())
-			.startAt(DateTimeUtils.localDateToInstant(request.getStartAt()))
-			.endAt(DateTimeUtils.localDateToInstant(request.getEndAt()))
-			.registrationEnd(DateTimeUtils.localDateToInstant(request.getEndAt()))
-			.tripDuration(tripDuration)
+			.startAt(request.getStartAt().toInstant(ZoneOffset.UTC))
+			.endAt(request.getStartAt().toInstant(ZoneOffset.UTC))
+			.endAt(request.getRegistrationEnd().toInstant(ZoneOffset.UTC))
+			.tripDuration((int)tripDuration)
 			.build();
 		travelRepository.save(travel);
 
