@@ -58,8 +58,9 @@ class TravelControllerTest {
 	void setUp() {
 		// S3 모킹
 		when(s3UtilsProvider.uploadFile(any(MultipartFile.class)))
+			.thenReturn("mocked-fileName");
+		when(s3UtilsProvider.getFileUrl(any(String.class)))
 			.thenReturn("mocked-url");
-
 		travelPlanRepository.deleteAll();
 		travelUserRepository.deleteAll();
 		travelRepository.deleteAll();

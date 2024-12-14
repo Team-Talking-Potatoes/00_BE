@@ -64,11 +64,12 @@ public class TravelService {
 
 		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
 
-		String travelImageUrl = s3.uploadFile(request.getTravelImage());
+		String travelFileName = s3.uploadFile(request.getTravelImage());
+		String travelFileUrl = s3.getFileUrl(travelFileName);
 		Travel travel = Travel.builder()
 			.name(request.getTravelName())
 			.description(request.getTravelDescription())
-			.image(travelImageUrl)
+			.image(travelFileUrl)
 			.expectedTripCost(request.getExpectedTripCost())
 			.minTravelMateCount(request.getMinTravelMateCount())
 			.maxTravelMateCount(request.getMaxTravelMateCount())
@@ -85,10 +86,11 @@ public class TravelService {
 
 		List<TravelPlan> travelPlanList = request.getDetailTravel().stream()
 			.map(details -> {
-				String destinationImageUrl = s3.uploadFile(details.getDestinationImage());
+				String destinationFileName = s3.uploadFile(details.getDestinationImage());
+				String destinationFileUrl = s3.getFileUrl(destinationFileName);
 				return TravelPlan.builder()
 					.travel(travel)
-					.image(destinationImageUrl)
+					.image(destinationFileUrl)
 					.tripDay(details.getTripDay())
 					.tripOrderNumber(details.getTripOrderNumber())
 					.destination(details.getDestination())
