@@ -1,16 +1,16 @@
 package potatoes.server.utils.annotation;
 
-import static potatoes.server.error.ErrorCode.*;
-
 import org.springframework.core.MethodParameter;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import potatoes.server.error.ErrorCode;
+import potatoes.server.error.exception.CookieNotFound;
 import potatoes.server.error.exception.JwtAuthException;
 import potatoes.server.error.exception.Unauthorized;
 import potatoes.server.utils.jwt.JwtTokenUtil;
@@ -19,8 +19,6 @@ import potatoes.server.utils.jwt.JwtTokenUtil;
 public class AuthorizationArgumentResolver implements HandlerMethodArgumentResolver {
 
 	private final JwtTokenUtil jwtTokenProvider;
-
-	private static final int BEARER_PREFIX_LEN = 7;
 
 	public AuthorizationArgumentResolver(JwtTokenUtil jwtTokenProvider) {
 		this.jwtTokenProvider = jwtTokenProvider;
@@ -40,21 +38,27 @@ public class AuthorizationArgumentResolver implements HandlerMethodArgumentResol
 	) {
 		HttpServletRequest request = (HttpServletRequest)webRequest.getNativeRequest();
 
-		String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-		if (authorizationHeader == null) {
-			throw new JwtAuthException(AUTHORIZATION_HEADER_NULL);
+		Cookie[] cookies = request.getCookies();
+		if (cookies == null) {
+			throw new CookieNotFound();
 		}
 
-		if (!authorizationHeader.startsWith("Bearer ")) {
-			throw new JwtAuthException(INVALID_TOKEN_PREFIX);
+		String accessToken = null;
+		for (Cookie cookie : cookies) {
+			if ("accessToken".equals(cookie.getName())) {
+				accessToken = cookie.getValue();
+				break;
+			}
 		}
 
-		String token = authorizationHeader.substring(BEARER_PREFIX_LEN);
+		if (accessToken == null) {
+			throw new JwtAuthException(ErrorCode.TOKEN_NOT_FOUND);
+		}
 
-		if (!jwtTokenProvider.validateToken(token)) {
+		if (!jwtTokenProvider.validateToken(accessToken)) {
 			throw new Unauthorized();
 		}
 
-		return Long.parseLong(jwtTokenProvider.getPayload(token));
+		return Long.parseLong(jwtTokenProvider.getPayload(accessToken));
 	}
 }

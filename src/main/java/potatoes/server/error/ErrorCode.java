@@ -9,9 +9,8 @@ public enum ErrorCode {
 	INVALID_INPUT_VALUE(400, "INVALID_INPUT_VALUE", "Invalid Input Value"),
 	INVALID_TYPE_VALUE(400, "INVALID_TYPE_VALUE", "Invalid Type Value"),
 	UNAUTHORIZED(403, "INVALID_TOKEN", "인가가 필요합니다"),
-	AUTHORIZATION_HEADER_NULL(400, "AUTHORIZATION_HEADER_NULL", "인증 헤더가 null입니다."),
-	INVALID_TOKEN_PREFIX(400, "INVALID_TOKEN_PREFIX", "Bearer값이 아닙니다."),
-
+	TOKEN_NOT_FOUND(400, "TOKEN_NOT_FOUND", "accessToken을 찾을 수 없습니다"),
+	COOKIE_NOT_FOUND(400, "COOKIE_NOT_FOUND", "쿠키를 찾을 수 없습니다"),
 	// User
 	EMAIL_DUPLICATION(400, "EMAIL_DUPLICATION", "이미 가입된 이메일입니다."),
 	USER_NOT_FOUND(400, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다."),
