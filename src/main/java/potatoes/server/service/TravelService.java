@@ -5,6 +5,8 @@ import static potatoes.server.error.ErrorCode.*;
 import java.time.Period;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.constant.ParticipantRole;
 import potatoes.server.dto.CreateTravelRequest;
+import potatoes.server.dto.GetMyTravelResponse;
+import potatoes.server.dto.TravelPageResponse;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
 import potatoes.server.entity.TravelUser;
@@ -99,5 +103,11 @@ public class TravelService {
 			.user(user)
 			.build();
 		travelUserRepository.save(travelUser);
+	}
+
+	public TravelPageResponse getMyTravel(int page, int size, Long userId) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetMyTravelResponse> findPage = travelUserRepository.findMyTravels(request, userId);
+		return TravelPageResponse.from(findPage);
 	}
 }
