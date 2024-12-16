@@ -6,14 +6,14 @@ import org.springframework.data.domain.Page;
 
 public record TravelPageResponse(
 	List<GetMyTravelResponse> content,
-	int total,
+	long total,
 	int currentPage,
 	boolean hasNext
 ) {
 	public static TravelPageResponse from(Page<GetMyTravelResponse> page) {
 		return new TravelPageResponse(
 			page.getContent(),
-			page.getTotalPages(),
+			page.getTotalElements(),
 			page.getNumber(),
 			page.hasNext()
 		);
