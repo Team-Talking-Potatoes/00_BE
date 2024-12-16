@@ -105,9 +105,9 @@ public class TravelService {
 		travelUserRepository.save(travelUser);
 	}
 
-	public TravelPageResponse getMyTravel(int page, int size, Long userId) {
+	public TravelPageResponse getMyTravels(int page, int size, Long userId) {
 		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findPage = travelUserRepository.findMyTravels(request, userId);
-		return TravelPageResponse.from(findPage);
+		Page<GetMyTravelResponse> findTravels = travelUserRepository.findMyTravels(request, userId);
+		return TravelPageResponse.from(findTravels);
 	}
 }

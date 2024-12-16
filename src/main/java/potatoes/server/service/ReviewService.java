@@ -3,11 +3,15 @@ package potatoes.server.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateReviewRequest;
+import potatoes.server.dto.GetMyReviewResponse;
+import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.entity.Review;
 import potatoes.server.entity.ReviewImage;
 import potatoes.server.entity.Travel;
@@ -57,5 +61,11 @@ public class ReviewService {
 
 		review.getReviewImages().addAll(reviewImages);
 		reviewRepository.save(review);
+	}
+
+	public ReviewPageResponse getMyReviews(int page, int size, Long userId) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetMyReviewResponse> findReviews = reviewRepository.findMyReviews(request, userId);
+		return ReviewPageResponse.from(findReviews);
 	}
 }

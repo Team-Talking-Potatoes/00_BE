@@ -39,11 +39,11 @@ public class TravelController {
 
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")
 	@GetMapping("/created")
-	public TravelPageResponse createTravel(
+	public ResponseEntity<TravelPageResponse> createTravel(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
-		return travelService.getMyTravel(page, size, userId);
+		return ResponseEntity.ok(travelService.getMyTravels(page, size, userId));
 	}
 }

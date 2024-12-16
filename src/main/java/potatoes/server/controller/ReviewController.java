@@ -1,9 +1,11 @@
 package potatoes.server.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateReviewRequest;
+import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.service.ReviewService;
 import potatoes.server.utils.annotation.Authorization;
 
@@ -31,5 +34,15 @@ public class ReviewController {
 	) {
 		reviewService.createReview(request, userId);
 		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "내가 작성한 리뷰 조회", description = "내가 작성한 리뷰를 조회합니다.")
+	@GetMapping("/published")
+	public ResponseEntity<ReviewPageResponse> getMyReview(
+		@RequestParam(required = false, defaultValue = "0") int page,
+		@RequestParam(required = false, defaultValue = "4") int size,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		return ResponseEntity.ok(reviewService.getMyReviews(page, size, userId));
 	}
 }

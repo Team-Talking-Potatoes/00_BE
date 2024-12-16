@@ -15,6 +15,7 @@ public record CreateReviewRequest(
 	Long travelId,
 
 	@NotBlank(message = "리뷰 제목은 필수입니다.")
+	@Size(min = 1, max = 20, message = "리뷰 제목의 길이는 1자 이상 20자 이하여야 합니다.")
 	String title,
 	@NotBlank(message = "리뷰 내용은 필수입니다.")
 	@Size(min = 1, max = 100, message = "리뷰 내용의 길이는 1자 이상 100자 이하여야 합니다.")
