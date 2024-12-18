@@ -58,8 +58,9 @@ class TravelControllerTest {
 	void setUp() {
 		// S3 모킹
 		when(s3UtilsProvider.uploadFile(any(MultipartFile.class)))
+			.thenReturn("mocked-fileName");
+		when(s3UtilsProvider.getFileUrl(any(String.class)))
 			.thenReturn("mocked-url");
-
 		travelPlanRepository.deleteAll();
 		travelUserRepository.deleteAll();
 		travelRepository.deleteAll();
@@ -72,6 +73,7 @@ class TravelControllerTest {
 		// given
 		User mockUser = User.builder()
 			.email("test@gmail.com")
+			.name("userName")
 			.password("1234")
 			.nickname("testUser")
 			.birthDate(20241010)
@@ -107,8 +109,9 @@ class TravelControllerTest {
 				.param("isDomestic", "true")
 				.param("travelLocation", "Test Location")
 				.param("departureLocation", "Test Departure")
-				.param("startAt", "2025-12-06")
-				.param("endAt", "2025-12-07")
+				.param("startAt", "2025-12-06T09:00")
+				.param("endAt", "2025-12-07T09:00")
+				.param("registrationEnd", "2025-11-07T09:00")
 				.param("detailTravel[0].tripDay", "1")
 				.param("detailTravel[0].tripOrderNumber", "1")
 				.param("detailTravel[0].destination", "Test Destination")
@@ -124,6 +127,7 @@ class TravelControllerTest {
 		// given
 		User mockUser = User.builder()
 			.email("test@gmail.com")
+			.name("userName")
 			.password("1234")
 			.nickname("testUser")
 			.birthDate(20241010)
@@ -159,8 +163,9 @@ class TravelControllerTest {
 				.param("isDomestic", "true")
 				.param("travelLocation", "Test Location")
 				.param("departureLocation", "Test Departure")
-				.param("startAt", "2025-12-09")
-				.param("endAt", "2025-12-07")
+				.param("startAt", "2025-12-09T09:00")
+				.param("endAt", "2025-12-07T09:00")
+				.param("registrationEnd", "2025-11-07T09:00")
 				.param("detailTravel[0].tripDay", "1")
 				.param("detailTravel[0].tripOrderNumber", "1")
 				.param("detailTravel[0].destination", "Test Destination")
@@ -178,6 +183,7 @@ class TravelControllerTest {
 		// given
 		User mockUser = User.builder()
 			.email("test@gmail.com")
+			.name("userName")
 			.password("1234")
 			.nickname("testUser")
 			.birthDate(20241010)
@@ -226,6 +232,7 @@ class TravelControllerTest {
 		// given
 		User mockUser = User.builder()
 			.email("test@gmail.com")
+			.name("userName")
 			.password("1234")
 			.nickname("testUser")
 			.birthDate(20241010)
@@ -261,8 +268,9 @@ class TravelControllerTest {
 				.param("isDomestic", "true")
 				.param("travelLocation", "Test Location")
 				.param("departureLocation", "Test Departure")
-				.param("startAt", "2025-12-06")
-				.param("endAt", "2025-12-07")
+				.param("startAt", "2025-12-06T09:00")
+				.param("endAt", "2025-12-07T09:00")
+				.param("registrationEnd", "2025-11-07T09:00")
 				.header("Authorization", "Bearer " + token)
 				.param("detailTravel[0].tripDay", "1")
 				.param("detailTravel[0].tripOrderNumber", "1")
@@ -280,6 +288,7 @@ class TravelControllerTest {
 		// given
 		User mockUser = User.builder()
 			.email("test@gmail.com")
+			.name("userName")
 			.password("1234")
 			.nickname("testUser")
 			.birthDate(20241010)
@@ -315,8 +324,9 @@ class TravelControllerTest {
 				.param("isDomestic", "true")
 				.param("travelLocation", "Test Location")
 				.param("departureLocation", "Test Departure")
-				.param("startAt", "2025-12-06")
-				.param("endAt", "2025-12-07")
+				.param("startAt", "2025-12-06T09:00")
+				.param("endAt", "2025-12-07T09:00")
+				.param("registrationEnd", "2025-11-07T09:00")
 				.param("detailTravel[0].tripDay", "1")
 				.param("detailTravel[0].tripOrderNumber", "1")
 				.param("detailTravel[0].destination", "Test Destination")
@@ -334,6 +344,7 @@ class TravelControllerTest {
 		// given
 		User mockUser = User.builder()
 			.email("test@gmail.com")
+			.name("userName")
 			.password("1234")
 			.nickname("testUser")
 			.birthDate(20241010)
@@ -369,8 +380,9 @@ class TravelControllerTest {
 				.param("isDomestic", "true")
 				.param("travelLocation", "Test Location")
 				.param("departureLocation", "Test Departure")
-				.param("startAt", "2020-12-06")
-				.param("endAt", "2020-12-07")
+				.param("startAt", "2023-12-06T09:00")
+				.param("endAt", "2023-12-07T09:00")
+				.param("registrationEnd", "2025-11-07T09:00")
 				.param("detailTravel[0].tripDay", "1")
 				.param("detailTravel[0].tripOrderNumber", "1")
 				.param("detailTravel[0].destination", "Test Destination")
@@ -383,12 +395,12 @@ class TravelControllerTest {
 			.andExpect(jsonPath("$.parameter", hasItems(
 				allOf(
 					hasEntry("field", "startAt"),
-					hasEntry("value", "2020-12-06"),
+					hasEntry("value", "2023-12-06T09:00"),
 					hasEntry("reason", "선택할 수 없는 날짜입니다.")
 				),
 				allOf(
 					hasEntry("field", "endAt"),
-					hasEntry("value", "2020-12-07"),
+					hasEntry("value", "2023-12-07T09:00"),
 					hasEntry("reason", "선택할 수 없는 날짜입니다.")
 				)
 			)));
@@ -400,6 +412,7 @@ class TravelControllerTest {
 		// given
 		User mockUser = User.builder()
 			.email("test@gmail.com")
+			.name("userName")
 			.password("1234")
 			.nickname("testUser")
 			.birthDate(20241010)
@@ -435,8 +448,9 @@ class TravelControllerTest {
 				.param("isDomestic", "true")
 				.param("travelLocation", "Test Location")
 				.param("departureLocation", "Test Departure")
-				.param("startAt", "2025-12-06")
-				.param("endAt", "2025-12-07")
+				.param("startAt", "2025-12-06T09:00")
+				.param("endAt", "2025-12-07T09:00")
+				.param("registrationEnd", "2025-11-07T09:00")
 				.param("detailTravel[0].tripDay", "5")
 				.param("detailTravel[0].tripOrderNumber", "1")
 				.param("detailTravel[0].destination", "Test Destination")

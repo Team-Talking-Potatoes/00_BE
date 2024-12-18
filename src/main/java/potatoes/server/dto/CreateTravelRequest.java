@@ -1,6 +1,7 @@
 package potatoes.server.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -50,15 +51,20 @@ public class CreateTravelRequest {
 
 	private String departureLocation;
 
-	@NotNull(message = "여행 종료 시간을 정해주세요.")
+	@NotNull(message = "여행 시작 시간 정해주세요.")
 	@Future(message = "선택할 수 없는 날짜입니다.")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDate startAt;
+	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+	private LocalDateTime startAt;
 
-	@NotNull(message = "여행 시작 시간을 정해주세요.")
+	@NotNull(message = "여행 종료 시간 정해주세요.")
 	@Future(message = "선택할 수 없는 날짜입니다.")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDate endAt;
+	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+	private LocalDateTime endAt;
+
+	@NotNull(message = "마감 종료 시간 정해주세요.")
+	@Future(message = "선택할 수 없는 날짜입니다.")
+	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+	private LocalDateTime registrationEnd;
 
 	@NotEmpty(message = "여행 상세일정을 입력해주세요.")
 	@Valid

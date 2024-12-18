@@ -2,7 +2,9 @@ package potatoes.server.service;
 
 import static potatoes.server.error.ErrorCode.*;
 
+import java.time.Duration;
 import java.time.Period;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -53,7 +55,8 @@ public class TravelService {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_HASHTAGS_VALUE);
 		}
 
-		int tripDuration = Period.between(request.getStartAt(), request.getEndAt()).getDays();
+		Duration duration = Duration.between(request.getStartAt(), request.getEndAt());
+		long tripDuration = duration.toDays();
 		if (tripDuration < 0 || request.getStartAt().isAfter(request.getEndAt())) {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_DATE);
 		}
@@ -66,11 +69,12 @@ public class TravelService {
 
 		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
 
-		String travelImageUrl = s3.uploadFile(request.getTravelImage());
+		String travelFileName = s3.uploadFile(request.getTravelImage());
+		String travelFileUrl = s3.getFileUrl(travelFileName);
 		Travel travel = Travel.builder()
 			.name(request.getTravelName())
 			.description(request.getTravelDescription())
-			.image(travelImageUrl)
+			.image(travelFileUrl)
 			.expectedTripCost(request.getExpectedTripCost())
 			.minTravelMateCount(request.getMinTravelMateCount())
 			.maxTravelMateCount(request.getMaxTravelMateCount())
@@ -78,18 +82,20 @@ public class TravelService {
 			.isDomestic(request.getIsDomestic())
 			.travelLocation(request.getTravelLocation())
 			.departureLocation(request.getDepartureLocation())
-			.startAt(DateTimeUtils.localDateToInstant(request.getStartAt()))
-			.endAt(DateTimeUtils.localDateToInstant(request.getEndAt()))
-			.tripDuration(tripDuration)
+			.startAt(request.getStartAt().toInstant(ZoneOffset.UTC))
+			.endAt(request.getStartAt().toInstant(ZoneOffset.UTC))
+			.registrationEnd(request.getRegistrationEnd().toInstant(ZoneOffset.UTC))
+			.tripDuration((int)tripDuration)
 			.build();
 		travelRepository.save(travel);
 
 		List<TravelPlan> travelPlanList = request.getDetailTravel().stream()
 			.map(details -> {
-				String destinationImageUrl = s3.uploadFile(details.getDestinationImage());
+				String destinationFileName = s3.uploadFile(details.getDestinationImage());
+				String destinationFileUrl = s3.getFileUrl(destinationFileName);
 				return TravelPlan.builder()
 					.travel(travel)
-					.image(destinationImageUrl)
+					.image(destinationFileUrl)
 					.tripDay(details.getTripDay())
 					.tripOrderNumber(details.getTripOrderNumber())
 					.destination(details.getDestination())
