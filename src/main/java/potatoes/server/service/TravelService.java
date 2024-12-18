@@ -7,13 +7,18 @@ import java.time.Period;
 import java.time.ZoneOffset;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.constant.ParticipantRole;
+import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
+import potatoes.server.dto.GetMyTravelResponse;
+import potatoes.server.dto.TravelPageResponse;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
 import potatoes.server.entity.TravelUser;
@@ -105,5 +110,19 @@ public class TravelService {
 			.user(user)
 			.build();
 		travelUserRepository.save(travelUser);
+	}
+
+	public TravelPageResponse getMyTravels(int page, int size, Long userId) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetMyTravelResponse> findTravels = travelUserRepository.findMyTravels(request, userId);
+		return TravelPageResponse.from(findTravels);
+	}
+
+	public TravelPageResponse getTravelsByStatus(
+		int page, int size, Long userId, TravelStatus travelStatus
+	) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetMyTravelResponse> findTravels = travelUserRepository.findTravelsByStatus(request, userId, travelStatus.name());
+		return TravelPageResponse.from(findTravels);
 	}
 }

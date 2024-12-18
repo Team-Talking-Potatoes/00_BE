@@ -4,12 +4,17 @@ import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import potatoes.server.config.BaseTimeEntity;
@@ -36,4 +41,21 @@ public class Review extends BaseTimeEntity {
 
 	@Column(name = "comment", nullable = false)
 	private String comment;
+
+	@Column(name = "star_rating", nullable = false)
+	private float starRating;
+
+	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
+	private List<ReviewImage> reviewImages;
+
+	@Builder
+	public Review(Travel travel, User commenter, String title, String comment, float starRating, List<ReviewImage> reviewImages
+	) {
+		this.travel = travel;
+		this.commenter = commenter;
+		this.title = title;
+		this.comment = comment;
+		this.starRating = starRating;
+		this.reviewImages = reviewImages;
+	}
 }
