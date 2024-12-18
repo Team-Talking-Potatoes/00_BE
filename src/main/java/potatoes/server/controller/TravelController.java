@@ -4,6 +4,7 @@ import static org.springframework.http.MediaType.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ import potatoes.server.service.TravelService;
 import potatoes.server.utils.annotation.Authorization;
 
 @RequiredArgsConstructor
-@RequestMapping("/travels")
+@RequestMapping("/travel")
 @RestController
 public class TravelController {
 
@@ -57,5 +58,25 @@ public class TravelController {
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(travelService.getTravelsByStatus(page, size, userId, travelStatus));
+	}
+
+	@Operation(summary = "북마크 등록", description = "Travel ID를 받고 북마크로 등록합니다.")
+	@PostMapping("/bookmark")
+	public ResponseEntity<Void> addBookMark(
+		@Authorization @Parameter(hidden = true) Long userId,
+		@RequestParam(name = "travelId") Long travelId
+	) {
+		travelService.addBookmark(userId, travelId);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Operation(summary = "북마크 삭제", description = "Travel ID를 받고 등록된 북마크를 삭제합니다.")
+	@DeleteMapping("/bookmark")
+	public ResponseEntity<Void> deleteBookmark(
+		@Authorization @Parameter(hidden = true) Long userId,
+		@RequestParam(name = "travelId") Long travelId
+	) {
+		travelService.deleteBookmark(userId, travelId);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }
