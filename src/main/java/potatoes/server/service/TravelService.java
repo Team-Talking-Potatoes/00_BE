@@ -2,19 +2,24 @@ package potatoes.server.service;
 
 import static potatoes.server.error.ErrorCode.*;
 
-import java.time.Period;
+import java.time.Duration;
+import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.constant.ParticipantRole;
+import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
-import potatoes.server.entity.Travel;
+import potatoes.server.dto.GetMyTravelResponse;
+import potatoes.server.dto.TravelPageResponse;
 import potatoes.server.entity.Bookmark;
+import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
 import potatoes.server.entity.TravelUser;
 import potatoes.server.entity.User;
@@ -28,7 +33,6 @@ import potatoes.server.repository.TravelRepository;
 import potatoes.server.repository.TravelUserRepository;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.s3.S3UtilsProvider;
-import potatoes.server.utils.time.DateTimeUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -54,7 +58,8 @@ public class TravelService {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_HASHTAGS_VALUE);
 		}
 
-		int tripDuration = Period.between(request.getStartAt(), request.getEndAt()).getDays();
+		Duration duration = Duration.between(request.getStartAt(), request.getEndAt());
+		long tripDuration = duration.toDays();
 		if (tripDuration < 0 || request.getStartAt().isAfter(request.getEndAt())) {
 			throw new WrongValueInCreateTravel(INVALID_TRAVEL_DATE);
 		}
@@ -67,11 +72,12 @@ public class TravelService {
 
 		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
 
-		String travelImageUrl = s3.uploadFile(request.getTravelImage());
+		String travelFileName = s3.uploadFile(request.getTravelImage());
+		String travelFileUrl = s3.getFileUrl(travelFileName);
 		Travel travel = Travel.builder()
 			.name(request.getTravelName())
 			.description(request.getTravelDescription())
-			.image(travelImageUrl)
+			.image(travelFileUrl)
 			.expectedTripCost(request.getExpectedTripCost())
 			.minTravelMateCount(request.getMinTravelMateCount())
 			.maxTravelMateCount(request.getMaxTravelMateCount())
@@ -79,18 +85,20 @@ public class TravelService {
 			.isDomestic(request.getIsDomestic())
 			.travelLocation(request.getTravelLocation())
 			.departureLocation(request.getDepartureLocation())
-			.startAt(DateTimeUtils.localDateToInstant(request.getStartAt()))
-			.endAt(DateTimeUtils.localDateToInstant(request.getEndAt()))
-			.tripDuration(tripDuration)
+			.startAt(request.getStartAt().toInstant(ZoneOffset.UTC))
+			.endAt(request.getStartAt().toInstant(ZoneOffset.UTC))
+			.registrationEnd(request.getRegistrationEnd().toInstant(ZoneOffset.UTC))
+			.tripDuration((int)tripDuration)
 			.build();
 		travelRepository.save(travel);
 
 		List<TravelPlan> travelPlanList = request.getDetailTravel().stream()
 			.map(details -> {
-				String destinationImageUrl = s3.uploadFile(details.getDestinationImage());
+				String destinationFileName = s3.uploadFile(details.getDestinationImage());
+				String destinationFileUrl = s3.getFileUrl(destinationFileName);
 				return TravelPlan.builder()
 					.travel(travel)
-					.image(destinationImageUrl)
+					.image(destinationFileUrl)
 					.tripDay(details.getTripDay())
 					.tripOrderNumber(details.getTripOrderNumber())
 					.destination(details.getDestination())
@@ -130,5 +138,20 @@ public class TravelService {
 		Bookmark bookmark = bookmarkRepository.findByUserAndTravel(user, travel)
 			.orElseThrow(BookmarkNotFound::new);
 		bookmarkRepository.delete(bookmark);
+	}
+
+	public TravelPageResponse getMyTravels(int page, int size, Long userId) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetMyTravelResponse> findTravels = travelUserRepository.findMyTravels(request, userId);
+		return TravelPageResponse.from(findTravels);
+	}
+
+	public TravelPageResponse getTravelsByStatus(
+		int page, int size, Long userId, TravelStatus travelStatus
+	) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetMyTravelResponse> findTravels = travelUserRepository.findTravelsByStatus(request, userId,
+			travelStatus.name());
+		return TravelPageResponse.from(findTravels);
 	}
 }

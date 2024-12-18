@@ -1,25 +1,26 @@
 package potatoes.server.entity;
 
+import static jakarta.persistence.GenerationType.*;
+import static lombok.AccessLevel.*;
+
 import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import potatoes.server.config.BaseTimeEntity;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 @Entity
 public class Travel extends BaseTimeEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = IDENTITY)
 	private Long id;
 
 	@Column(name = "name", nullable = false)
@@ -58,13 +59,16 @@ public class Travel extends BaseTimeEntity {
 	@Column(name = "end_at", nullable = false)
 	private Instant endAt;
 
+	@Column(name = "registration_end", nullable = false)
+	private Instant registrationEnd;
+
 	@Column(name = "trip_duration", nullable = false)
 	private int tripDuration;
 
 	@Builder
 	public Travel(String name, String description, String image, int expectedTripCost, int minTravelMateCount,
 		int maxTravelMateCount, String hashTags, boolean isDomestic, String travelLocation, String departureLocation,
-		Instant startAt, Instant endAt, int tripDuration) {
+		Instant startAt, Instant endAt, Instant registrationEnd, int tripDuration) {
 		this.name = name;
 		this.description = description;
 		this.image = image;
@@ -77,6 +81,7 @@ public class Travel extends BaseTimeEntity {
 		this.departureLocation = departureLocation;
 		this.startAt = startAt;
 		this.endAt = endAt;
+		this.registrationEnd = registrationEnd;
 		this.tripDuration = tripDuration;
 	}
 }

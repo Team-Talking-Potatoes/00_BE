@@ -17,6 +17,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import potatoes.server.controller.AuthController;
 import potatoes.server.controller.MailController;
+import potatoes.server.controller.ReviewController;
 import potatoes.server.controller.TravelController;
 import potatoes.server.controller.UserController;
 
@@ -86,6 +87,16 @@ public class SwaggerConfig implements WebMvcConfigurer {
 			.group("user")
 			.addOpenApiMethodFilter(method ->
 				method.getDeclaringClass().equals(UserController.class))
+			.packagesToScan("potatoes.server.controller")
+			.build();
+	}
+
+	@Bean
+	public GroupedOpenApi getReviewApi() {
+		return GroupedOpenApi.builder()
+			.group("review")
+			.addOpenApiMethodFilter(method ->
+				method.getDeclaringClass().equals(ReviewController.class))
 			.packagesToScan("potatoes.server.controller")
 			.build();
 	}
