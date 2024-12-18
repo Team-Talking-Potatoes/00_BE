@@ -4,14 +4,16 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-public record TravelPageResponse(
-	List<GetMyTravelResponse> content,
+import potatoes.server.utils.pagination.PagePolymorphic;
+
+public record TravelPageResponse<T extends PagePolymorphic>(
+	List<T> content,
 	long total,
 	int currentPage,
 	boolean hasNext
-) {
-	public static TravelPageResponse from(Page<GetMyTravelResponse> page) {
-		return new TravelPageResponse(
+) implements PagePolymorphic {
+	public static <T extends PagePolymorphic> TravelPageResponse<T> from(Page<T> page) {
+		return new TravelPageResponse<>(
 			page.getContent(),
 			page.getTotalElements(),
 			page.getNumber(),
