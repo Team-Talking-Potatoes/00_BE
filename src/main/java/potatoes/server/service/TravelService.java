@@ -140,13 +140,13 @@ public class TravelService {
 		bookmarkRepository.delete(bookmark);
 	}
 
-	public TravelPageResponse getMyTravels(int page, int size, Long userId) {
+	public TravelPageResponse<GetMyTravelResponse> getMyTravels(int page, int size, Long userId) {
 		PageRequest request = PageRequest.of(page, size);
 		Page<GetMyTravelResponse> findTravels = travelUserRepository.findMyTravels(request, userId);
 		return TravelPageResponse.from(findTravels);
 	}
 
-	public TravelPageResponse getTravelsByStatus(
+	public TravelPageResponse<GetMyTravelResponse> getTravelsByStatus(
 		int page, int size, Long userId, TravelStatus travelStatus
 	) {
 		PageRequest request = PageRequest.of(page, size);
@@ -154,4 +154,13 @@ public class TravelService {
 			travelStatus.name());
 		return TravelPageResponse.from(findTravels);
 	}
+
+	public TravelPageResponse<GetMyTravelResponse> getMyTravelsByBookmark(
+		int page, int size, Long userId
+	) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetMyTravelResponse> findTravels = bookmarkRepository.findMyTravelsByBookmark(request, userId);
+		return TravelPageResponse.from(findTravels);
+	}
+
 }

@@ -18,12 +18,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
+import potatoes.server.dto.GetMyTravelResponse;
 import potatoes.server.dto.TravelPageResponse;
 import potatoes.server.service.TravelService;
 import potatoes.server.utils.annotation.Authorization;
 
 @RequiredArgsConstructor
-@RequestMapping("/travel")
+@RequestMapping("/travels")
 @RestController
 public class TravelController {
 
@@ -41,7 +42,7 @@ public class TravelController {
 
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")
 	@GetMapping("/created")
-	public ResponseEntity<TravelPageResponse> getMyTravels(
+	public ResponseEntity<TravelPageResponse<GetMyTravelResponse>> getMyTravels(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId
@@ -49,15 +50,29 @@ public class TravelController {
 		return ResponseEntity.ok(travelService.getMyTravels(page, size, userId));
 	}
 
-	@Operation(summary = "사용자 여행 조회", description = "파라미터의 travelStatus의 값이 upcoming or past에 따라서 예정 여행, 다녀온 여행이 달라진다")
+	@Operation(summary = "예정 여행, 다녀온 여행 조회", description = "파라미터의 travelStatus의 값이 upcoming or past에 따라서 예정 여행, 다녀온 여행이 달라진다")
 	@GetMapping("/status")
-	public ResponseEntity<TravelPageResponse> getMyTravelsByStatus(
+	public ResponseEntity<TravelPageResponse<GetMyTravelResponse>> getMyTravelsByStatus(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@RequestParam TravelStatus travelStatus,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(travelService.getTravelsByStatus(page, size, userId, travelStatus));
+	}
+
+	//FIXME
+	// 현재 예정 여행 다녀온 여행 api가 통합 되어있지만, 이는 다녀온 여행의 조건이 시간만 가지고 체크하는건 아니라고 생각이들어
+	// 일단은 같은 api돌려쓰고 기획이 좀더 다져지면 그때 분리하는게 좋을것 같습니다.
+
+	@Operation(summary = "사용자 북마크 여행 조회", description = "")
+	@GetMapping("/checked")
+	public ResponseEntity<TravelPageResponse<GetMyTravelResponse>> getMyTravelsByBookmark(
+		@RequestParam(required = false, defaultValue = "0") int page,
+		@RequestParam(required = false, defaultValue = "4") int size,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		return ResponseEntity.ok(travelService.getMyTravelsByBookmark(page, size, userId));
 	}
 
 	@Operation(summary = "북마크 등록", description = "Travel ID를 받고 북마크로 등록합니다.")
