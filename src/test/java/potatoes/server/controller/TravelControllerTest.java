@@ -461,4 +461,121 @@ class TravelControllerTest {
 			.andExpect(jsonPath("$.code").value(INVALID_TRAVEL_DETAIL_INFO.getCode()))
 			.andExpect(jsonPath("$.message").value(INVALID_TRAVEL_DETAIL_INFO.getMessage()));
 	}
+
+	@Test
+	void 북마크_등록_성공() throws Exception {
+
+		// given
+		User mockUser = User.builder()
+			.email("test@gmail.com")
+			.password("1234")
+			.name("userName")
+			.nickname("testUser")
+			.birthDate(20241010)
+			.contact("010-0000-0000")
+			.build();
+		userRepository.save(mockUser);
+		String token = jwtTokenUtil.createToken(String.valueOf(mockUser.getId()));
+
+		MockMultipartFile travelImage = new MockMultipartFile(
+			"travelImage",
+			"test.jpg",
+			MediaType.IMAGE_JPEG_VALUE,
+			"test image".getBytes()
+		);
+
+		MockMultipartFile destinationImage = new MockMultipartFile(
+			"detailTravel[0].destinationImage",
+			"detail.jpg",
+			MediaType.IMAGE_JPEG_VALUE,
+			"test detail image".getBytes()
+		);
+
+		mockMvc.perform(multipart("/travel")
+				.file(travelImage)
+				.file(destinationImage)
+				.param("travelName", "Test Travel")
+				.param("expectedTripCost", "1000")
+				.param("minTravelMateCount", "2")
+				.param("maxTravelMateCount", "5")
+				.param("travelDescription", "Test Description")
+				.param("hashTags", "#test#tag")
+				.param("isDomestic", "true")
+				.param("travelLocation", "Test Location")
+				.param("departureLocation", "Test Departure")
+				.param("startAt", "2025-12-06")
+				.param("endAt", "2025-12-07")
+				.param("detailTravel[0].tripDay", "1")
+				.param("detailTravel[0].tripOrderNumber", "1")
+				.param("detailTravel[0].destination", "Test Destination")
+				.param("detailTravel[0].description", "Test Detail Description")
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.MULTIPART_FORM_DATA))
+			.andExpect(status().isOk());
+
+		// expect
+		mockMvc.perform(post("/travel/bookmark")
+			.queryParam("travelId", String.valueOf(1L))
+			.header("Authorization", "Bearer " + token)
+		).andExpect(status().isOk());
+	}
+
+	@Test
+	void 북마크_삭제_성공() throws Exception {
+
+		// given
+		User mockUser = User.builder()
+			.email("test@gmail.com")
+			.password("1234")
+			.name("userName")
+			.nickname("testUser")
+			.birthDate(20241010)
+			.contact("010-0000-0000")
+			.build();
+		userRepository.save(mockUser);
+		String token = jwtTokenUtil.createToken(String.valueOf(mockUser.getId()));
+		MockMultipartFile travelImage = new MockMultipartFile(
+			"travelImage",
+			"test.jpg",
+			MediaType.IMAGE_JPEG_VALUE,
+			"test image".getBytes()
+		);
+		MockMultipartFile destinationImage = new MockMultipartFile(
+			"detailTravel[0].destinationImage",
+			"detail.jpg",
+			MediaType.IMAGE_JPEG_VALUE,
+			"test detail image".getBytes()
+		);
+		mockMvc.perform(multipart("/travel")
+				.file(travelImage)
+				.file(destinationImage)
+				.param("travelName", "Test Travel")
+				.param("expectedTripCost", "1000")
+				.param("minTravelMateCount", "2")
+				.param("maxTravelMateCount", "5")
+				.param("travelDescription", "Test Description")
+				.param("hashTags", "#test#tag")
+				.param("isDomestic", "true")
+				.param("travelLocation", "Test Location")
+				.param("departureLocation", "Test Departure")
+				.param("startAt", "2025-12-06")
+				.param("endAt", "2025-12-07")
+				.param("detailTravel[0].tripDay", "1")
+				.param("detailTravel[0].tripOrderNumber", "1")
+				.param("detailTravel[0].destination", "Test Destination")
+				.param("detailTravel[0].description", "Test Detail Description")
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.MULTIPART_FORM_DATA))
+			.andExpect(status().isOk());
+		mockMvc.perform(post("/travel/bookmark")
+			.queryParam("travelId", String.valueOf(1L))
+			.header("Authorization", "Bearer " + token)
+		).andExpect(status().isOk());
+
+		// expected
+		mockMvc.perform(delete("/travel/bookmark")
+			.queryParam("travelId", String.valueOf(1L))
+			.header("Authorization", "Bearer " + token)
+		).andExpect(status().isOk());
+	}
 }

@@ -3,33 +3,39 @@ package potatoes.server.service;
 import static potatoes.server.error.ErrorCode.*;
 
 import java.time.Duration;
-import java.time.Period;
 import java.time.ZoneOffset;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.constant.ParticipantRole;
+import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
 import potatoes.server.dto.ParticipantResponse;
 import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.dto.TravelPlanResponse;
+import potatoes.server.dto.GetMyTravelResponse;
+import potatoes.server.dto.TravelPageResponse;
+import potatoes.server.entity.Bookmark;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
 import potatoes.server.entity.TravelUser;
 import potatoes.server.entity.User;
+import potatoes.server.error.exception.BookmarkNotFound;
 import potatoes.server.error.exception.TravelNotFound;
 import potatoes.server.error.exception.UserNotFound;
 import potatoes.server.error.exception.WrongValueInCreateTravel;
+import potatoes.server.repository.BookmarkRepository;
 import potatoes.server.repository.TravelPlanRepository;
 import potatoes.server.repository.TravelRepository;
 import potatoes.server.repository.TravelUserRepository;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.s3.S3UtilsProvider;
-import potatoes.server.utils.time.DateTimeUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,6 +47,7 @@ public class TravelService {
 	private final TravelRepository travelRepository;
 	private final TravelPlanRepository travelPlanRepository;
 	private final TravelUserRepository travelUserRepository;
+	private final BookmarkRepository bookmarkRepository;
 	private final S3UtilsProvider s3;
 
 	@Transactional
@@ -120,5 +127,44 @@ public class TravelService {
 			.map(ParticipantResponse::from)
 			.toList();
 		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses);
+    
+	@Transactional
+	public void addBookmark(Long userId, Long travelId) {
+		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		Travel travel = travelRepository.findById(travelId).orElseThrow(TravelNotFound::new);
+		if (bookmarkRepository.existsByUserAndTravel(user, travel)) {
+			return;
+		}
+
+		Bookmark bookmark = Bookmark.builder()
+			.user(user)
+			.travel(travel)
+			.build();
+		bookmarkRepository.save(bookmark);
+	}
+
+	@Transactional
+	public void deleteBookmark(Long userId, Long travelId) {
+		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		Travel travel = travelRepository.findById(travelId).orElseThrow(TravelNotFound::new);
+
+		Bookmark bookmark = bookmarkRepository.findByUserAndTravel(user, travel)
+			.orElseThrow(BookmarkNotFound::new);
+		bookmarkRepository.delete(bookmark);
+	}
+
+	public TravelPageResponse getMyTravels(int page, int size, Long userId) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetMyTravelResponse> findTravels = travelUserRepository.findMyTravels(request, userId);
+		return TravelPageResponse.from(findTravels);
+	}
+
+	public TravelPageResponse getTravelsByStatus(
+		int page, int size, Long userId, TravelStatus travelStatus
+	) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetMyTravelResponse> findTravels = travelUserRepository.findTravelsByStatus(request, userId,
+			travelStatus.name());
+		return TravelPageResponse.from(findTravels);
 	}
 }
