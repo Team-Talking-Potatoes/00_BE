@@ -4,7 +4,9 @@ import static org.springframework.http.MediaType.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateTravelRequest;
+import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.service.TravelService;
 import potatoes.server.utils.annotation.Authorization;
 
@@ -31,5 +34,11 @@ public class TravelController {
 		@ModelAttribute @Valid CreateTravelRequest createTravelRequest) {
 		travelService.createTravel(userId, createTravelRequest);
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")
+	@GetMapping("/{id}")
+	public ResponseEntity<TravelDetailResponse> getTravelDetails(@PathVariable(name = "id") Long travelId) {
+		return ResponseEntity.ok().body(travelService.getDetails(travelId));
 	}
 }

@@ -14,10 +14,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.constant.ParticipantRole;
 import potatoes.server.dto.CreateTravelRequest;
+import potatoes.server.dto.ParticipantResponse;
+import potatoes.server.dto.TravelDetailResponse;
+import potatoes.server.dto.TravelPlanResponse;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
 import potatoes.server.entity.TravelUser;
 import potatoes.server.entity.User;
+import potatoes.server.error.exception.TravelNotFound;
 import potatoes.server.error.exception.UserNotFound;
 import potatoes.server.error.exception.WrongValueInCreateTravel;
 import potatoes.server.repository.TravelPlanRepository;
@@ -105,5 +109,16 @@ public class TravelService {
 			.user(user)
 			.build();
 		travelUserRepository.save(travelUser);
+	}
+
+	public TravelDetailResponse getDetails(Long travelId) {
+		Travel travel = travelRepository.findById(travelId).orElseThrow(TravelNotFound::new);
+		List<TravelPlanResponse> travelPlanResponses = travelPlanRepository.findAllByTravel(travel).stream()
+			.map(TravelPlanResponse::from)
+			.toList();
+		List<ParticipantResponse> participantResponses = travelUserRepository.findAllByTravel(travel).stream()
+			.map(ParticipantResponse::from)
+			.toList();
+		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses);
 	}
 }
