@@ -46,6 +46,7 @@ public class TravelController {
 	@GetMapping("/{id}")
 	public ResponseEntity<TravelDetailResponse> getTravelDetails(@PathVariable(name = "id") Long travelId) {
 		return ResponseEntity.ok().body(travelService.getDetails(travelId));
+	}
 
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")
 	@GetMapping("/created")

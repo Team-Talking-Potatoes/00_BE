@@ -127,7 +127,8 @@ public class TravelService {
 			.map(ParticipantResponse::from)
 			.toList();
 		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses);
-    
+	}
+	
 	@Transactional
 	public void addBookmark(Long userId, Long travelId) {
 		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
