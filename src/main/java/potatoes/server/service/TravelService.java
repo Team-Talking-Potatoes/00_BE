@@ -163,4 +163,11 @@ public class TravelService {
 		return TravelPageResponse.from(findTravels);
 	}
 
+	public TravelPageResponse<GetMyTravelResponse> getReviewableMyTravels(
+		int page, int size, Long userId
+	) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetMyTravelResponse> findTravels = travelUserRepository.findReviewableTravels(request, userId);
+		return TravelPageResponse.from(findTravels);
+	}
 }

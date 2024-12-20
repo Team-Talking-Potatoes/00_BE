@@ -75,6 +75,16 @@ public class TravelController {
 		return ResponseEntity.ok(travelService.getMyTravelsByBookmark(page, size, userId));
 	}
 
+	@Operation(summary = "리뷰작성이 가능한 여행조회", description = "")
+	@GetMapping("/reviews/pending")
+	public ResponseEntity<TravelPageResponse<GetMyTravelResponse>> getReviewableMyTravels(
+		@RequestParam(required = false, defaultValue = "0") int page,
+		@RequestParam(required = false, defaultValue = "4") int size,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		return ResponseEntity.ok(travelService.getReviewableMyTravels(page, size, userId));
+	}
+
 	@Operation(summary = "북마크 등록", description = "Travel ID를 받고 북마크로 등록합니다.")
 	@PostMapping("/bookmark")
 	public ResponseEntity<Void> addBookMark(
