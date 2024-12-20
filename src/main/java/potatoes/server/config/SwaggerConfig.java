@@ -32,23 +32,26 @@ public class SwaggerConfig implements WebMvcConfigurer {
 
 	@Bean
 	public OpenAPI customOpenAPI() {
-		SecurityScheme bearerScheme = new SecurityScheme().name("bearerAuth")
-			.type(SecurityScheme.Type.HTTP)
-			.scheme("bearer")
-			.bearerFormat("JWT");
-
-		SecurityScheme cookieScheme = new SecurityScheme().name("connect.sid")
+		SecurityScheme cookieScheme = new SecurityScheme()
 			.type(SecurityScheme.Type.APIKEY)
-			.in(SecurityScheme.In.COOKIE);
+			.in(SecurityScheme.In.HEADER)
+			.name("Set-Cookie");
 
-		Components components = new Components().addSecuritySchemes("bearerAuth", bearerScheme)
+		Components components = new Components()
 			.addSecuritySchemes("cookieAuth", cookieScheme);
 
-		SecurityRequirement securityRequirement = new SecurityRequirement().addList("bearerAuth").addList("cookieAuth");
+		SecurityRequirement requirement = new SecurityRequirement()
+			.addList("cookieAuth");
 
-		Info info = new Info().title("talking-potatoes-api").description("").version("1.0");
+		Info info = new Info()
+			.title("talking-potatoes-api")
+			.version("1.0");
 
-		return new OpenAPI().components(components).info(info).addSecurityItem(securityRequirement);
+		return new OpenAPI()
+			.components(components)
+			.info(info)
+			.addSecurityItem(requirement);
+		//FIXME 쿠키방식으로 변경되면서 쿠키를 스웨거에서 인식하게 해야하는데 인식을 못함
 	}
 
 	@Bean
