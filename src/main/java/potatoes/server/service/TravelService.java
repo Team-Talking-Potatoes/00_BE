@@ -8,19 +8,24 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.constant.ParticipantRole;
+import potatoes.server.constant.TravelSortType;
 import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
+import potatoes.server.dto.GetMyTravelResponse;
 import potatoes.server.dto.ParticipantResponse;
 import potatoes.server.dto.TravelDetailResponse;
-import potatoes.server.dto.TravelPlanResponse;
-import potatoes.server.dto.GetMyTravelResponse;
+import potatoes.server.dto.TravelListResponse;
 import potatoes.server.dto.TravelPageResponse;
+import potatoes.server.dto.TravelPlanResponse;
+import potatoes.server.dto.TravelSummaryResponse;
 import potatoes.server.entity.Bookmark;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
@@ -128,7 +133,36 @@ public class TravelService {
 			.toList();
 		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses);
 	}
-	
+
+	public TravelListResponse getTravelList(int page, int size, Boolean isDomestic, String startAt, String endAt,
+		TravelSortType sortOrder, String query) {
+		Pageable pageable = createPageable(page, size, sortOrder);
+
+		List<TravelSummaryResponse> travelSummaryResponses = travelRepository.findTravels(isDomestic, startAt, endAt,
+				query, pageable)
+			.getContent()
+			.stream()
+			.map(travel -> {
+				int travelUserCount = travelUserRepository.countByTravel(travel);
+				return TravelSummaryResponse.from(travel, travelUserCount);
+			})
+			.toList();
+		return new TravelListResponse(travelSummaryResponses, page);
+	}
+
+	private Pageable createPageable(int page, int size, TravelSortType sortOrder) {
+		Sort sort = Sort.by(Sort.Direction.DESC, getSortField(sortOrder));
+		return PageRequest.of(page, size, sort);
+	}
+
+	private String getSortField(TravelSortType sortOrder) {
+		return switch (sortOrder) {
+			// TODO - 조회수를 저장하는 로직이 없어 popular조건을 추가해야됨
+			case recent, popular -> "createdAt";
+			case registrationEnd -> "registrationEnd";
+		};
+	}
+
 	@Transactional
 	public void addBookmark(Long userId, Long travelId) {
 		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
