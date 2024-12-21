@@ -9,4 +9,5 @@ import potatoes.server.entity.ReviewLike;
 public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
 	Optional<ReviewLike> findByUserIdAndReviewId(Long userId, Long reviewId);
 	boolean existsByUserIdAndReviewId(Long userId, Long reviewId);
+	int countAllByReviewId(Long id);
 }

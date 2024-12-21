@@ -2,6 +2,7 @@ package potatoes.server.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateReviewRequest;
+import potatoes.server.dto.GetDetailsReview;
 import potatoes.server.dto.GetMyReviewResponse;
 import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.entity.Review;
@@ -69,6 +71,25 @@ public class ReviewService {
 		reviewRepository.save(review);
 	}
 
+	public GetDetailsReview getDetailsReview(Long reviewId) {
+		int reviewLikes = reviewLikeRepository.countAllByReviewId(reviewId);
+		Review review = reviewRepository.findReviewWithImagesAndCommenter(reviewId);
+
+		return new GetDetailsReview(
+			review.getId(),
+			review.getTitle(),
+			review.getComment(),
+			review.getStarRating(),
+			review.getReviewImages().stream()
+				.map(ReviewImage::getImageUrl)
+				.collect(Collectors.toList()),
+			review.getCommenter().getNickname(),
+			reviewLikes,
+			review.getTravel().getTravelLocation(),
+			review.getCreatedAt()
+		);
+	}
+
 	@Transactional
 	public void addReviewLike(Long reviewId, Long userId) {
 
@@ -101,4 +122,5 @@ public class ReviewService {
 		Page<GetMyReviewResponse> findReviews = reviewRepository.findMyReviews(request, userId);
 		return ReviewPageResponse.from(findReviews);
 	}
+
 }

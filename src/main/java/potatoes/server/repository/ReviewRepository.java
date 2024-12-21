@@ -26,4 +26,15 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		GROUP BY r.id, r.title, t.travelLocation, r.starRating, r.createdAt
 		""")
 	Page<GetMyReviewResponse> findMyReviews(Pageable pageable, Long userId);
+
+	@Query("""
+		    SELECT r
+		    FROM Review r
+		    LEFT JOIN FETCH r.reviewImages
+		    LEFT JOIN FETCH r.commenter
+		    LEFT JOIN FETCH r.travel
+		    WHERE r.id = :reviewId
+		""")
+	Review findReviewWithImagesAndCommenter(Long reviewId);
+
 }
