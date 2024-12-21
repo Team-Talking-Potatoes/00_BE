@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
 import potatoes.server.dto.GetMyTravelResponse;
-import potatoes.server.dto.TravelPageResponse;
+import potatoes.server.dto.PageResponse;
 import potatoes.server.service.TravelService;
 import potatoes.server.utils.annotation.Authorization;
 
@@ -42,7 +42,7 @@ public class TravelController {
 
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")
 	@GetMapping("/created")
-	public ResponseEntity<TravelPageResponse<GetMyTravelResponse>> getMyTravels(
+	public ResponseEntity<PageResponse<GetMyTravelResponse>> getMyTravels(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId
@@ -52,7 +52,7 @@ public class TravelController {
 
 	@Operation(summary = "예정 여행, 다녀온 여행 조회", description = "파라미터의 travelStatus의 값이 upcoming or past에 따라서 예정 여행, 다녀온 여행이 달라진다")
 	@GetMapping("/status")
-	public ResponseEntity<TravelPageResponse<GetMyTravelResponse>> getMyTravelsByStatus(
+	public ResponseEntity<PageResponse<GetMyTravelResponse>> getMyTravelsByStatus(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@RequestParam TravelStatus travelStatus,
@@ -67,7 +67,7 @@ public class TravelController {
 
 	@Operation(summary = "사용자 북마크 여행 조회", description = "")
 	@GetMapping("/checked")
-	public ResponseEntity<TravelPageResponse<GetMyTravelResponse>> getMyTravelsByBookmark(
+	public ResponseEntity<PageResponse<GetMyTravelResponse>> getMyTravelsByBookmark(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId
@@ -77,7 +77,7 @@ public class TravelController {
 
 	@Operation(summary = "리뷰작성이 가능한 여행조회", description = "")
 	@GetMapping("/reviews/pending")
-	public ResponseEntity<TravelPageResponse<GetMyTravelResponse>> getReviewableMyTravels(
+	public ResponseEntity<PageResponse<GetMyTravelResponse>> getReviewableMyTravels(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId

@@ -6,13 +6,17 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import potatoes.server.constant.SortByType;
 import potatoes.server.dto.CreateReviewRequest;
 import potatoes.server.dto.GetDetailsReview;
 import potatoes.server.dto.GetMyReviewResponse;
+import potatoes.server.dto.GetReviewResponse;
+import potatoes.server.dto.PageResponse;
 import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.entity.Review;
 import potatoes.server.entity.ReviewImage;
@@ -90,6 +94,19 @@ public class ReviewService {
 			review.getTravel().getTravelLocation(),
 			review.getCreatedAt()
 		);
+	}
+
+	public PageResponse<GetReviewResponse> getReviews(SortByType sortByType, int page, int size, Long userId) {
+		PageRequest pageable = PageRequest.of(page, size);
+		Page<GetReviewResponse> findReviews = getReviewsWithSort(sortByType, pageable, userId);
+		return PageResponse.from(findReviews);
+	}
+
+	private Page<GetReviewResponse> getReviewsWithSort(SortByType sortByType, Pageable pageable, Long userId) {
+		return switch (sortByType) {
+			case LATEST -> reviewRepository.findAllByOrderByCreatedAtDesc(pageable, userId);
+			case POPULAR -> reviewRepository.findAllByOrderByLikesCountDesc(pageable, userId);
+		};
 	}
 
 	@Transactional

@@ -17,7 +17,7 @@ import potatoes.server.constant.ParticipantRole;
 import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
 import potatoes.server.dto.GetMyTravelResponse;
-import potatoes.server.dto.TravelPageResponse;
+import potatoes.server.dto.PageResponse;
 import potatoes.server.entity.Bookmark;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
@@ -140,34 +140,34 @@ public class TravelService {
 		bookmarkRepository.delete(bookmark);
 	}
 
-	public TravelPageResponse<GetMyTravelResponse> getMyTravels(int page, int size, Long userId) {
+	public PageResponse<GetMyTravelResponse> getMyTravels(int page, int size, Long userId) {
 		PageRequest request = PageRequest.of(page, size);
 		Page<GetMyTravelResponse> findTravels = travelUserRepository.findMyTravels(request, userId);
-		return TravelPageResponse.from(findTravels);
+		return PageResponse.from(findTravels);
 	}
 
-	public TravelPageResponse<GetMyTravelResponse> getTravelsByStatus(
+	public PageResponse<GetMyTravelResponse> getTravelsByStatus(
 		int page, int size, Long userId, TravelStatus travelStatus
 	) {
 		PageRequest request = PageRequest.of(page, size);
 		Page<GetMyTravelResponse> findTravels = travelUserRepository.findTravelsByStatus(request, userId,
 			travelStatus.name());
-		return TravelPageResponse.from(findTravels);
+		return PageResponse.from(findTravels);
 	}
 
-	public TravelPageResponse<GetMyTravelResponse> getMyTravelsByBookmark(
+	public PageResponse<GetMyTravelResponse> getMyTravelsByBookmark(
 		int page, int size, Long userId
 	) {
 		PageRequest request = PageRequest.of(page, size);
 		Page<GetMyTravelResponse> findTravels = bookmarkRepository.findMyTravelsByBookmark(request, userId);
-		return TravelPageResponse.from(findTravels);
+		return PageResponse.from(findTravels);
 	}
 
-	public TravelPageResponse<GetMyTravelResponse> getReviewableMyTravels(
+	public PageResponse<GetMyTravelResponse> getReviewableMyTravels(
 		int page, int size, Long userId
 	) {
 		PageRequest request = PageRequest.of(page, size);
 		Page<GetMyTravelResponse> findTravels = travelUserRepository.findReviewableTravels(request, userId);
-		return TravelPageResponse.from(findTravels);
+		return PageResponse.from(findTravels);
 	}
 }

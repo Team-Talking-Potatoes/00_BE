@@ -15,8 +15,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import potatoes.server.constant.SortByType;
 import potatoes.server.dto.CreateReviewRequest;
 import potatoes.server.dto.GetDetailsReview;
+import potatoes.server.dto.GetReviewResponse;
+import potatoes.server.dto.PageResponse;
 import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.service.ReviewService;
 import potatoes.server.utils.annotation.Authorization;
@@ -37,6 +40,17 @@ public class ReviewController {
 	) {
 		reviewService.createReview(request, userId);
 		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "리뷰 목록 조회", description = "최신순 인기순 조건이있습니다. 디폴트값(page = 0, size = 10)")
+	@GetMapping("")
+	public ResponseEntity<PageResponse<GetReviewResponse>> getReviews(
+		@RequestParam(defaultValue = "LATEST") SortByType sortByType,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		return ResponseEntity.ok(reviewService.getReviews(sortByType, page, size, userId));
 	}
 
 	@Operation(summary = "리뷰 상세 조회", description = "")
