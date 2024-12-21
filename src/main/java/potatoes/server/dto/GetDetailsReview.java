@@ -12,6 +12,7 @@ public record GetDetailsReview(
 	List<String> reviewImages,
 	String nickname,
 	int likesCount,
+	boolean likesFlag,
 	String travelLocation,
 	Instant createdAt
 ) {

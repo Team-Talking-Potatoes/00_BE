@@ -71,9 +71,10 @@ public class ReviewService {
 		reviewRepository.save(review);
 	}
 
-	public GetDetailsReview getDetailsReview(Long reviewId) {
+	public GetDetailsReview getDetailsReview(Long reviewId, Long userId) {
 		int reviewLikes = reviewLikeRepository.countAllByReviewId(reviewId);
 		Review review = reviewRepository.findReviewWithImagesAndCommenter(reviewId);
+		boolean likesFlag = reviewLikeRepository.existsByUserIdAndReviewId(userId, reviewId);
 
 		return new GetDetailsReview(
 			review.getId(),
@@ -85,6 +86,7 @@ public class ReviewService {
 				.collect(Collectors.toList()),
 			review.getCommenter().getNickname(),
 			reviewLikes,
+			likesFlag,
 			review.getTravel().getTravelLocation(),
 			review.getCreatedAt()
 		);

@@ -45,7 +45,7 @@ public class ReviewController {
 		@PathVariable Long reviewId,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
-		return ResponseEntity.ok(reviewService.getDetailsReview(reviewId));
+		return ResponseEntity.ok(reviewService.getDetailsReview(reviewId, userId));
 	}
 
 	@Operation(summary = "내가 작성한 리뷰 조회", description = "내가 작성한 리뷰를 조회합니다.")
