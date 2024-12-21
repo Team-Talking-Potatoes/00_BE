@@ -14,10 +14,15 @@ import potatoes.server.dto.GetMyReviewResponse;
 import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.entity.Review;
 import potatoes.server.entity.ReviewImage;
+import potatoes.server.entity.ReviewLike;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.User;
+import potatoes.server.error.exception.ReviewLikeAlreadyExist;
+import potatoes.server.error.exception.ReviewLikeNotFound;
+import potatoes.server.error.exception.ReviewNotFound;
 import potatoes.server.error.exception.TravelNotFound;
 import potatoes.server.error.exception.UserNotFound;
+import potatoes.server.repository.ReviewLikeRepository;
 import potatoes.server.repository.ReviewRepository;
 import potatoes.server.repository.TravelRepository;
 import potatoes.server.repository.UserRepository;
@@ -31,6 +36,7 @@ public class ReviewService {
 	private final ReviewRepository reviewRepository;
 	private final UserRepository userRepository;
 	private final TravelRepository travelRepository;
+	private final ReviewLikeRepository reviewLikeRepository;
 	private final S3UtilsProvider s3;
 
 	@Transactional
@@ -61,6 +67,33 @@ public class ReviewService {
 
 		review.getReviewImages().addAll(reviewImages);
 		reviewRepository.save(review);
+	}
+
+	@Transactional
+	public void addReviewLike(Long reviewId, Long userId) {
+
+		if (reviewLikeRepository.existsByUserIdAndReviewId(userId, reviewId)) {
+			throw new ReviewLikeAlreadyExist();
+		}
+
+		Review review = reviewRepository.findById(reviewId).orElseThrow(ReviewNotFound::new);
+		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+
+		ReviewLike reviewLike = ReviewLike.builder()
+			.review(review)
+			.user(user)
+			.build();
+
+		reviewLikeRepository.save(reviewLike);
+	}
+
+	@Transactional
+	public void removeReviewLike(Long reviewId, Long userId) {
+		ReviewLike reviewLike = reviewLikeRepository.findByUserIdAndReviewId(reviewId, userId).orElseThrow(
+			ReviewLikeNotFound::new
+		);
+
+		reviewLikeRepository.delete(reviewLike);
 	}
 
 	public ReviewPageResponse getMyReviews(int page, int size, Long userId) {

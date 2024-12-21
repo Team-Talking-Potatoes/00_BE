@@ -32,10 +32,15 @@ public enum ErrorCode {
 	// Bookmark
 	BOOKMARK_ALREADY_EXIST(400, "BOOKMARK_ALREADY_EXIST", "이미 등록한 북마크입니다."),
 	BOOKMARK_NOT_FOUND(400, "BOOKMARK_NOT_FOUND", "등록되지 않은 북마크입니다."),
-	
+
 	// Image
 	INVALID_FILE_FORMAT(400, "INVALID_FILE_FORMAT", "잘못된 형식의 파일입니다"),
-	S3_FILE_UPLOAD_FAILED(500, "S3_FILE_UPLOAD_FAILED", "파일 업로드에 실패했습니다.");
+	S3_FILE_UPLOAD_FAILED(500, "S3_FILE_UPLOAD_FAILED", "파일 업로드에 실패했습니다."),
+
+	// Review
+	REVIEW_NOT_FOUND(400, "REVIEW_NOT_FOUND", "존재하지 않는 리뷰입니다."),
+	REVIEW_LIKE_NOT_FOUND(400, "REVIEW_LIKE_NOT_FOUND", "좋아요한 리뷰를 찾을 수 없습니다"),
+	REVIEW_LIKE_ALREADY_EXIST(400, "REVIEW_LIKE_ALREADY_EXIST", "이미 좋아요한 리뷰입니다");
 
 	private final int status;
 	private final String code;
