@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
+import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.dto.GetMyTravelResponse;
 import potatoes.server.dto.TravelPageResponse;
 import potatoes.server.service.TravelService;
@@ -38,6 +40,12 @@ public class TravelController {
 	) {
 		travelService.createTravel(userId, createTravelRequest);
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")
+	@GetMapping("/{id}")
+	public ResponseEntity<TravelDetailResponse> getTravelDetails(@PathVariable(name = "id") Long travelId) {
+		return ResponseEntity.ok().body(travelService.getDetails(travelId));
 	}
 
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")

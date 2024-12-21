@@ -16,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import potatoes.server.constant.ParticipantRole;
 import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
+import potatoes.server.dto.ParticipantResponse;
+import potatoes.server.dto.TravelDetailResponse;
+import potatoes.server.dto.TravelPlanResponse;
 import potatoes.server.dto.GetMyTravelResponse;
 import potatoes.server.dto.TravelPageResponse;
 import potatoes.server.entity.Bookmark;
@@ -115,6 +118,17 @@ public class TravelService {
 		travelUserRepository.save(travelUser);
 	}
 
+	public TravelDetailResponse getDetails(Long travelId) {
+		Travel travel = travelRepository.findById(travelId).orElseThrow(TravelNotFound::new);
+		List<TravelPlanResponse> travelPlanResponses = travelPlanRepository.findAllByTravel(travel).stream()
+			.map(TravelPlanResponse::from)
+			.toList();
+		List<ParticipantResponse> participantResponses = travelUserRepository.findAllByTravel(travel).stream()
+			.map(ParticipantResponse::from)
+			.toList();
+		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses);
+	}
+	
 	@Transactional
 	public void addBookmark(Long userId, Long travelId) {
 		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
