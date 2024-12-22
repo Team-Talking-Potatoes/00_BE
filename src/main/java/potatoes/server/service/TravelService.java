@@ -20,7 +20,7 @@ import potatoes.server.dto.ParticipantResponse;
 import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.dto.TravelPlanResponse;
 import potatoes.server.dto.GetMyTravelResponse;
-import potatoes.server.dto.PageResponse;
+import potatoes.server.dto.TravelPageResponse;
 import potatoes.server.entity.Bookmark;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
@@ -154,34 +154,27 @@ public class TravelService {
 		bookmarkRepository.delete(bookmark);
 	}
 
-	public PageResponse<GetMyTravelResponse> getMyTravels(int page, int size, Long userId) {
+	public TravelPageResponse<GetMyTravelResponse> getMyTravels(int page, int size, Long userId) {
 		PageRequest request = PageRequest.of(page, size);
 		Page<GetMyTravelResponse> findTravels = travelUserRepository.findMyTravels(request, userId);
-		return PageResponse.from(findTravels);
+		return TravelPageResponse.from(findTravels);
 	}
 
-	public PageResponse<GetMyTravelResponse> getTravelsByStatus(
+	public TravelPageResponse<GetMyTravelResponse> getTravelsByStatus(
 		int page, int size, Long userId, TravelStatus travelStatus
 	) {
 		PageRequest request = PageRequest.of(page, size);
 		Page<GetMyTravelResponse> findTravels = travelUserRepository.findTravelsByStatus(request, userId,
 			travelStatus.name());
-		return PageResponse.from(findTravels);
+		return TravelPageResponse.from(findTravels);
 	}
 
-	public PageResponse<GetMyTravelResponse> getMyTravelsByBookmark(
+	public TravelPageResponse<GetMyTravelResponse> getMyTravelsByBookmark(
 		int page, int size, Long userId
 	) {
 		PageRequest request = PageRequest.of(page, size);
 		Page<GetMyTravelResponse> findTravels = bookmarkRepository.findMyTravelsByBookmark(request, userId);
-		return PageResponse.from(findTravels);
+		return TravelPageResponse.from(findTravels);
 	}
 
-	public PageResponse<GetMyTravelResponse> getReviewableMyTravels(
-		int page, int size, Long userId
-	) {
-		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelUserRepository.findReviewableTravels(request, userId);
-		return PageResponse.from(findTravels);
-	}
 }
