@@ -21,6 +21,7 @@ import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
 import potatoes.server.dto.GetMyTravelResponse;
 import potatoes.server.dto.ParticipantResponse;
+import potatoes.server.dto.SimpleTravelResponse;
 import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.dto.TravelListResponse;
 import potatoes.server.dto.TravelPageResponse;
@@ -161,6 +162,15 @@ public class TravelService {
 			case recent, popular -> "createdAt";
 			case registrationEnd -> "registrationEnd";
 		};
+	}
+
+
+	public List<SimpleTravelResponse> getPopularTravels() {
+		return travelRepository.findTop4ByOrderByIdDesc().stream()
+			.map(travel -> {
+				int currentTravelMate = (int)travelUserRepository.countByTravel(travel);
+				return SimpleTravelResponse.from(travel, currentTravelMate);
+			}).toList();
 	}
 
 	@Transactional

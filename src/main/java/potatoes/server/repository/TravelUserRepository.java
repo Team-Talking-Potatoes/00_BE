@@ -1,5 +1,6 @@
 package potatoes.server.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -16,8 +17,6 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 
 	@Query("SELECT u FROM TravelUser u JOIN FETCH u.user WHERE u.travel = :travel")
 	List<TravelUser> findAllByTravel(@Param("travel") Travel travel);
-
-	int countByTravel(Travel travel);
 
 	@Query("""
 		    SELECT new potatoes.server.dto.GetMyTravelResponse(
@@ -64,4 +63,16 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 		Long userId,
 		String travelStatus
 	);
+
+	@Query("""
+		SELECT t FROM TravelUser t
+		JOIN FETCH t.travel
+		JOIN FETCH t.user
+		WHERE t.createdAt > :date
+		AND t.role = 'ORGANIZER'
+		AND t.user.id = :userId
+		""")
+	List<TravelUser> findOrganizersCreatedAfter(@Param("date") LocalDateTime date, @Param("userId") Long userId);
+
+	long countByTravel(Travel travel);
 }

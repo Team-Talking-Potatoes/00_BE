@@ -1,5 +1,7 @@
 package potatoes.server.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.DeleteUserRequest;
 import potatoes.server.dto.GetUserProfileResponse;
+import potatoes.server.dto.PopularUserResponse;
 import potatoes.server.dto.ResetPasswordRequest;
 import potatoes.server.service.UserService;
 import potatoes.server.utils.annotation.Authorization;
@@ -67,5 +70,12 @@ public class UserController {
 	) {
 		userService.resetPassword(request, userId);
 		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "이번 달 여행지기 조회", description = "이번 달 만든 모임의 리뷰가 많은 유저 조회")
+	@GetMapping("/popular")
+	public ResponseEntity<List<PopularUserResponse>> getPopularUsers() {
+		// TODO - 데이터베이스 전체를 훑는 무거운 작업, 추후 기획 재정리 혹은 Batch job으로 분리 필요
+		return ResponseEntity.ok(userService.findPopularUsers());
 	}
 }

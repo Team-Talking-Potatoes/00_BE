@@ -1,5 +1,7 @@
 package potatoes.server.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -15,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateReviewRequest;
 import potatoes.server.dto.ReviewPageResponse;
+import potatoes.server.dto.SimpleReviewResponse;
 import potatoes.server.service.ReviewService;
 import potatoes.server.utils.annotation.Authorization;
 
@@ -34,6 +37,12 @@ public class ReviewController {
 	) {
 		reviewService.createReview(request, userId);
 		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "리뷰 리스트 조회", description = "최근에 추가된 리뷰를 조회합니다.")
+	@GetMapping("/popular")
+	public ResponseEntity<List<SimpleReviewResponse>> getSimpleReviewList() {
+		return ResponseEntity.ok(reviewService.getSimpleReviews());
 	}
 
 	@Operation(summary = "내가 작성한 리뷰 조회", description = "내가 작성한 리뷰를 조회합니다.")

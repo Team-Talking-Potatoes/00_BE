@@ -1,5 +1,7 @@
 package potatoes.server.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +28,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		GROUP BY r.id, r.title, t.travelLocation, r.starRating, r.createdAt
 		""")
 	Page<GetMyReviewResponse> findMyReviews(Pageable pageable, Long userId);
+
+	@Query("SELECT r FROM Review r JOIN FETCH r.commenter ORDER BY r.createdAt DESC")
+	List<Review> findRecentReviews(Pageable pageable);
+
+	long countByTravelId(Long travelId);
 }

@@ -1,5 +1,9 @@
 package potatoes.server.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -7,10 +11,14 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.DeleteUserRequest;
 import potatoes.server.dto.GetUserProfileResponse;
+import potatoes.server.dto.PopularUserResponse;
 import potatoes.server.dto.ResetPasswordRequest;
+import potatoes.server.entity.TravelUser;
 import potatoes.server.entity.User;
 import potatoes.server.error.exception.PasswordMismatch;
 import potatoes.server.error.exception.UserNotFound;
+import potatoes.server.repository.ReviewRepository;
+import potatoes.server.repository.TravelUserRepository;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.crypto.PasswordEncoder;
 import potatoes.server.utils.s3.S3UtilsProvider;
@@ -20,6 +28,8 @@ import potatoes.server.utils.s3.S3UtilsProvider;
 @Service
 public class UserService {
 	private final UserRepository userRepository;
+	private final TravelUserRepository travelUserRepository;
+	private final ReviewRepository reviewRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final S3UtilsProvider s3;
 
@@ -74,4 +84,33 @@ public class UserService {
 			throw new PasswordMismatch();
 		}
 	}
+
+	public List<PopularUserResponse> findPopularUsers() {
+		LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1L);
+
+		return userRepository.findAll().stream()
+			.map(user -> {
+				List<TravelUser> travelUsers = travelUserRepository.findOrganizersCreatedAfter(oneMonthAgo,
+					user.getId());
+
+				if (travelUsers.isEmpty()) {
+					return null;
+				}
+
+				long totalReviews = travelUsers.stream()
+					.mapToLong(tu -> reviewRepository.countByTravelId(tu.getTravel().getId()))
+					.sum();
+
+				return new PopularUserResponse(
+					user.getProfileImage(),
+					user.getNickname(),
+					travelUsers.size(),
+					totalReviews,
+					travelUsers.getFirst().getTravel().getHashTags()
+				);
+			})
+			.filter(Objects::nonNull)
+			.toList();
+	}
+
 }
