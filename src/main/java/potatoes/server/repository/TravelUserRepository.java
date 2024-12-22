@@ -65,7 +65,9 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 	);
 
 	@Query("""
-		SELECT t FROM TravelUser t JOIN FETCH t.travel, t.user
+		SELECT t FROM TravelUser t
+		JOIN FETCH t.travel
+		JOIN FETCH t.user
 		WHERE t.createdAt > :date
 		AND t.role = 'ORGANIZER'
 		AND t.user.id = :userId
