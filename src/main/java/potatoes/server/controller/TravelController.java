@@ -2,6 +2,8 @@ package potatoes.server.controller;
 
 import static org.springframework.http.MediaType.*;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +21,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
+import potatoes.server.dto.SimpleTravelResponse;
 import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.dto.GetMyTravelResponse;
 import potatoes.server.dto.TravelPageResponse;
@@ -73,7 +76,7 @@ public class TravelController {
 	// 현재 예정 여행 다녀온 여행 api가 통합 되어있지만, 이는 다녀온 여행의 조건이 시간만 가지고 체크하는건 아니라고 생각이들어
 	// 일단은 같은 api돌려쓰고 기획이 좀더 다져지면 그때 분리하는게 좋을것 같습니다.
 
-	@Operation(summary = "사용자 북마크 여행 조회", description = "")
+	@Operation(summary = "사용자 북마크 여행 조회")
 	@GetMapping("/checked")
 	public ResponseEntity<TravelPageResponse<GetMyTravelResponse>> getMyTravelsByBookmark(
 		@RequestParam(required = false, defaultValue = "0") int page,
@@ -101,5 +104,12 @@ public class TravelController {
 	) {
 		travelService.deleteBookmark(userId, travelId);
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
+	@GetMapping("/popular")
+	public ResponseEntity<List<SimpleTravelResponse>> getPopularTravels() {
+		// TODO - 조회수 카운트 방법 논의 필요
+		return ResponseEntity.ok(travelService.getPopularTravels());
 	}
 }
