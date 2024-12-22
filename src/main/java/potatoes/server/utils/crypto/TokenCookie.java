@@ -4,20 +4,25 @@ import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
 
-public record TokenCookie(
-	String accessToken,
-	@Value("${cookie.domain}") String domain,
-	@Value("${security.jwt.token.expire-length}") String expireLength
-) {
-	public ResponseCookie generateCookie() {
-		return ResponseCookie.from("accessToken", this.accessToken)
+@Component
+public class TokenCookie {
+	@Value("${cookie.domain}")
+	private String domain;
+
+	@Value("${security.jwt.token.expire-length}")
+	private String expireLength;
+
+	// factory 메서드로 변경
+	public ResponseCookie generateCookie(String accessToken) {
+		return ResponseCookie.from("accessToken", accessToken)
 			.domain(domain)
-			.httpOnly(false) //FIXME true일시 프론트가 토큰을 못읽는다는 문제가 있는데 이야기 해볼것
-			.secure(false) // FIXME 백엔드 프론트 모두 https 도입시 none으로 변경
+			.httpOnly(false)
+			.secure(false)
 			.path("/")
-			.maxAge(Duration.ofSeconds(90))
-			.sameSite("Lax")    // FIXME 백엔드 프론트 모두 https 도입시 none으로 변경
+			.maxAge(Duration.ofSeconds(Long.parseLong(expireLength)))
+			.sameSite("Lax")
 			.build();
 	}
 }

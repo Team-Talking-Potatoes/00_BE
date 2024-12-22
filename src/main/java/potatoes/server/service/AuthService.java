@@ -25,6 +25,7 @@ public class AuthService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenUtil jwtTokenUtil;
+	private final TokenCookie tokenCookie;
 
 	public ResponseCookie signIn(SignInRequest request) {
 		User getUser = userRepository.findByEmail(request.email()).orElseThrow(InvalidSignInInformation::new);
@@ -35,7 +36,7 @@ public class AuthService {
 		}
 		String accessToken = jwtTokenUtil.createToken(getUser.getId().toString());
 
-		return new TokenCookie(accessToken).generateCookie();
+		return tokenCookie.generateCookie(accessToken);
 	}
 
 	@Transactional
