@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CreateReviewRequest;
 import potatoes.server.dto.GetMyReviewResponse;
 import potatoes.server.dto.ReviewPageResponse;
+import potatoes.server.dto.SimpleReviewResponse;
 import potatoes.server.entity.Review;
 import potatoes.server.entity.ReviewImage;
 import potatoes.server.entity.Travel;
@@ -61,6 +63,14 @@ public class ReviewService {
 
 		review.getReviewImages().addAll(reviewImages);
 		reviewRepository.save(review);
+	}
+
+	public List<SimpleReviewResponse> getSimpleReviews() {
+		Pageable topFive = PageRequest.of(0, 5);
+		return reviewRepository.findRecentReviews(topFive).stream()
+			.map(review -> new SimpleReviewResponse(review.getId(), review.getCommenter().getNickname(),
+				review.getReviewImages().getFirst().getImageUrl()))
+			.toList();
 	}
 
 	public ReviewPageResponse getMyReviews(int page, int size, Long userId) {
