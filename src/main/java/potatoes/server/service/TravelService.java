@@ -17,6 +17,7 @@ import potatoes.server.constant.ParticipantRole;
 import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
 import potatoes.server.dto.ParticipantResponse;
+import potatoes.server.dto.SimpleTravelResponse;
 import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.dto.TravelPlanResponse;
 import potatoes.server.dto.GetMyTravelResponse;
@@ -128,7 +129,15 @@ public class TravelService {
 			.toList();
 		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses);
 	}
-	
+
+	public List<SimpleTravelResponse> getPopularTravels() {
+		return travelRepository.findTop4ByOrderByIdDesc().stream()
+			.map(travel -> {
+				int currentTravelMate = (int)travelUserRepository.countByTravel(travel);
+				return SimpleTravelResponse.from(travel, currentTravelMate);
+			}).toList();
+	}
+
 	@Transactional
 	public void addBookmark(Long userId, Long travelId) {
 		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
