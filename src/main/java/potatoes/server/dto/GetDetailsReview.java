@@ -2,6 +2,10 @@ package potatoes.server.dto;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import potatoes.server.entity.Review;
+import potatoes.server.entity.ReviewImage;
 
 public record GetDetailsReview(
 
@@ -16,4 +20,24 @@ public record GetDetailsReview(
 	String travelLocation,
 	Instant createdAt
 ) {
+	public static GetDetailsReview from(
+		Review review,
+		int reviewLikes,
+		boolean likesFlag
+	) {
+		return new GetDetailsReview(
+			review.getId(),
+			review.getTitle(),
+			review.getComment(),
+			review.getStarRating(),
+			review.getReviewImages().stream()
+				.map(ReviewImage::getImageUrl)
+				.collect(Collectors.toList()),
+			review.getCommenter().getNickname(),
+			reviewLikes,
+			likesFlag,
+			review.getTravel().getTravelLocation(),
+			review.getCreatedAt()
+		);
+	}
 }

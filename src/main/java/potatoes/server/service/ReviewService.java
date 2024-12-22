@@ -2,7 +2,6 @@ package potatoes.server.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -80,20 +79,7 @@ public class ReviewService {
 		Review review = reviewRepository.findReviewWithImagesAndCommenter(reviewId);
 		boolean likesFlag = reviewLikeRepository.existsByUserIdAndReviewId(userId, reviewId);
 
-		return new GetDetailsReview(
-			review.getId(),
-			review.getTitle(),
-			review.getComment(),
-			review.getStarRating(),
-			review.getReviewImages().stream()
-				.map(ReviewImage::getImageUrl)
-				.collect(Collectors.toList()),
-			review.getCommenter().getNickname(),
-			reviewLikes,
-			likesFlag,
-			review.getTravel().getTravelLocation(),
-			review.getCreatedAt()
-		);
+		return GetDetailsReview.from(review, reviewLikes, likesFlag);
 	}
 
 	public PageResponse<GetReviewResponse> getReviews(SortByType sortByType, int page, int size, Long userId) {
