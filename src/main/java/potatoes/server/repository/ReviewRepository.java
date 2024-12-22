@@ -31,4 +31,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
 	@Query("SELECT r FROM Review r JOIN FETCH r.commenter ORDER BY r.createdAt DESC")
 	List<Review> findRecentReviews(Pageable pageable);
+
+	long countByTravelId(Long travelId);
 }

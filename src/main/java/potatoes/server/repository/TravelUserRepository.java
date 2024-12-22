@@ -1,26 +1,23 @@
 package potatoes.server.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
-import potatoes.server.entity.Travel;
-import potatoes.server.entity.TravelUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import potatoes.server.dto.GetMyTravelResponse;
+import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelUser;
 
 public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
-  
+
 	@Query("SELECT u FROM TravelUser u JOIN FETCH u.user WHERE u.travel = :travel")
 	List<TravelUser> findAllByTravel(@Param("travel") Travel travel);
-  
+
 	@Query("""
 		    SELECT new potatoes.server.dto.GetMyTravelResponse(
 		        t.id,
@@ -66,4 +63,12 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 		Long userId,
 		String travelStatus
 	);
+
+	@Query("""
+		SELECT t FROM TravelUser t JOIN FETCH t.travel, t.user
+		WHERE t.createdAt > :date
+		AND t.role = 'ORGANIZER'
+		AND t.user.id = :userId
+		""")
+	List<TravelUser> findOrganizersCreatedAfter(@Param("date") LocalDateTime date, @Param("userId") Long userId);
 }
