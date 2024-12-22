@@ -5,19 +5,29 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import potatoes.server.constant.SortByType;
 import potatoes.server.dto.CreateReviewRequest;
+import potatoes.server.dto.GetDetailsReview;
 import potatoes.server.dto.GetMyReviewResponse;
+import potatoes.server.dto.GetReviewResponse;
+import potatoes.server.dto.PageResponse;
 import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.entity.Review;
 import potatoes.server.entity.ReviewImage;
+import potatoes.server.entity.ReviewLike;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.User;
+import potatoes.server.error.exception.ReviewLikeAlreadyExist;
+import potatoes.server.error.exception.ReviewLikeNotFound;
+import potatoes.server.error.exception.ReviewNotFound;
 import potatoes.server.error.exception.TravelNotFound;
 import potatoes.server.error.exception.UserNotFound;
+import potatoes.server.repository.ReviewLikeRepository;
 import potatoes.server.repository.ReviewRepository;
 import potatoes.server.repository.TravelRepository;
 import potatoes.server.repository.UserRepository;
@@ -31,6 +41,7 @@ public class ReviewService {
 	private final ReviewRepository reviewRepository;
 	private final UserRepository userRepository;
 	private final TravelRepository travelRepository;
+	private final ReviewLikeRepository reviewLikeRepository;
 	private final S3UtilsProvider s3;
 
 	@Transactional
@@ -63,9 +74,58 @@ public class ReviewService {
 		reviewRepository.save(review);
 	}
 
+	public GetDetailsReview getDetailsReview(Long reviewId, Long userId) {
+		int reviewLikes = reviewLikeRepository.countAllByReviewId(reviewId);
+		Review review = reviewRepository.findReviewWithImagesAndCommenter(reviewId);
+		boolean likesFlag = reviewLikeRepository.existsByUserIdAndReviewId(userId, reviewId);
+
+		return GetDetailsReview.from(review, reviewLikes, likesFlag);
+	}
+
+	public PageResponse<GetReviewResponse> getReviews(SortByType sortByType, int page, int size, Long userId) {
+		PageRequest pageable = PageRequest.of(page, size);
+		Page<GetReviewResponse> findReviews = getReviewsWithSort(sortByType, pageable, userId);
+		return PageResponse.from(findReviews);
+	}
+
+	private Page<GetReviewResponse> getReviewsWithSort(SortByType sortByType, Pageable pageable, Long userId) {
+		return switch (sortByType) {
+			case LATEST -> reviewRepository.findAllByOrderByCreatedAtDesc(pageable, userId);
+			case POPULAR -> reviewRepository.findAllByOrderByLikesCountDesc(pageable, userId);
+		};
+	}
+
+	@Transactional
+	public void addReviewLike(Long reviewId, Long userId) {
+
+		if (reviewLikeRepository.existsByUserIdAndReviewId(userId, reviewId)) {
+			throw new ReviewLikeAlreadyExist();
+		}
+
+		Review review = reviewRepository.findById(reviewId).orElseThrow(ReviewNotFound::new);
+		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+
+		ReviewLike reviewLike = ReviewLike.builder()
+			.review(review)
+			.user(user)
+			.build();
+
+		reviewLikeRepository.save(reviewLike);
+	}
+
+	@Transactional
+	public void removeReviewLike(Long reviewId, Long userId) {
+		ReviewLike reviewLike = reviewLikeRepository.findByUserIdAndReviewId(reviewId, userId).orElseThrow(
+			ReviewLikeNotFound::new
+		);
+
+		reviewLikeRepository.delete(reviewLike);
+	}
+
 	public ReviewPageResponse getMyReviews(int page, int size, Long userId) {
 		PageRequest request = PageRequest.of(page, size);
 		Page<GetMyReviewResponse> findReviews = reviewRepository.findMyReviews(request, userId);
 		return ReviewPageResponse.from(findReviews);
 	}
+
 }
