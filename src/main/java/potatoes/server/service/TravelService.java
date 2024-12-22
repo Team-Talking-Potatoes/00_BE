@@ -144,7 +144,7 @@ public class TravelService {
 			.getContent()
 			.stream()
 			.map(travel -> {
-				int travelUserCount = travelUserRepository.countByTravel(travel);
+				int travelUserCount = (int)travelUserRepository.countByTravel(travel);
 				return TravelSummaryResponse.from(travel, travelUserCount);
 			})
 			.toList();
@@ -163,7 +163,6 @@ public class TravelService {
 			case registrationEnd -> "registrationEnd";
 		};
 	}
-
 
 	public List<SimpleTravelResponse> getPopularTravels() {
 		return travelRepository.findTop4ByOrderByIdDesc().stream()
