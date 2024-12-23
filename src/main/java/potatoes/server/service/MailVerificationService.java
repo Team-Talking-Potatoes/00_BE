@@ -67,6 +67,6 @@ public class MailVerificationService {
 
 	private VerifyResponse createAccessToken() {
 		return new VerifyResponse(
-			jwtTokenUtil.createToken(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))));
+			jwtTokenUtil.createAccessToken(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))));
 	}
 }
