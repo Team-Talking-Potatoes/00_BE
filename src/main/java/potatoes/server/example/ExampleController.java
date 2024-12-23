@@ -64,7 +64,7 @@ public class ExampleController {
 	@Operation(summary = "토큰 발급")
 	@GetMapping("/token")
 	public String exampleToken(@RequestParam(name = "id") String id) {
-		return jwtTokenUtil.createToken(id);
+		return jwtTokenUtil.createAccessToken(id);
 	}
 
 	@Operation(summary = "토큰 해독", description = "Authorize에 토큰을 넣으세요")
