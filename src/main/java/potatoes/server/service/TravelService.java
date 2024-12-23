@@ -138,17 +138,14 @@ public class TravelService {
 	public TravelListResponse getTravelList(int page, int size, Boolean isDomestic, String startAt, String endAt,
 		TravelSortType sortOrder, String query) {
 		Pageable pageable = createPageable(page, size, sortOrder);
-
-		List<TravelSummaryResponse> travelSummaryResponses = travelRepository.findTravels(isDomestic, startAt, endAt,
-				query, pageable)
-			.getContent()
-			.stream()
+		Page<Travel> travels = travelRepository.findTravels(isDomestic, startAt, endAt, query, pageable);
+		List<TravelSummaryResponse> travelSummaryResponses = travels.getContent().stream()
 			.map(travel -> {
 				int travelUserCount = (int)travelUserRepository.countByTravel(travel);
 				return TravelSummaryResponse.from(travel, travelUserCount);
 			})
 			.toList();
-		return new TravelListResponse(travelSummaryResponses, page);
+		return new TravelListResponse(travelSummaryResponses, travels.getTotalPages() + 1 > page, page);
 	}
 
 	private Pageable createPageable(int page, int size, TravelSortType sortOrder) {
