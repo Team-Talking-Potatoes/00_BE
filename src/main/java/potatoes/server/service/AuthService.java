@@ -1,13 +1,12 @@
 package potatoes.server.service;
 
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SignInRequest;
 import potatoes.server.dto.SignUpRequest;
-import potatoes.server.dto.TokenInfo;
-import potatoes.server.dto.TokenResponse;
 import potatoes.server.dto.UnauthorizedPasswordResetRequest;
 import potatoes.server.entity.User;
 import potatoes.server.error.exception.DuplicationEmail;
@@ -16,17 +15,18 @@ import potatoes.server.error.exception.UserNotFound;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.crypto.CookieProvider;
 import potatoes.server.utils.crypto.PasswordEncoder;
+import potatoes.server.utils.jwt.JwtTokenUtil;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
 public class AuthService {
-	private final TokenService tokenService;
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final CookieProvider cookieProvider;
+	private final JwtTokenUtil jwtTokenUtil;
 
-	public TokenResponse signIn(SignInRequest request) {
+	public ResponseCookie signIn(SignInRequest request) {
 		User getUser = userRepository.findByEmail(request.email()).orElseThrow(InvalidSignInInformation::new);
 
 		boolean isPasswordMatched = passwordEncoder.matches(request.password(), getUser.getPassword());
@@ -34,8 +34,8 @@ public class AuthService {
 			throw new InvalidSignInInformation();
 		}
 
-		TokenInfo tokenInfo = tokenService.createTokenSet(getUser.getId().toString());
-		return cookieProvider.generateTokenCookies(tokenInfo);
+		String accessToken = jwtTokenUtil.createAccessToken(getUser.getId().toString());
+		return cookieProvider.accessTokenCookie(accessToken);
 	}
 
 	@Transactional

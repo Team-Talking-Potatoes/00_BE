@@ -18,11 +18,8 @@ public class JwtTokenUtil {
 
 	@Value("${security.jwt.token.secret-key}")
 	String secretKey;
-	@Value("${security.jwt.token.access-token-expire}")
+	@Value("${security.jwt.token.expire-length}")
 	private Long accessTokenExpiration;
-
-	@Value("${security.jwt.token.refresh-token-expire}")
-	private Long refreshTokenExpiration;
 
 	private Key key;
 
@@ -33,10 +30,6 @@ public class JwtTokenUtil {
 
 	public String createAccessToken(String payload) {
 		return createToken(payload, accessTokenExpiration);
-	}
-
-	public String createRefreshToken(String payload) {
-		return createToken(payload, refreshTokenExpiration);
 	}
 
 	private String createToken(String payload, Long expiration) {
