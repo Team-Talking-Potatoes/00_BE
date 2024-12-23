@@ -26,6 +26,7 @@ public class MailVerificationService {
 	private final RedisVerificationStore redisStore;
 	private final JwtTokenUtil jwtTokenUtil;
 	private static final Duration EXPIRATION = Duration.ofMinutes(5);
+	private static final String EMAIL_VERIFY_PREFIX = "EMAIL:VERIFY:";
 
 	@Transactional
 	public void sendSignupEmail(SendMailRequest request) {
@@ -48,12 +49,12 @@ public class MailVerificationService {
 
 	private String createAndStoreVerificationNumber(String email) {
 		String verifyNumber = GenerateRandomNumber.generateNumber();
-		redisStore.store(email, verifyNumber, EXPIRATION);
+		redisStore.store(EMAIL_VERIFY_PREFIX + email, verifyNumber, EXPIRATION);
 		return verifyNumber;
 	}
 
 	private void verifyNumberByEmail(String verifyNumber, String email) {
-		String storedNumber = redisStore.find(email);
+		String storedNumber = redisStore.find(EMAIL_VERIFY_PREFIX + email);
 		if (storedNumber == null) {
 			throw new MailVerifyNumberExpired();
 		}
@@ -61,7 +62,7 @@ public class MailVerificationService {
 		if (!storedNumber.equals(verifyNumber)) {
 			throw new MailVerifyNumberNotValid();
 		}
-		redisStore.remove(email);
+		redisStore.remove(EMAIL_VERIFY_PREFIX + email);
 	}
 
 	private VerifyResponse createAccessToken() {
