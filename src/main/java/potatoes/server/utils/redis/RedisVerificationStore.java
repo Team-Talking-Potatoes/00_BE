@@ -12,15 +12,15 @@ import lombok.RequiredArgsConstructor;
 public class RedisVerificationStore {
 	private final RedisTemplate<String, String> redisTemplate;
 
-	public void store(String email, String verificationNumber, Duration duration) {
-		redisTemplate.opsForValue().set(email, verificationNumber, duration);
+	public void store(String key, String value, Duration duration) {
+		redisTemplate.opsForValue().set(key, value, duration);
 	}
 
-	public String find(String email) {
-		return redisTemplate.opsForValue().get(email);
+	public String find(String key) {
+		return redisTemplate.opsForValue().get(key);
 	}
 
-	public void remove(String email) {
-		redisTemplate.delete(email);
+	public void remove(String value) {
+		redisTemplate.delete(value);
 	}
 }
