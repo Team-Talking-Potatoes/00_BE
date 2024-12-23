@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class RedisVerificationStore {
+public class RedisStore {
 	private final RedisTemplate<String, String> redisTemplate;
 
 	public void store(String key, String value, Duration duration) {

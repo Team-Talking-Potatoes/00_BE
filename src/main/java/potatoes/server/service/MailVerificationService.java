@@ -14,7 +14,7 @@ import potatoes.server.error.exception.MailVerifyNumberExpired;
 import potatoes.server.error.exception.MailVerifyNumberNotValid;
 import potatoes.server.utils.GenerateRandomNumber;
 import potatoes.server.utils.jwt.JwtTokenUtil;
-import potatoes.server.utils.redis.RedisVerificationStore;
+import potatoes.server.utils.redis.RedisStore;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,7 +23,7 @@ public class MailVerificationService {
 
 	private final AuthService authService;
 	private final CustomMailSender customMailSender;
-	private final RedisVerificationStore redisStore;
+	private final RedisStore redisStore;
 	private final JwtTokenUtil jwtTokenUtil;
 	private static final Duration EXPIRATION = Duration.ofMinutes(5);
 	private static final String EMAIL_VERIFY_PREFIX = "EMAIL:VERIFY:";
