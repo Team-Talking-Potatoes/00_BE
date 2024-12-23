@@ -14,7 +14,7 @@ import potatoes.server.error.exception.MailVerifyNumberExpired;
 import potatoes.server.error.exception.MailVerifyNumberNotValid;
 import potatoes.server.utils.GenerateRandomNumber;
 import potatoes.server.utils.jwt.JwtTokenUtil;
-import potatoes.server.utils.redis.RedisVerificationStore;
+import potatoes.server.utils.redis.RedisStore;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,9 +23,10 @@ public class MailVerificationService {
 
 	private final AuthService authService;
 	private final CustomMailSender customMailSender;
-	private final RedisVerificationStore redisStore;
+	private final RedisStore redisStore;
 	private final JwtTokenUtil jwtTokenUtil;
 	private static final Duration EXPIRATION = Duration.ofMinutes(5);
+	private static final String EMAIL_VERIFY_PREFIX = "EMAIL:VERIFY:";
 
 	@Transactional
 	public void sendSignupEmail(SendMailRequest request) {
@@ -48,12 +49,12 @@ public class MailVerificationService {
 
 	private String createAndStoreVerificationNumber(String email) {
 		String verifyNumber = GenerateRandomNumber.generateNumber();
-		redisStore.store(email, verifyNumber, EXPIRATION);
+		redisStore.store(EMAIL_VERIFY_PREFIX + email, verifyNumber, EXPIRATION);
 		return verifyNumber;
 	}
 
 	private void verifyNumberByEmail(String verifyNumber, String email) {
-		String storedNumber = redisStore.find(email);
+		String storedNumber = redisStore.find(EMAIL_VERIFY_PREFIX + email);
 		if (storedNumber == null) {
 			throw new MailVerifyNumberExpired();
 		}
@@ -61,11 +62,11 @@ public class MailVerificationService {
 		if (!storedNumber.equals(verifyNumber)) {
 			throw new MailVerifyNumberNotValid();
 		}
-		redisStore.remove(email);
+		redisStore.remove(EMAIL_VERIFY_PREFIX + email);
 	}
 
 	private VerifyResponse createAccessToken() {
 		return new VerifyResponse(
-			jwtTokenUtil.createToken(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))));
+			jwtTokenUtil.createAccessToken(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))));
 	}
 }

@@ -19,7 +19,7 @@ public class JwtTokenUtil {
 	@Value("${security.jwt.token.secret-key}")
 	String secretKey;
 	@Value("${security.jwt.token.expire-length}")
-	Long expiration;
+	private Long accessTokenExpiration;
 
 	private Key key;
 
@@ -28,7 +28,11 @@ public class JwtTokenUtil {
 		this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
 	}
 
-	public String createToken(String payload) {
+	public String createAccessToken(String payload) {
+		return createToken(payload, accessTokenExpiration);
+	}
+
+	private String createToken(String payload, Long expiration) {
 		Date now = new Date();
 		Date validity = new Date(now.getTime() + expiration);
 

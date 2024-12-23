@@ -13,17 +13,17 @@ import potatoes.server.error.exception.DuplicationEmail;
 import potatoes.server.error.exception.InvalidSignInInformation;
 import potatoes.server.error.exception.UserNotFound;
 import potatoes.server.repository.UserRepository;
+import potatoes.server.utils.crypto.CookieProvider;
 import potatoes.server.utils.crypto.PasswordEncoder;
-import potatoes.server.utils.crypto.TokenCookie;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
 public class AuthService {
-
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final CookieProvider cookieProvider;
 	private final JwtTokenUtil jwtTokenUtil;
 
 	public ResponseCookie signIn(SignInRequest request) {
@@ -33,9 +33,9 @@ public class AuthService {
 		if (!isPasswordMatched) {
 			throw new InvalidSignInInformation();
 		}
-		String accessToken = jwtTokenUtil.createToken(getUser.getId().toString());
 
-		return new TokenCookie(accessToken).generateCookie();
+		String accessToken = jwtTokenUtil.createAccessToken(getUser.getId().toString());
+		return cookieProvider.accessTokenCookie(accessToken);
 	}
 
 	@Transactional

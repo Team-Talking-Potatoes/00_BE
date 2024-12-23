@@ -1,7 +1,9 @@
 package potatoes.server.controller;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,6 +24,7 @@ import potatoes.server.utils.annotation.Authorization;
 
 @Tag(name = "Auth", description = "Auth API")
 @RequestMapping("/auth")
+@Validated
 @RequiredArgsConstructor
 @RestController
 public class AuthController {
@@ -31,8 +34,10 @@ public class AuthController {
 	@Operation(summary = "로그인", description = "로그인을 성공하면 SET_COOKIE형태로 토큰이 설정됩니다.")
 	@PostMapping("/sign-in")
 	public ResponseEntity<Void> signIn(@RequestBody @Valid SignInRequest request) {
+		ResponseCookie tokenResponse = authService.signIn(request);
+
 		return ResponseEntity.ok()
-			.header(HttpHeaders.SET_COOKIE, authService.signIn(request).toString())
+			.header(HttpHeaders.SET_COOKIE, tokenResponse.toString())
 			.build();
 	}
 
