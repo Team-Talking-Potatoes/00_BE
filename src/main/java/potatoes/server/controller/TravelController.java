@@ -19,12 +19,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import potatoes.server.constant.TravelSortType;
 import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
 import potatoes.server.dto.GetMyTravelResponse;
 import potatoes.server.dto.PageResponse;
 import potatoes.server.dto.SimpleTravelResponse;
 import potatoes.server.dto.TravelDetailResponse;
+import potatoes.server.dto.TravelListResponse;
 import potatoes.server.service.TravelService;
 import potatoes.server.utils.annotation.Authorization;
 
@@ -49,6 +51,21 @@ public class TravelController {
 	@GetMapping("/{id}")
 	public ResponseEntity<TravelDetailResponse> getTravelDetails(@PathVariable(name = "id") Long travelId) {
 		return ResponseEntity.ok().body(travelService.getDetails(travelId));
+	}
+
+	@Operation(summary = "여행 리스트 조회", description = "조건에 맞는 여행 리스트 조회합니다.")
+	@GetMapping()
+	public ResponseEntity<TravelListResponse> getTravelList(
+		@RequestParam(required = false, defaultValue = "1") int page,
+		@RequestParam(required = false, defaultValue = "4") int size,
+		@RequestParam(required = false) boolean isDomestic,
+		@RequestParam(required = false) String startAt,
+		@RequestParam(required = false) String endAt,
+		@RequestParam(required = false, defaultValue = "recent") TravelSortType sortOrder,
+		@RequestParam(required = false) String query
+	) {
+		return ResponseEntity.ok(
+			travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query));
 	}
 
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")

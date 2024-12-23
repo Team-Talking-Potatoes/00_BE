@@ -39,6 +39,26 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 	Page<GetMyTravelResponse> findMyTravels(Pageable pageable, Long userId);
 
 	@Query("""
+		SELECT new potatoes.server.dto.GetMyTravelResponse(
+		    t.id,
+		    t.name,
+		    t.maxTravelMateCount,
+		    CAST(COUNT(tu2) AS int),
+		    t.isDomestic,
+		    t.travelLocation,
+		    t.image,
+		    CAST(t.startAt AS string),
+		    CAST(t.endAt AS string)
+		)
+		FROM TravelUser tu
+		JOIN tu.travel t
+		LEFT JOIN TravelUser tu2 ON tu2.travel = t
+		WHERE tu.user.id = :userId AND t.endAt < CURRENT_TIMESTAMP
+		GROUP BY t.id, t.name, t.maxTravelMateCount, t.isDomestic, t.travelLocation, t.image, t.startAt, t.endAt
+		""")
+	Page<GetMyTravelResponse> findReviewableTravels(Pageable pageable, Long userId);
+
+	@Query("""
 		    SELECT new potatoes.server.dto.GetMyTravelResponse(
 		        t.id,
 		        t.name,
