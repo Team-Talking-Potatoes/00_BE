@@ -8,20 +8,25 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.constant.ParticipantRole;
+import potatoes.server.constant.TravelSortType;
 import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
+import potatoes.server.dto.GetMyTravelResponse;
 import potatoes.server.dto.ParticipantResponse;
 import potatoes.server.dto.SimpleTravelResponse;
 import potatoes.server.dto.TravelDetailResponse;
-import potatoes.server.dto.TravelPlanResponse;
-import potatoes.server.dto.GetMyTravelResponse;
+import potatoes.server.dto.TravelListResponse;
 import potatoes.server.dto.TravelPageResponse;
+import potatoes.server.dto.TravelPlanResponse;
+import potatoes.server.dto.TravelSummaryResponse;
 import potatoes.server.entity.Bookmark;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
@@ -128,6 +133,32 @@ public class TravelService {
 			.map(ParticipantResponse::from)
 			.toList();
 		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses);
+	}
+
+	public TravelListResponse getTravelList(int page, int size, Boolean isDomestic, String startAt, String endAt,
+		TravelSortType sortOrder, String query) {
+		Pageable pageable = createPageable(page, size, sortOrder);
+		Page<Travel> travels = travelRepository.findTravels(isDomestic, startAt, endAt, query, pageable);
+		List<TravelSummaryResponse> travelSummaryResponses = travels.getContent().stream()
+			.map(travel -> {
+				int travelUserCount = (int)travelUserRepository.countByTravel(travel);
+				return TravelSummaryResponse.from(travel, travelUserCount);
+			})
+			.toList();
+		return new TravelListResponse(travelSummaryResponses, travels.getTotalPages() + 1 > page, page);
+	}
+
+	private Pageable createPageable(int page, int size, TravelSortType sortOrder) {
+		Sort sort = Sort.by(Sort.Direction.DESC, getSortField(sortOrder));
+		return PageRequest.of(page, size, sort);
+	}
+
+	private String getSortField(TravelSortType sortOrder) {
+		return switch (sortOrder) {
+			// TODO - 조회수를 저장하는 로직이 없어 popular조건을 추가해야됨
+			case recent, popular -> "createdAt";
+			case registrationEnd -> "registrationEnd";
+		};
 	}
 
 	public List<SimpleTravelResponse> getPopularTravels() {
