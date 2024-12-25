@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import lombok.extern.slf4j.Slf4j;
-import potatoes.server.error.exception.CustomException;
+import potatoes.server.error.exception.WeGoException;
 
 @Slf4j
 @ControllerAdvice
@@ -28,8 +28,8 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(INVALID_TYPE_VALUE.getStatus()).body(response);
 	}
 
-	@ExceptionHandler(CustomException.class)
-	protected ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
+	@ExceptionHandler(WeGoException.class)
+	protected ResponseEntity<ErrorResponse> handleWeGoException(WeGoException e) {
 		ErrorCode errorCode = e.getErrorCode();
 		ErrorResponse response = ErrorResponse.from(errorCode);
 		return ResponseEntity.status(errorCode.getStatus()).body(response);

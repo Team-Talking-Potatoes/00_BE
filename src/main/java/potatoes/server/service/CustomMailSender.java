@@ -1,5 +1,7 @@
 package potatoes.server.service;
 
+import static potatoes.server.error.ErrorCode.*;
+
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -10,7 +12,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SendMailRequest;
-import potatoes.server.error.exception.MailSendFailed;
+import potatoes.server.error.exception.WeGoException;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -25,7 +27,7 @@ public class CustomMailSender {
 			MimeMessage mimeMessage = createMailForm(request.email(), verifyNumber);
 			sendMail(mimeMessage);
 		} catch (MessagingException e) {
-			throw new MailSendFailed();
+			throw new WeGoException(MAIL_SEND_EXCEPTION);
 		}
 	}
 
@@ -45,7 +47,7 @@ public class CustomMailSender {
 		try {
 			javaMailSender.send(mimeMessage);
 		} catch (MailSendException e) {
-			throw new MailSendFailed();
+			throw new WeGoException(MAIL_SEND_EXCEPTION);
 		}
 	}
 

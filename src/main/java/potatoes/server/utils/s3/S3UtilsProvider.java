@@ -1,5 +1,7 @@
 package potatoes.server.utils.s3;
 
+import static potatoes.server.error.ErrorCode.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
@@ -17,8 +19,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.error.exception.InvalidFileFormat;
-import potatoes.server.error.exception.S3FileUploadFailed;
+import potatoes.server.error.exception.WeGoException;
 import potatoes.server.utils.time.DateTimeUtils;
 
 @RequiredArgsConstructor
@@ -68,7 +69,7 @@ public class S3UtilsProvider {
 
 				amazonS3.putObject(request);
 			} catch (IOException e) {
-				throw new S3FileUploadFailed();
+				throw new WeGoException(S3_FILE_UPLOAD_FAILED);
 			}
 
 			return fileName;
@@ -88,7 +89,7 @@ public class S3UtilsProvider {
 			try {
 				return fileName.substring(fileName.lastIndexOf("."));
 			} catch (StringIndexOutOfBoundsException e) {
-				throw new InvalidFileFormat();
+				throw new WeGoException(INVALID_FILE_FORMAT);
 			}
 		}
 	}

@@ -1,5 +1,7 @@
 package potatoes.server.service;
 
+import static potatoes.server.error.ErrorCode.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -15,8 +17,7 @@ import potatoes.server.dto.PopularUserResponse;
 import potatoes.server.dto.ResetPasswordRequest;
 import potatoes.server.entity.TravelUser;
 import potatoes.server.entity.User;
-import potatoes.server.error.exception.PasswordMismatch;
-import potatoes.server.error.exception.UserNotFound;
+import potatoes.server.error.exception.WeGoException;
 import potatoes.server.repository.ReviewRepository;
 import potatoes.server.repository.TravelUserRepository;
 import potatoes.server.repository.UserRepository;
@@ -34,7 +35,7 @@ public class UserService {
 	private final S3UtilsProvider s3;
 
 	public GetUserProfileResponse getUserProfile(Long userId) {
-		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		User getUser = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 
 		return new GetUserProfileResponse(
 			getUser.getEmail(),
@@ -46,7 +47,7 @@ public class UserService {
 
 	@Transactional
 	public void resetPassword(ResetPasswordRequest request, Long userId) {
-		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		User getUser = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 		validatePassword(request.currentPassword(), getUser.getPassword());
 
 		String newPassword = passwordEncoder.encrypt(request.newPassword());
@@ -56,7 +57,7 @@ public class UserService {
 
 	@Transactional
 	public void updateUserProfile(MultipartFile profileImage, String nickname, String description, Long userId) {
-		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		User getUser = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 
 		String imageUrl = profileImage != null ? uploadAndReturnUrl(profileImage) : getUser.getProfileImage();
 		String updatedNickname = nickname != null ? nickname : getUser.getNickname();
@@ -72,7 +73,7 @@ public class UserService {
 
 	@Transactional
 	public void deleteUser(DeleteUserRequest request, Long userId) {
-		User getUser = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		User getUser = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 		validatePassword(request.password(), getUser.getPassword());
 		userRepository.delete(getUser);
 	}
@@ -81,7 +82,7 @@ public class UserService {
 		boolean isPasswordMatched = passwordEncoder.matches(rawPassword, encrpytedPassword);
 
 		if (!isPasswordMatched) {
-			throw new PasswordMismatch();
+			throw new WeGoException(PASSWORD_MISMATCH);
 		}
 	}
 

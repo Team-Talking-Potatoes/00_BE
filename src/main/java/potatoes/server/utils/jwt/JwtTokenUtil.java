@@ -1,5 +1,7 @@
 package potatoes.server.utils.jwt;
 
+import static potatoes.server.error.ErrorCode.*;
+
 import java.security.Key;
 import java.util.Date;
 
@@ -11,7 +13,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import potatoes.server.error.exception.Unauthorized;
+import potatoes.server.error.exception.WeGoException;
 
 @Component
 public class JwtTokenUtil {
@@ -53,7 +55,7 @@ public class JwtTokenUtil {
 				.getBody()
 				.getSubject();
 		} catch (JwtException e) {
-			throw new Unauthorized();
+			throw new WeGoException(UNAUTHORIZED);
 		}
 	}
 
@@ -65,7 +67,7 @@ public class JwtTokenUtil {
 				.parseClaimsJws(token);
 			return true;
 		} catch (JwtException e) {
-			throw new Unauthorized();
+			throw new WeGoException(UNAUTHORIZED);
 		}
 	}
 }

@@ -1,5 +1,7 @@
 package potatoes.server.service;
 
+import static potatoes.server.error.ErrorCode.*;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -10,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SendMailRequest;
 import potatoes.server.dto.VerifyResponse;
-import potatoes.server.error.exception.MailVerifyNumberExpired;
-import potatoes.server.error.exception.MailVerifyNumberNotValid;
+import potatoes.server.error.exception.WeGoException;
 import potatoes.server.utils.GenerateRandomNumber;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 import potatoes.server.utils.redis.RedisStore;
@@ -56,11 +57,11 @@ public class MailVerificationService {
 	private void verifyNumberByEmail(String verifyNumber, String email) {
 		String storedNumber = redisStore.find(EMAIL_VERIFY_PREFIX + email);
 		if (storedNumber == null) {
-			throw new MailVerifyNumberExpired();
+			throw new WeGoException(MAIL_VERIFY_NUMBER_EXPIRED);
 		}
 
 		if (!storedNumber.equals(verifyNumber)) {
-			throw new MailVerifyNumberNotValid();
+			throw new WeGoException(MAIL_VERIFY_NUMBER_NOT_VALID);
 		}
 		redisStore.remove(EMAIL_VERIFY_PREFIX + email);
 	}
