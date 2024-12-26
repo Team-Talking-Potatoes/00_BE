@@ -21,7 +21,8 @@ public class CookieProvider {
 			.secure(false)
 			.path("/")
 			.maxAge(Duration.ofSeconds(Long.parseLong(accessTokenExpire)))
-			.sameSite("Lax")
+			.sameSite("None")
 			.build();
+		//FIXME 반드시 domain 및 samesite 추가 보안 허점
 	}
 }
