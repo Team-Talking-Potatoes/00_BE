@@ -1,5 +1,7 @@
 package potatoes.server.service;
 
+import static potatoes.server.error.ErrorCode.*;
+
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,9 +11,7 @@ import potatoes.server.dto.SignInRequest;
 import potatoes.server.dto.SignUpRequest;
 import potatoes.server.dto.UnauthorizedPasswordResetRequest;
 import potatoes.server.entity.User;
-import potatoes.server.error.exception.DuplicationEmail;
-import potatoes.server.error.exception.InvalidSignInInformation;
-import potatoes.server.error.exception.UserNotFound;
+import potatoes.server.error.exception.WeGoException;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.crypto.CookieProvider;
 import potatoes.server.utils.crypto.PasswordEncoder;
@@ -27,11 +27,12 @@ public class AuthService {
 	private final JwtTokenUtil jwtTokenUtil;
 
 	public ResponseCookie signIn(SignInRequest request) {
-		User getUser = userRepository.findByEmail(request.email()).orElseThrow(InvalidSignInInformation::new);
+		User getUser = userRepository.findByEmail(request.email())
+			.orElseThrow(() -> new WeGoException(INVALID_CREDENTIALS));
 
 		boolean isPasswordMatched = passwordEncoder.matches(request.password(), getUser.getPassword());
 		if (!isPasswordMatched) {
-			throw new InvalidSignInInformation();
+			throw new WeGoException(INVALID_CREDENTIALS);
 		}
 
 		String accessToken = jwtTokenUtil.createAccessToken(getUser.getId().toString());
@@ -56,7 +57,7 @@ public class AuthService {
 
 	@Transactional
 	public void unauthorizedPasswordReset(UnauthorizedPasswordResetRequest request) {
-		User getUser = userRepository.findByEmail(request.email()).orElseThrow(UserNotFound::new);
+		User getUser = userRepository.findByEmail(request.email()).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 
 		String newPassword = passwordEncoder.encrypt(request.newPassword());
 		getUser.resetPassword(newPassword);
@@ -64,13 +65,13 @@ public class AuthService {
 
 	public void validateEmailNotExists(String email) {
 		if (userRepository.existsByEmail(email)) {
-			throw new DuplicationEmail();
+			throw new WeGoException(EMAIL_DUPLICATION);
 		}
 	}
 
 	public void validateEmailExists(String email) {
 		if (!userRepository.existsByEmail(email)) {
-			throw new UserNotFound();
+			throw new WeGoException(USER_NOT_FOUND);
 		}
 	}
 }

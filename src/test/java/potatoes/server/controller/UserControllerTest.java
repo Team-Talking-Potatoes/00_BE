@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static potatoes.server.error.ErrorCode.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import potatoes.server.dto.SignInRequest;
 import potatoes.server.dto.SignUpRequest;
-import potatoes.server.error.exception.DuplicationEmail;
-import potatoes.server.error.exception.InvalidSignInInformation;
+import potatoes.server.error.exception.WeGoException;
 import potatoes.server.service.AuthService;
 
 @SpringBootTest
@@ -73,7 +73,7 @@ class UserControllerTest {
 			"010-1234-5678"
 		);
 
-		doThrow(new DuplicationEmail())
+		doThrow(new WeGoException(EMAIL_DUPLICATION))
 			.when(authService).signUp(any(SignUpRequest.class));
 
 		// when & then
@@ -90,7 +90,7 @@ class UserControllerTest {
 		SignInRequest request = new SignInRequest("test@example.com", "wrongPassword");
 
 		when(authService.signIn(any(SignInRequest.class)))
-			.thenThrow(new InvalidSignInInformation());
+			.thenThrow(new WeGoException(INVALID_CREDENTIALS));
 
 		// when & then
 		mockMvc.perform(post("/auth/sign-in")

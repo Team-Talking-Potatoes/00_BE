@@ -1,5 +1,7 @@
 package potatoes.server.utils.annotation;
 
+import static potatoes.server.error.ErrorCode.*;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -9,10 +11,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import potatoes.server.error.ErrorCode;
-import potatoes.server.error.exception.CookieNotFound;
-import potatoes.server.error.exception.JwtAuthException;
-import potatoes.server.error.exception.Unauthorized;
+import potatoes.server.error.exception.WeGoException;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 
 @Component
@@ -40,7 +39,7 @@ public class AuthorizationArgumentResolver implements HandlerMethodArgumentResol
 
 		Cookie[] cookies = request.getCookies();
 		if (cookies == null) {
-			throw new CookieNotFound();
+			throw new WeGoException(COOKIE_NOT_FOUND);
 		}
 
 		String accessToken = null;
@@ -52,11 +51,11 @@ public class AuthorizationArgumentResolver implements HandlerMethodArgumentResol
 		}
 
 		if (accessToken == null) {
-			throw new JwtAuthException(ErrorCode.TOKEN_NOT_FOUND);
+			throw new WeGoException(TOKEN_NOT_FOUND);
 		}
 
 		if (!jwtTokenProvider.validateToken(accessToken)) {
-			throw new Unauthorized();
+			throw new WeGoException(UNAUTHORIZED);
 		}
 
 		return Long.parseLong(jwtTokenProvider.getPayload(accessToken));

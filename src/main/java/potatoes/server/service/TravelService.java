@@ -32,10 +32,7 @@ import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
 import potatoes.server.entity.TravelUser;
 import potatoes.server.entity.User;
-import potatoes.server.error.exception.BookmarkNotFound;
-import potatoes.server.error.exception.TravelNotFound;
-import potatoes.server.error.exception.UserNotFound;
-import potatoes.server.error.exception.WrongValueInCreateTravel;
+import potatoes.server.error.exception.WeGoException;
 import potatoes.server.repository.BookmarkRepository;
 import potatoes.server.repository.TravelPlanRepository;
 import potatoes.server.repository.TravelRepository;
@@ -60,26 +57,26 @@ public class TravelService {
 	public void createTravel(Long userId, CreateTravelRequest request) {
 
 		if (request.getMinTravelMateCount() > request.getMaxTravelMateCount()) {
-			throw new WrongValueInCreateTravel(INVALID_TRAVEL_MATE_COUNT);
+			throw new WeGoException(INVALID_TRAVEL_MATE_COUNT);
 		}
 
 		if (request.getHashTags().split("#").length > 5) {
-			throw new WrongValueInCreateTravel(INVALID_TRAVEL_HASHTAGS_VALUE);
+			throw new WeGoException(INVALID_TRAVEL_HASHTAGS_VALUE);
 		}
 
 		Duration duration = Duration.between(request.getStartAt(), request.getEndAt());
 		long tripDuration = duration.toDays();
 		if (tripDuration < 0 || request.getStartAt().isAfter(request.getEndAt())) {
-			throw new WrongValueInCreateTravel(INVALID_TRAVEL_DATE);
+			throw new WeGoException(INVALID_TRAVEL_DATE);
 		}
 
 		for (CreateTravelRequest.DetailTravelRequest detailTravelRequest : request.getDetailTravel()) {
 			if (detailTravelRequest.getTripDay() > tripDuration) {
-				throw new WrongValueInCreateTravel(INVALID_TRAVEL_DETAIL_INFO);
+				throw new WeGoException(INVALID_TRAVEL_DETAIL_INFO);
 			}
 		}
 
-		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 
 		String travelFileName = s3.uploadFile(request.getTravelImage());
 		String travelFileUrl = s3.getFileUrl(travelFileName);
@@ -125,7 +122,7 @@ public class TravelService {
 	}
 
 	public TravelDetailResponse getDetails(Long travelId) {
-		Travel travel = travelRepository.findById(travelId).orElseThrow(TravelNotFound::new);
+		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
 		List<TravelPlanResponse> travelPlanResponses = travelPlanRepository.findAllByTravel(travel).stream()
 			.map(TravelPlanResponse::from)
 			.toList();
@@ -171,8 +168,8 @@ public class TravelService {
 
 	@Transactional
 	public void addBookmark(Long userId, Long travelId) {
-		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
-		Travel travel = travelRepository.findById(travelId).orElseThrow(TravelNotFound::new);
+		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
+		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
 		if (bookmarkRepository.existsByUserAndTravel(user, travel)) {
 			return;
 		}
@@ -186,11 +183,11 @@ public class TravelService {
 
 	@Transactional
 	public void deleteBookmark(Long userId, Long travelId) {
-		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
-		Travel travel = travelRepository.findById(travelId).orElseThrow(TravelNotFound::new);
+		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
+		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
 
 		Bookmark bookmark = bookmarkRepository.findByUserAndTravel(user, travel)
-			.orElseThrow(BookmarkNotFound::new);
+			.orElseThrow(() -> new WeGoException(BOOKMARK_NOT_FOUND));
 		bookmarkRepository.delete(bookmark);
 	}
 

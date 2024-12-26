@@ -1,5 +1,7 @@
 package potatoes.server.service;
 
+import static potatoes.server.error.ErrorCode.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +25,7 @@ import potatoes.server.entity.ReviewImage;
 import potatoes.server.entity.ReviewLike;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.User;
-import potatoes.server.error.exception.ReviewLikeAlreadyExist;
-import potatoes.server.error.exception.ReviewLikeNotFound;
-import potatoes.server.error.exception.ReviewNotFound;
-import potatoes.server.error.exception.TravelNotFound;
-import potatoes.server.error.exception.UserNotFound;
+import potatoes.server.error.exception.WeGoException;
 import potatoes.server.repository.ReviewLikeRepository;
 import potatoes.server.repository.ReviewRepository;
 import potatoes.server.repository.TravelRepository;
@@ -48,8 +46,10 @@ public class ReviewService {
 	@Transactional
 	public void createReview(CreateReviewRequest request, Long userId) {
 
-		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
-		Travel travel = travelRepository.findById(request.travelId()).orElseThrow(TravelNotFound::new);
+		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
+		Travel travel = travelRepository.findById(request.travelId()).orElseThrow(
+			() -> new WeGoException(TRAVEL_NOT_FOUND)
+		);
 		Review review = Review.builder()
 			.travel(travel)
 			.commenter(user)
@@ -100,11 +100,13 @@ public class ReviewService {
 	public void addReviewLike(Long reviewId, Long userId) {
 
 		if (reviewLikeRepository.existsByUserIdAndReviewId(userId, reviewId)) {
-			throw new ReviewLikeAlreadyExist();
+			throw new WeGoException(REVIEW_LIKE_ALREADY_EXIST);
 		}
 
-		Review review = reviewRepository.findById(reviewId).orElseThrow(ReviewNotFound::new);
-		User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+		Review review = reviewRepository.findById(reviewId).orElseThrow(
+			() -> new WeGoException(REVIEW_NOT_FOUND)
+		);
+		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 
 		ReviewLike reviewLike = ReviewLike.builder()
 			.review(review)
@@ -117,9 +119,8 @@ public class ReviewService {
 	@Transactional
 	public void removeReviewLike(Long reviewId, Long userId) {
 		ReviewLike reviewLike = reviewLikeRepository.findByUserIdAndReviewId(reviewId, userId).orElseThrow(
-			ReviewLikeNotFound::new
+			() -> new WeGoException(REVIEW_LIKE_NOT_FOUND)
 		);
-
 		reviewLikeRepository.delete(reviewLike);
 	}
 

@@ -4,16 +4,16 @@ import lombok.Getter;
 import potatoes.server.error.ErrorCode;
 
 @Getter
-public abstract class CustomException extends RuntimeException {
+public class WeGoException extends RuntimeException {
 
 	private final ErrorCode errorCode;
 
-	public CustomException(String message, ErrorCode errorCode) {
+	public WeGoException(String message, ErrorCode errorCode) {
 		super(message);
 		this.errorCode = errorCode;
 	}
 
-	public CustomException(ErrorCode errorCode) {
+	public WeGoException(ErrorCode errorCode) {
 		super(errorCode.getMessage());
 		this.errorCode = errorCode;
 	}
