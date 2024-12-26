@@ -38,6 +38,7 @@ public class UserService {
 		User getUser = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 
 		return new GetUserProfileResponse(
+			getUser.getId(),
 			getUser.getEmail(),
 			getUser.getNickname(),
 			getUser.getProfileImage(),
