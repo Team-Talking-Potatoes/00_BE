@@ -102,6 +102,7 @@ public class UserService {
 					.sum();
 
 				return new PopularUserResponse(
+					user.getId(),
 					user.getProfileImage(),
 					user.getNickname(),
 					travelUsers.size(),
