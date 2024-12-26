@@ -16,7 +16,7 @@ public class CookieProvider {
 
 	public ResponseCookie accessTokenCookie(String accessToken) {
 		return ResponseCookie.from("accessToken", accessToken)
-			.domain(domain)
+			// .domain(domain)
 			.httpOnly(true)
 			.secure(false)
 			.path("/")
