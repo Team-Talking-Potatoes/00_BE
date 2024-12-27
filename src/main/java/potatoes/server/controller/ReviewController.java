@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.constant.SortByType;
+import potatoes.server.dto.CommonResponse;
 import potatoes.server.dto.CreateReviewRequest;
 import potatoes.server.dto.GetDetailsReview;
 import potatoes.server.dto.GetReviewResponse;
@@ -37,67 +38,67 @@ public class ReviewController {
 
 	@Operation(summary = "리뷰 생성", description = "리뷰를 생성합니다.")
 	@PostMapping("")
-	public ResponseEntity<Void> createReview(
+	public ResponseEntity<CommonResponse<?>> createReview(
 		@ModelAttribute @Valid CreateReviewRequest request,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		reviewService.createReview(request, userId);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(CommonResponse.create());
 	}
 
 	@Operation(summary = "리뷰 리스트 조회", description = "최근에 추가된 리뷰를 조회합니다.")
 	@GetMapping("/popular")
-	public ResponseEntity<List<SimpleReviewResponse>> getSimpleReviewList() {
-		return ResponseEntity.ok(reviewService.getSimpleReviews());
+	public ResponseEntity<CommonResponse<List<SimpleReviewResponse>>> getSimpleReviewList() {
+		return ResponseEntity.ok(CommonResponse.from(reviewService.getSimpleReviews()));
 	}
 
 	@Operation(summary = "리뷰 목록 조회", description = "최신순 인기순 조건이있습니다. 디폴트값(page = 0, size = 10)")
 	@GetMapping("")
-	public ResponseEntity<PageResponse<GetReviewResponse>> getReviews(
+	public ResponseEntity<CommonResponse<PageResponse<GetReviewResponse>>> getReviews(
 		@RequestParam(defaultValue = "LATEST") SortByType sortByType,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
-		return ResponseEntity.ok(reviewService.getReviews(sortByType, page, size, userId));
+		return ResponseEntity.ok(CommonResponse.from(reviewService.getReviews(sortByType, page, size, userId)));
 	}
 
 	@Operation(summary = "리뷰 상세 조회", description = "")
 	@GetMapping("/{reviewId}")
-	public ResponseEntity<GetDetailsReview> getDetailsReview(
+	public ResponseEntity<CommonResponse<GetDetailsReview>> getDetailsReview(
 		@PathVariable Long reviewId,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
-		return ResponseEntity.ok(reviewService.getDetailsReview(reviewId, userId));
+		return ResponseEntity.ok(CommonResponse.from(reviewService.getDetailsReview(reviewId, userId)));
 	}
 
 	@Operation(summary = "내가 작성한 리뷰 조회", description = "내가 작성한 리뷰를 조회합니다.")
 	@GetMapping("/published")
-	public ResponseEntity<ReviewPageResponse> getMyReview(
+	public ResponseEntity<CommonResponse<ReviewPageResponse>> getMyReview(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
-		return ResponseEntity.ok(reviewService.getMyReviews(page, size, userId));
+		return ResponseEntity.ok(CommonResponse.from(reviewService.getMyReviews(page, size, userId)));
 	}
 
 	@Operation(summary = "리뷰 좋아요 등록", description = "")
 	@PostMapping("/{reviewId}/likes")
-	public ResponseEntity<Void> addReviewLike(
+	public ResponseEntity<CommonResponse<?>> addReviewLike(
 		@PathVariable Long reviewId,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		reviewService.addReviewLike(reviewId, userId);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(CommonResponse.create());
 	}
 
 	@Operation(summary = "리뷰 좋아요 취소", description = "")
 	@DeleteMapping("/{reviewId}/likes")
-	public ResponseEntity<Void> removeReviewLike(
+	public ResponseEntity<CommonResponse<?>> removeReviewLike(
 		@PathVariable Long reviewId,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		reviewService.removeReviewLike(reviewId, userId);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(CommonResponse.create());
 	}
 }

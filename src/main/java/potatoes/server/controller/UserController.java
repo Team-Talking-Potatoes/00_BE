@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import potatoes.server.dto.CommonResponse;
 import potatoes.server.dto.DeleteUserRequest;
 import potatoes.server.dto.GetUserProfileResponse;
 import potatoes.server.dto.PopularUserResponse;
@@ -54,28 +55,28 @@ public class UserController {
 
 	@Operation(summary = "회원탈퇴", description = "토큰과 패스워드를 받는다")
 	@DeleteMapping("")
-	public ResponseEntity<Void> deleteUser(
+	public ResponseEntity<CommonResponse<?>> deleteUser(
 		@RequestBody @Valid DeleteUserRequest request,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		userService.deleteUser(request, userId);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(CommonResponse.create());
 	}
 
 	@Operation(summary = "비밀번호 재설정", description = "로그인 된 상황에 대한 비밀번호 재설정")
 	@PutMapping("/password")
-	public ResponseEntity<Void> resetPassword(
+	public ResponseEntity<CommonResponse<?>> resetPassword(
 		@RequestBody @Valid ResetPasswordRequest request,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		userService.resetPassword(request, userId);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(CommonResponse.create());
 	}
 
 	@Operation(summary = "이번 달 여행지기 조회", description = "이번 달 만든 모임의 리뷰가 많은 유저 조회")
 	@GetMapping("/popular")
-	public ResponseEntity<List<PopularUserResponse>> getPopularUsers() {
+	public ResponseEntity<CommonResponse<List<PopularUserResponse>>> getPopularUsers() {
 		// TODO - 데이터베이스 전체를 훑는 무거운 작업, 추후 기획 재정리 혹은 Batch job으로 분리 필요
-		return ResponseEntity.ok(userService.findPopularUsers());
+		return ResponseEntity.ok(CommonResponse.from(userService.findPopularUsers()));
 	}
 }
