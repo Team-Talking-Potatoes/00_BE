@@ -28,7 +28,7 @@ public class CookieProvider {
 			.sameSite("None");
 
 		if (!isLocalhost) {
-			cookieBuilder.domain("we-go.world");
+			cookieBuilder.domain(domain);
 		}
 
 		return cookieBuilder.build();
