@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CommonResponse;
@@ -34,8 +35,11 @@ public class AuthController {
 
 	@Operation(summary = "로그인", description = "로그인을 성공하면 SET_COOKIE형태로 토큰이 설정됩니다.")
 	@PostMapping("/sign-in")
-	public ResponseEntity<CommonResponse<?>> signIn(@RequestBody @Valid SignInRequest request) {
-		ResponseCookie tokenResponse = authService.signIn(request);
+	public ResponseEntity<CommonResponse<?>> signIn(
+		@RequestBody @Valid SignInRequest request,
+		HttpServletRequest httpRequest
+	) {
+		ResponseCookie tokenResponse = authService.signIn(request, httpRequest);
 
 		return ResponseEntity.ok()
 			.header(HttpHeaders.SET_COOKIE, tokenResponse.toString())
