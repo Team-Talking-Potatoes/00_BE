@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Component
 public class CookieProvider {
 	@Value("${cookie.domain}")
@@ -14,15 +16,21 @@ public class CookieProvider {
 	@Value("${security.jwt.token.expire-length}")
 	private String accessTokenExpire;
 
-	public ResponseCookie accessTokenCookie(String accessToken) {
-		return ResponseCookie.from("accessToken", accessToken)
-			// .domain(domain)
+	public ResponseCookie accessTokenCookie(String accessToken, HttpServletRequest request) {
+		String origin = request.getHeader("Origin");
+		boolean isLocalhost = origin != null && (origin.contains("localhost") || origin.contains("127.0.0.1"));
+
+		ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from("accessToken", accessToken)
 			.httpOnly(true)
-			.secure(false)
+			.secure(true)
 			.path("/")
 			.maxAge(Duration.ofSeconds(Long.parseLong(accessTokenExpire)))
-			.sameSite("None")
-			.build();
-		//FIXME 반드시 domain 및 samesite 추가 보안 허점
+			.sameSite("None");
+
+		if (!isLocalhost) {
+			cookieBuilder.domain("we-go.world");
+		}
+
+		return cookieBuilder.build();
 	}
 }
