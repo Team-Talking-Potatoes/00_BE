@@ -100,5 +100,7 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 		"AND tu.user.id = :userId")
 	Optional<TravelUser> findByTravelIdAndUserId(Long travelId, Long userId);
 
+	boolean existsByTravelIdAndUserId(Long travelId, Long userId);
+
 	long countByTravel(Travel travel);
 }

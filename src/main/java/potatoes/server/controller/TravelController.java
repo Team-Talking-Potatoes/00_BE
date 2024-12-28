@@ -152,4 +152,24 @@ public class TravelController {
 		travelService.deleteTravelByOrganizer(travelId, userId);
 		return ResponseEntity.ok(CommonResponse.create());
 	}
+
+	@Operation(summary = "동행 (참여자)", description = "여행을 동행합니다.")
+	@PostMapping("{travelId}/participation")
+	public ResponseEntity<CommonResponse<?>> participateInTravel(
+		@PathVariable Long travelId,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		travelService.participateInTravel(travelId, userId);
+		return ResponseEntity.ok(CommonResponse.create());
+	}
+
+	@Operation(summary = "동행 취소(참여자)", description = "여행 동행을 취소합니다. 이미 참여중인 여행에만 취소할 수 있습니다")
+	@DeleteMapping("{travelId}/participation")
+	public ResponseEntity<CommonResponse<?>> deleteTravelByAttendee(
+		@PathVariable Long travelId,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		travelService.deleteTravelByAttendee(travelId, userId);
+		return ResponseEntity.ok(CommonResponse.create());
+	}
 }
