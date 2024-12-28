@@ -222,4 +222,16 @@ public class TravelService {
 		return PageResponse.from(findTravels);
 	}
 
+	@Transactional
+	public void deleteTravelByOrganizer(Long travelId, Long userId) {
+		TravelUser travelUser = travelUserRepository.findByTravelIdAndUserId(travelId, userId)
+			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+
+		if (travelUser.getRole() != ParticipantRole.ORGANIZER) {
+			throw new WeGoException(INSUFFICIENT_TRAVEL_PERMISSION);
+		}
+
+		travelUserRepository.delete(travelUser);
+		travelRepository.delete(travelUser.getTravel());
+	}
 }

@@ -133,4 +133,13 @@ public class TravelController {
 		return ResponseEntity.ok(CommonResponse.create());
 	}
 
+	@Operation(summary = "여행 취소(관리자)", description = "여행을 취소합니다. 관리자만 취소할 수 있습니다")
+	@DeleteMapping("/{travelId}")
+	public ResponseEntity<CommonResponse<?>> deleteTravelByOrganizer(
+		@PathVariable Long travelId,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		travelService.deleteTravelByOrganizer(travelId, userId);
+		return ResponseEntity.ok(CommonResponse.create());
+	}
 }
