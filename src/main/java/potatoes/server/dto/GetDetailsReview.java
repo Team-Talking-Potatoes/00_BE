@@ -11,6 +11,7 @@ public record GetDetailsReview(
 
 	Long reviewId,
 	Long travelId,
+	String travelTitle,
 	String userProfileImage,
 	String title,
 	String comment,
@@ -30,6 +31,7 @@ public record GetDetailsReview(
 		return new GetDetailsReview(
 			review.getId(),
 			review.getTravel().getId(),
+			review.getTravel().getName(),
 			review.getCommenter().getProfileImage(),
 			review.getTitle(),
 			review.getComment(),
