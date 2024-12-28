@@ -70,6 +70,13 @@ public class TravelController {
 				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query)));
 	}
 
+	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
+	@GetMapping("/popular")
+	public ResponseEntity<CommonResponse<List<SimpleTravelResponse>>> getPopularTravels() {
+		// TODO - 조회수 카운트 방법 논의 필요
+		return ResponseEntity.ok(CommonResponse.from(travelService.getPopularTravels()));
+	}
+
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")
 	@GetMapping("/created")
 	public ResponseEntity<CommonResponse<PageResponse<GetMyTravelResponse>>> getMyTravels(
@@ -126,10 +133,4 @@ public class TravelController {
 		return ResponseEntity.ok(CommonResponse.create());
 	}
 
-	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
-	@GetMapping("/popular")
-	public ResponseEntity<CommonResponse<List<SimpleTravelResponse>>> getPopularTravels() {
-		// TODO - 조회수 카운트 방법 논의 필요
-		return ResponseEntity.ok(CommonResponse.from(travelService.getPopularTravels()));
-	}
 }
