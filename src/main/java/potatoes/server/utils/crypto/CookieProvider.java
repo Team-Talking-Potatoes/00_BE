@@ -17,23 +17,13 @@ public class CookieProvider {
 	private String accessTokenExpire;
 
 	public ResponseCookie accessTokenCookie(String accessToken, HttpServletRequest request) {
-		String origin = request.getHeader("Origin");
-		String referer = request.getHeader("Referer");
-
-		boolean isLocalhost = (origin != null && (origin.contains("localhost") || origin.contains("127.0.0.1"))) ||
-			(referer != null && (referer.contains("localhost") || referer.contains("127.0.0.1")));
-
-		ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from("accessToken", accessToken)
+		return ResponseCookie.from("accessToken", accessToken)
 			.httpOnly(true)
-			.secure(true)
+			.secure(false)
 			.path("/")
 			.maxAge(Duration.ofSeconds(Long.parseLong(accessTokenExpire)))
-			.sameSite("None");
-
-		if (!isLocalhost) {
-			cookieBuilder.domain(domain);
-		}
-
-		return cookieBuilder.build();
+			.sameSite("Lax")
+			.domain(domain)
+			.build();
 	}
 }
