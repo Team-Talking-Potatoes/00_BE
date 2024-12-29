@@ -19,10 +19,10 @@ public class CookieProvider {
 	public ResponseCookie accessTokenCookie(String accessToken, HttpServletRequest request) {
 		return ResponseCookie.from("accessToken", accessToken)
 			.httpOnly(true)
-			.secure(false)
+			.secure(true)
 			.path("/")
 			.maxAge(Duration.ofSeconds(Long.parseLong(accessTokenExpire)))
-			.sameSite("Lax")
+			.sameSite("None")
 			.domain(domain)
 			.build();
 	}
