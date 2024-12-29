@@ -23,7 +23,6 @@ public class CookieProvider {
 			.path("/")
 			.maxAge(Duration.ofSeconds(Long.parseLong(accessTokenExpire)))
 			.sameSite("None")
-			.domain(domain)
 			.build();
 	}
 }
