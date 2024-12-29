@@ -25,10 +25,10 @@ public class CookieProvider {
 
 		ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from("accessToken", accessToken)
 			.httpOnly(true)
-			.secure(false)
+			.secure(true)
 			.path("/")
 			.maxAge(Duration.ofSeconds(Long.parseLong(accessTokenExpire)))
-			.sameSite("Lax");
+			.sameSite("None");
 
 		if (!isLocalhost) {
 			cookieBuilder.domain(domain);
