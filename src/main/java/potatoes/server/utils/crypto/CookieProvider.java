@@ -22,7 +22,7 @@ public class CookieProvider {
 			.secure(false)
 			.path("/")
 			.maxAge(Duration.ofSeconds(Long.parseLong(accessTokenExpire)))
-			.sameSite("Lax")
+			.sameSite("None")
 			.domain(domain)
 			.build();
 	}
