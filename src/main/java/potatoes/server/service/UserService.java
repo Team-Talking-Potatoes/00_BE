@@ -125,15 +125,15 @@ public class UserService {
 		String storedAccessToken = redisStore.find(DELETE_USER_VERIFY_PREFIX + userId);
 
 		if (storedAccessToken == null) {
-			throw new WeGoException(MAIL_VERIFY_NUMBER_EXPIRED);
+			throw new WeGoException(VERIFY_NUMBER_EXPIRED);
 		}
 
 		if (!storedAccessToken.equals(request.deleteUserToken())) {
-			throw new WeGoException(MAIL_VERIFY_NUMBER_NOT_VALID);
+			throw new WeGoException(VERIFY_NUMBER_NOT_VALID);
 		}
 
 		if (!jwtTokenUtil.validateToken(storedAccessToken)) {
-			throw new WeGoException(MAIL_SEND_EXCEPTION);
+			throw new WeGoException(UNAUTHORIZED);
 		}
 		redisStore.remove(DELETE_USER_VERIFY_PREFIX + userId);
 	}
