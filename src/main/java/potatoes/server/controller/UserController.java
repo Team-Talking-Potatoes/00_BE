@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CommonResponse;
 import potatoes.server.dto.DeleteUserRequest;
 import potatoes.server.dto.GetUserProfileResponse;
+import potatoes.server.dto.PasswordCertification;
 import potatoes.server.dto.PopularUserResponse;
 import potatoes.server.dto.ResetPasswordRequest;
 import potatoes.server.service.UserService;
@@ -56,11 +58,20 @@ public class UserController {
 	@Operation(summary = "회원탈퇴", description = "토큰과 패스워드를 받는다")
 	@DeleteMapping("")
 	public ResponseEntity<CommonResponse<?>> deleteUser(
-		@RequestBody @Valid DeleteUserRequest request,
+		@RequestBody PasswordCertification request,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		userService.deleteUser(request, userId);
 		return ResponseEntity.ok(CommonResponse.create());
+	}
+
+	@Operation(summary = "회원 비밀번호 검증", description = "현재 사용자의 패스워드가 맞는지 검증한다")
+	@PostMapping("/password/certification")
+	public ResponseEntity<CommonResponse<PasswordCertification>> passwordCertification(
+		@RequestBody @Valid DeleteUserRequest request,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		return ResponseEntity.ok(CommonResponse.from(userService.certificateAndReturnToken(request, userId)));
 	}
 
 	@Operation(summary = "비밀번호 재설정", description = "로그인 된 상황에 대한 비밀번호 재설정")
