@@ -58,7 +58,7 @@ public class UserController {
 	@Operation(summary = "회원탈퇴", description = "토큰과 패스워드를 받는다")
 	@DeleteMapping("")
 	public ResponseEntity<CommonResponse<?>> deleteUser(
-		@RequestBody PasswordCertification request,
+		@RequestBody @Valid PasswordCertification request,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		userService.deleteUser(request, userId);
