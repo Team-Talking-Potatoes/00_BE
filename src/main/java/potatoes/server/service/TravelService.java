@@ -222,4 +222,50 @@ public class TravelService {
 		return PageResponse.from(findTravels);
 	}
 
+	@Transactional
+	public void participateInTravel(Long travelId, Long userId) {
+		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+
+		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
+
+		boolean existsCheckFlag = travelUserRepository.existsByTravelIdAndUserId(travelId, userId);
+
+		if (existsCheckFlag) {
+			throw new WeGoException(ALREADY_PARTICIPATED_TRAVEL);
+		}
+
+		TravelUser travelUser = TravelUser.builder()
+			.role(ParticipantRole.ATTENDEE)
+			.user(user)
+			.travel(travel)
+			.build();
+
+		travelUserRepository.save(travelUser);
+	}
+
+	@Transactional
+	public void deleteTravelByOrganizer(Long travelId, Long userId) {
+		TravelUser travelUser = travelUserRepository.findByTravelIdAndUserId(travelId, userId)
+			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+
+		if (travelUser.getRole() != ParticipantRole.ORGANIZER) {
+			throw new WeGoException(INSUFFICIENT_TRAVEL_PERMISSION);
+		}
+
+		travelUserRepository.delete(travelUser);
+		travelRepository.delete(travelUser.getTravel());
+	}
+
+	@Transactional
+	public void deleteTravelByAttendee(Long travelId, Long userId) {
+		TravelUser travelUser = travelUserRepository.findByTravelIdAndUserId(travelId, userId)
+			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+
+		if (travelUser.getRole() != ParticipantRole.ATTENDEE) {
+			throw new WeGoException(NOT_PARTICIPATED_TRAVEL);
+		}
+
+		travelUserRepository.delete(travelUser);
+	}
+
 }

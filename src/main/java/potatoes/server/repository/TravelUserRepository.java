@@ -2,6 +2,7 @@ package potatoes.server.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -93,6 +94,15 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 		AND t.user.id = :userId
 		""")
 	List<TravelUser> findOrganizersCreatedAfter(@Param("date") LocalDateTime date, @Param("userId") Long userId);
+
+	@Query("""
+			SELECT tu FROM TravelUser tu
+			WHERE tu.travel.id = :travelId
+			AND tu.user.id = :userId
+		""")
+	Optional<TravelUser> findByTravelIdAndUserId(Long travelId, Long userId);
+
+	boolean existsByTravelIdAndUserId(Long travelId, Long userId);
 
 	long countByTravel(Travel travel);
 }
