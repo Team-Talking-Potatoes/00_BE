@@ -65,7 +65,7 @@ public class TravelService {
 		}
 
 		Duration duration = Duration.between(request.getStartAt(), request.getEndAt());
-		long tripDuration = duration.toDays();
+		long tripDuration = duration.toDays() + 1;
 		if (tripDuration < 0 || request.getStartAt().isAfter(request.getEndAt())) {
 			throw new WeGoException(INVALID_TRAVEL_DATE);
 		}
