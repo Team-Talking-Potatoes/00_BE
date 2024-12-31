@@ -23,6 +23,9 @@ public record CreateReviewRequest(
 	@Min(value = 0, message = "별점은 0점 이상이어야 합니다.")
 	@Max(value = 5, message = "별점은 5점 이하여야 합니다.")
 	float starRating,
+
+	@NotNull(message = "여행장 태그는 null일수 없습니다.")
+	String organizerReviewTags,
 	List<MultipartFile> images
 ) {
 }

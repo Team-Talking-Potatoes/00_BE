@@ -48,14 +48,20 @@ public class Review extends BaseTimeEntity {
 	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
 	private List<ReviewImage> reviewImages;
 
+	@Column(name = "organizer_review_tags", nullable = false)
+	private String organizerReviewTags;
+
 	@Builder
-	public Review(Travel travel, User commenter, String title, String comment, float starRating, List<ReviewImage> reviewImages
+	public Review(Travel travel, User commenter, String title, String comment, float starRating,
+		String organizerReviewTags,
+		List<ReviewImage> reviewImages
 	) {
 		this.travel = travel;
 		this.commenter = commenter;
 		this.title = title;
 		this.comment = comment;
 		this.starRating = starRating;
+		this.organizerReviewTags = organizerReviewTags;
 		this.reviewImages = reviewImages;
 	}
 }
