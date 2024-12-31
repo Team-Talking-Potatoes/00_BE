@@ -9,18 +9,20 @@ public record SimpleTravelResponse(
 	int maxTravelMateCount,
 	int currentTravelMateCount,
 	boolean isDomestic,
+	Boolean isBookmark,
 	String location,
 	String image,
 	String startAt,
 	String endAt
 ) {
-	public static SimpleTravelResponse from(Travel travel, int currentTravelMateCount) {
+	public static SimpleTravelResponse from(Travel travel, int currentTravelMateCount, Boolean isBookmark) {
 		return new SimpleTravelResponse(
 			travel.getId(),
 			travel.getName(),
 			travel.getMaxTravelMateCount(),
 			currentTravelMateCount,
 			travel.isDomestic(),
+			isBookmark,
 			travel.getTravelLocation(),
 			travel.getImage(),
 			DateTimeUtils.getYearMonthDay(travel.getStartAt()),
