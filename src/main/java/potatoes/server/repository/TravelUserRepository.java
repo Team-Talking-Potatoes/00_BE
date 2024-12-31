@@ -2,6 +2,7 @@ package potatoes.server.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -95,4 +96,28 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 	List<TravelUser> findOrganizersCreatedAfter(@Param("date") LocalDateTime date, @Param("userId") Long userId);
 
 	long countByTravel(Travel travel);
+
+	@Query("""
+			SELECT t FROM TravelUser t
+			JOIN FETCH t.travel
+			JOIN FETCH t.user
+			WHERE t.user = :userId
+		""")
+	List<TravelUser> findAllByUserId(@Param("user") Long userId);
+
+	@Query("""
+			SELECT t FROM TravelUser t
+			JOIN FETCH t.user
+			WHERE t.travel.id = :travelId
+			AND t.user.id = :userId
+		""")
+	Optional<TravelUser> findByTravelAndUserJoinFetchUser(@Param("travelId") Long travelId,
+		@Param("userId") Long userId);
+
+	@Query("""
+		SELECT COUNT(t) FROM TravelUser t
+		WHERE t.user.id = :userId
+		AND t.role = 'ORGANIZER'
+		""")
+	long countTravelWhereUserIsHost(@Param("userId") Long userId);
 }

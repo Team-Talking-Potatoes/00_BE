@@ -28,12 +28,14 @@ import potatoes.server.dto.TravelListResponse;
 import potatoes.server.dto.TravelPlanResponse;
 import potatoes.server.dto.TravelSummaryResponse;
 import potatoes.server.entity.Bookmark;
+import potatoes.server.entity.Chat;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
 import potatoes.server.entity.TravelUser;
 import potatoes.server.entity.User;
 import potatoes.server.error.exception.WeGoException;
 import potatoes.server.repository.BookmarkRepository;
+import potatoes.server.repository.ChatRepository;
 import potatoes.server.repository.TravelPlanRepository;
 import potatoes.server.repository.TravelRepository;
 import potatoes.server.repository.TravelUserRepository;
@@ -51,6 +53,7 @@ public class TravelService {
 	private final TravelPlanRepository travelPlanRepository;
 	private final TravelUserRepository travelUserRepository;
 	private final BookmarkRepository bookmarkRepository;
+	private final ChatRepository chatRepository;
 	private final S3UtilsProvider s3;
 
 	@Transactional
@@ -118,6 +121,15 @@ public class TravelService {
 			.travel(travel)
 			.user(user)
 			.build();
+
+		Chat chat = Chat.builder()
+			.host(user)
+			.travel(travel)
+			.currentMemberCount(1)
+			.maxMemberCount(travel.getMaxTravelMateCount())
+			.build();
+		chatRepository.save(chat);
+
 		travelUserRepository.save(travelUser);
 	}
 
