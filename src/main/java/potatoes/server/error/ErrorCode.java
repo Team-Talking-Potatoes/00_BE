@@ -45,7 +45,11 @@ public enum ErrorCode {
 	// Review
 	REVIEW_NOT_FOUND(400, "REVIEW_NOT_FOUND", "존재하지 않는 리뷰입니다."),
 	REVIEW_LIKE_NOT_FOUND(400, "REVIEW_LIKE_NOT_FOUND", "좋아요한 리뷰를 찾을 수 없습니다"),
-	REVIEW_LIKE_ALREADY_EXIST(400, "REVIEW_LIKE_ALREADY_EXIST", "이미 좋아요한 리뷰입니다");
+	REVIEW_LIKE_ALREADY_EXIST(400, "REVIEW_LIKE_ALREADY_EXIST", "이미 좋아요한 리뷰입니다"),
+
+	// Chat
+	CHAT_NOT_FOUND(400, "CHAT_NOT_FOUND", "존재하지 않는 채팅입니다."),
+	UNABLE_TO_JOIN_CHAT(400, "UNABLE_TO_JOIN_CHAT", "채팅에 참여할 수 없습니다.");
 
 	private final int status;
 	private final String code;

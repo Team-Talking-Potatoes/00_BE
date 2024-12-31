@@ -12,8 +12,15 @@ public class DateTimeUtils {
 	private static final DateTimeFormatter DATE_TIME_FORMATTER =
 		DateTimeFormatter.ofPattern("yyyyMMdd").withZone(TimeZone.getTimeZone(KST_ZONE_ID).toZoneId());
 
+	private static final DateTimeFormatter YEAR_DATE_TIME_FORMATTER =
+		DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm").withZone(TimeZone.getTimeZone(KST_ZONE_ID).toZoneId());
+
 	public static String getYearMonthDay(Instant instant) {
 		return DATE_TIME_FORMATTER.format(instant);
+	}
+
+	public static String getYearMonthDayTime(Instant instant) {
+		return YEAR_DATE_TIME_FORMATTER.format(instant);
 	}
 
 	public static Instant getStartOfDay(String dateStr) {
