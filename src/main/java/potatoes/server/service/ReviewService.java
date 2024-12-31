@@ -80,7 +80,7 @@ public class ReviewService {
 	public GetDetailsReview getDetailsReview(Long reviewId, Long userId) {
 		int reviewLikes = reviewLikeRepository.countAllByReviewId(reviewId);
 		Review review = reviewRepository.findReviewWithImagesAndCommenter(reviewId);
-		boolean likesFlag = reviewLikeRepository.existsByUserIdAndReviewId(userId, reviewId);
+		Boolean likesFlag = reviewLikeRepository.existsByUserIdAndReviewIdWithNull(userId, reviewId);
 
 		return GetDetailsReview.from(review, reviewLikes, likesFlag);
 	}

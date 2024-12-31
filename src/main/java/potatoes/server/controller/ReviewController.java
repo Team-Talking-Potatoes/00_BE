@@ -68,7 +68,7 @@ public class ReviewController {
 	@GetMapping("/{reviewId}")
 	public ResponseEntity<CommonResponse<GetDetailsReview>> getDetailsReview(
 		@PathVariable Long reviewId,
-		@Authorization @Parameter(hidden = true) Long userId
+		@NonLoginAuthorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(reviewService.getDetailsReview(reviewId, userId)));
 	}
