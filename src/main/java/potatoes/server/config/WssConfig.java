@@ -52,33 +52,22 @@ public class WssConfig implements WebSocketMessageBrokerConfigurer {
 					message, StompHeaderAccessor.class);
 
 				if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-					log.info("STOMP CONNECT 시도");
-
 					List<String> cookieList = accessor.getNativeHeader("Cookie");
-					log.info("쿠키 목록: {}", cookieList);  // 쿠키 존재 여부 확인
 
 					if (cookieList == null || cookieList.isEmpty()) {
-						log.error("쿠키가 없습니다.");
 						throw new WeGoException(COOKIE_NOT_FOUND);
 					}
-
 					String cookieString = cookieList.getFirst();
 					String accessToken = extractAccessToken(cookieString);
-					log.info("추출된 토큰: {}", accessToken);
-
 					if (accessToken == null) {
-						log.error("액세스 토큰이 없습니다.");
 						throw new WeGoException(TOKEN_NOT_FOUND);
 					}
 
 					if (!jwtTokenProvider.validateToken(accessToken)) {
-						log.error("유효하지 않은 토큰입니다.");
 						throw new WeGoException(UNAUTHORIZED);
 					}
 
 					Long userId = Long.parseLong(jwtTokenProvider.getPayload(accessToken));
-					log.info("인증된 사용자 ID: {}", userId);
-
 					accessor.setUser(new StompUserPrincipal(userId, accessor.getSessionId()));
 				}
 
@@ -86,12 +75,10 @@ public class WssConfig implements WebSocketMessageBrokerConfigurer {
 			}
 
 			private String extractAccessToken(String cookieString) {
-				log.info("쿠키 문자열: {}", cookieString);
 				String[] cookies = cookieString.split(";");
 				for (String cookie : cookies) {
 					String[] parts = cookie.trim().split("=");
 					if (parts.length == 2 && "accessToken".equals(parts[0])) {
-						log.info("토큰 추출: {}", parts[1]);
 						return parts[1];
 					}
 				}
