@@ -27,6 +27,7 @@ import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.dto.SimpleReviewResponse;
 import potatoes.server.service.ReviewService;
 import potatoes.server.utils.annotation.Authorization;
+import potatoes.server.utils.annotation.NonLoginAuthorization;
 
 @Tag(name = "Review", description = "Review API")
 @RequestMapping("/reviews")
@@ -58,7 +59,7 @@ public class ReviewController {
 		@RequestParam(defaultValue = "LATEST") SortByType sortByType,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size,
-		@Authorization @Parameter(hidden = true) Long userId
+		@NonLoginAuthorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(reviewService.getReviews(sortByType, page, size, userId)));
 	}

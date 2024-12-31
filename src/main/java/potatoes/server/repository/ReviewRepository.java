@@ -22,11 +22,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
 		    r.commenter.nickname,
 		    CAST((SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) AS int),
-		    CASE 
-		        WHEN EXISTS (SELECT 1 FROM ReviewLike rl WHERE rl.review = r AND rl.user.id = :userId) 
-		        THEN TRUE 
-		        ELSE FALSE 
-		    END,
+		    (CASE
+		        WHEN :userId = -1 THEN CAST(NULL AS boolean)
+		        WHEN EXISTS (SELECT 1 FROM ReviewLike rl WHERE rl.review = r AND rl.user.id = :userId)
+		        THEN true
+		        ELSE false
+		    END),
 		    r.travel.travelLocation,
 		    r.createdAt
 		)
@@ -43,11 +44,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
 		    r.commenter.nickname,
 		    CAST((SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) AS int),
-		    CASE 
-		        WHEN EXISTS (SELECT 1 FROM ReviewLike rl WHERE rl.review = r AND rl.user.id = :userId) 
-		        THEN TRUE 
-		        ELSE FALSE 
-		    END,
+		    (CASE
+		        WHEN :userId = -1 THEN CAST(NULL AS boolean)
+		        WHEN EXISTS (SELECT 1 FROM ReviewLike rl WHERE rl.review = r AND rl.user.id = :userId)
+		        THEN true
+		        ELSE false
+		    END),
 		    r.travel.travelLocation,
 		    r.createdAt
 		)
