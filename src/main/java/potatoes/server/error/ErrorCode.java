@@ -11,6 +11,9 @@ public enum ErrorCode {
 	UNAUTHORIZED(403, "INVALID_TOKEN", "인가가 필요합니다"),
 	TOKEN_NOT_FOUND(400, "TOKEN_NOT_FOUND", "accessToken을 찾을 수 없습니다"),
 	COOKIE_NOT_FOUND(400, "COOKIE_NOT_FOUND", "쿠키를 찾을 수 없습니다"),
+	VERIFY_NUMBER_NOT_VALID(400, "VERIFY_NUMBER_NOT_VALID", "번호가 일치하지 않습니다."),
+	VERIFY_NUMBER_EXPIRED(400, "VERIFY_NUMBER_EXPIRED", "번호의 유효시간이 끝났거나 존재하지 않습니다"),
+
 	// User
 	EMAIL_DUPLICATION(400, "EMAIL_DUPLICATION", "이미 가입된 이메일입니다."),
 	USER_NOT_FOUND(400, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다."),
@@ -18,8 +21,6 @@ public enum ErrorCode {
 	PASSWORD_MISMATCH(400, "PASSWORD_MISMATCH", "비밀번호가 일치하지 않습니다."),
 
 	// Mail(SMTP)
-	MAIL_VERIFY_NUMBER_NOT_VALID(400, "NUMBER_NOT_VALID", "번호가 일치하지 않습니다."),
-	MAIL_VERIFY_NUMBER_EXPIRED(400, "NUMBER_EXPIRED", "번호의 유효시간이 끝났습니다"),
 	MAIL_SEND_EXCEPTION(502, "MAIL_SEND_EXCEPTION", "메일을 전송하지 못했습니다"),
 
 	// Tavel
@@ -28,6 +29,10 @@ public enum ErrorCode {
 	INVALID_TRAVEL_DETAIL_INFO(400, "INVALID_TRAVEL_DETAIL_INFO", "상세 일정의 날은 전체 일정의 날을 초과할 수 없습니다."),
 	INVALID_TRAVEL_DATE(400, "INVALID_TRAVEL_DATE", "출발일자/종료일자 값이 잘못되었습니다."),
 	INVALID_TRAVEL_HASHTAGS_VALUE(400, "INVALID_TRAVEL_HASHTAGS_VALUE", "해시태그 최대 횟수를 초과하였습니다."),
+	INSUFFICIENT_TRAVEL_PERMISSION(400, "INSUFFICIENT_TRAVEL_PERMISSION", "여행의 권한이 부족합니다"),
+	NOT_PARTICIPATED_TRAVEL(400, "NOT_PRATICIPATED_TRAVEL", "참여하지 않은 여행입니다"),
+	ALREADY_PARTICIPATED_TRAVEL(400, "ALREADY_PARTICIPATED_TRAVEL", "이미 참여한 여행입니다"),
+
 
 	// Bookmark
 	BOOKMARK_ALREADY_EXIST(400, "BOOKMARK_ALREADY_EXIST", "이미 등록한 북마크입니다."),

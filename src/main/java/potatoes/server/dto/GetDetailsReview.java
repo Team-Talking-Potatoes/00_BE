@@ -9,7 +9,10 @@ import potatoes.server.entity.ReviewImage;
 
 public record GetDetailsReview(
 
-	Long id,
+	Long reviewId,
+	Long travelId,
+	String travelTitle,
+	String userProfileImage,
 	String title,
 	String comment,
 	float starRating,
@@ -27,6 +30,9 @@ public record GetDetailsReview(
 	) {
 		return new GetDetailsReview(
 			review.getId(),
+			review.getTravel().getId(),
+			review.getTravel().getName(),
+			review.getCommenter().getProfileImage(),
 			review.getTitle(),
 			review.getComment(),
 			review.getStarRating(),

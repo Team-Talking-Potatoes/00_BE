@@ -95,6 +95,15 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 		""")
 	List<TravelUser> findOrganizersCreatedAfter(@Param("date") LocalDateTime date, @Param("userId") Long userId);
 
+	@Query("""
+			SELECT tu FROM TravelUser tu
+			WHERE tu.travel.id = :travelId
+			AND tu.user.id = :userId
+		""")
+	Optional<TravelUser> findByTravelIdAndUserId(Long travelId, Long userId);
+
+	boolean existsByTravelIdAndUserId(Long travelId, Long userId);
+
 	long countByTravel(Travel travel);
 
 	@Query("""

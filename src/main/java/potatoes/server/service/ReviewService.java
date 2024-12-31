@@ -50,12 +50,14 @@ public class ReviewService {
 		Travel travel = travelRepository.findById(request.travelId()).orElseThrow(
 			() -> new WeGoException(TRAVEL_NOT_FOUND)
 		);
+
 		Review review = Review.builder()
 			.travel(travel)
 			.commenter(user)
 			.title(request.title())
 			.comment(request.comment())
 			.starRating(request.starRating())
+			.organizerReviewTags(request.organizerReviewTags())
 			.reviewImages(new ArrayList<>())
 			.build();
 

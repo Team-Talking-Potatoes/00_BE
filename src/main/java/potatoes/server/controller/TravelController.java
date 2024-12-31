@@ -70,6 +70,13 @@ public class TravelController {
 				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query)));
 	}
 
+	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
+	@GetMapping("/popular")
+	public ResponseEntity<CommonResponse<List<SimpleTravelResponse>>> getPopularTravels() {
+		// TODO - 조회수 카운트 방법 논의 필요
+		return ResponseEntity.ok(CommonResponse.from(travelService.getPopularTravels()));
+	}
+
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")
 	@GetMapping("/created")
 	public ResponseEntity<CommonResponse<PageResponse<GetMyTravelResponse>>> getMyTravels(
@@ -106,6 +113,16 @@ public class TravelController {
 		return ResponseEntity.ok(CommonResponse.from(travelService.getMyTravelsByBookmark(page, size, userId)));
 	}
 
+	@Operation(summary = "리뷰작성이 가능한 여행조회", description = "")
+	@GetMapping("/reviews/pending")
+	public ResponseEntity<PageResponse<GetMyTravelResponse>> getReviewableMyTravels(
+		@RequestParam(required = false, defaultValue = "0") int page,
+		@RequestParam(required = false, defaultValue = "4") int size,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		return ResponseEntity.ok(travelService.getReviewableMyTravels(page, size, userId));
+	}
+
 	@Operation(summary = "북마크 등록", description = "Travel ID를 받고 북마크로 등록합니다.")
 	@PostMapping("/bookmark")
 	public ResponseEntity<CommonResponse<?>> addBookMark(
@@ -126,10 +143,33 @@ public class TravelController {
 		return ResponseEntity.ok(CommonResponse.create());
 	}
 
-	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
-	@GetMapping("/popular")
-	public ResponseEntity<CommonResponse<List<SimpleTravelResponse>>> getPopularTravels() {
-		// TODO - 조회수 카운트 방법 논의 필요
-		return ResponseEntity.ok(CommonResponse.from(travelService.getPopularTravels()));
+	@Operation(summary = "여행 취소(관리자)", description = "여행을 취소합니다. 관리자만 취소할 수 있습니다")
+	@DeleteMapping("/{travelId}")
+	public ResponseEntity<CommonResponse<?>> deleteTravelByOrganizer(
+		@PathVariable Long travelId,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		travelService.deleteTravelByOrganizer(travelId, userId);
+		return ResponseEntity.ok(CommonResponse.create());
+	}
+
+	@Operation(summary = "동행 (참여자)", description = "여행을 동행합니다.")
+	@PostMapping("{travelId}/participation")
+	public ResponseEntity<CommonResponse<?>> participateInTravel(
+		@PathVariable Long travelId,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		travelService.participateInTravel(travelId, userId);
+		return ResponseEntity.ok(CommonResponse.create());
+	}
+
+	@Operation(summary = "동행 취소(참여자)", description = "여행 동행을 취소합니다. 이미 참여중인 여행에만 취소할 수 있습니다")
+	@DeleteMapping("{travelId}/participation")
+	public ResponseEntity<CommonResponse<?>> deleteTravelByAttendee(
+		@PathVariable Long travelId,
+		@Authorization @Parameter(hidden = true) Long userId
+	) {
+		travelService.deleteTravelByAttendee(travelId, userId);
+		return ResponseEntity.ok(CommonResponse.create());
 	}
 }
