@@ -13,9 +13,9 @@ import potatoes.server.entity.ChatMessageUser;
 public interface ChatMessageUserRepository extends JpaRepository<ChatMessageUser, Long> {
 
 	@Query("""
-			SELECT c FROM ChatMessageUser c
-			WHERE c.chatMessage.id = :chatMessageId
-			AND c.user.id = :userId
+		SELECT c FROM ChatMessageUser c
+		WHERE c.chatMessage.id = :chatMessageId
+		AND c.user.id = :userId
 		""")
 	Optional<ChatMessageUser> findByChatMessageAndUser(@Param("chatMessageId") Long chatMessageId,
 		@Param("userId") Long userId);
@@ -27,10 +27,10 @@ public interface ChatMessageUserRepository extends JpaRepository<ChatMessageUser
 	long countByUserIdAndChatId(Long userId, Long chatId);
 
 	@Query("""
-			SELECT c FROM ChatMessageUser c
-			WHERE c.chat.id = :chatId
-			AND c.user.id = :userId
-			AND c.hasRead = false
+		SELECT c FROM ChatMessageUser c
+		WHERE c.chat.id = :chatId
+		AND c.user.id = :userId
+		AND c.hasRead = false
 		""")
 	List<ChatMessageUser> findAllUnReadMessageByUserIdAndChatId(
 		@Param("userId") Long userId,

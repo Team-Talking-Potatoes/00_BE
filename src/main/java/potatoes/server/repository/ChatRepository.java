@@ -20,9 +20,9 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 	Optional<Chat> findByTravel(@Param("travel") Travel travel);
 
 	@Query("""
-			SELECT c FROM Chat c
-			JOIN FETCH c.travel
-			WHERE c.id = :chatId
+		SELECT c FROM Chat c
+		JOIN FETCH c.travel
+		WHERE c.id = :chatId
 		""")
 	Optional<Chat> findChatFetchJoinTravel(@Param("chatId") Long chatId);
 }
