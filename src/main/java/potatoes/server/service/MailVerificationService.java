@@ -57,11 +57,11 @@ public class MailVerificationService {
 	private void verifyNumberByEmail(String verifyNumber, String email) {
 		String storedNumber = redisStore.find(EMAIL_VERIFY_PREFIX + email);
 		if (storedNumber == null) {
-			throw new WeGoException(MAIL_VERIFY_NUMBER_EXPIRED);
+			throw new WeGoException(VERIFY_NUMBER_EXPIRED);
 		}
 
 		if (!storedNumber.equals(verifyNumber)) {
-			throw new WeGoException(MAIL_VERIFY_NUMBER_NOT_VALID);
+			throw new WeGoException(VERIFY_NUMBER_NOT_VALID);
 		}
 		redisStore.remove(EMAIL_VERIFY_PREFIX + email);
 	}
