@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,12 +31,9 @@ public class ChatMessage extends BaseTimeEntity {
 	@JoinColumn(name = "chat_id")
 	private Chat chat;
 
-	@OneToOne(fetch = LAZY)
+	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "sender_id")
 	private User sender;
-
-	@Column(nullable = false)
-	private boolean isImage;
 
 	@OneToMany(mappedBy = "chatMessage")
 	private List<ChatImage> chatImages;
@@ -46,10 +42,9 @@ public class ChatMessage extends BaseTimeEntity {
 	private String message;
 
 	@Builder
-	public ChatMessage(Chat chat, User sender, boolean isImage, String message) {
+	public ChatMessage(Chat chat, User sender, String message) {
 		this.chat = chat;
 		this.sender = sender;
-		this.isImage = isImage;
 		this.message = message;
 	}
 }
