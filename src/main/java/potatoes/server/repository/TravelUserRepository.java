@@ -112,7 +112,7 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 			JOIN FETCH t.user
 			WHERE t.user = :userId
 		""")
-	List<TravelUser> findAllByUserId(@Param("user") Long userId);
+	List<TravelUser> findAllByUserId(@Param("userId") Long userId);
 
 	@Query("""
 			SELECT t FROM TravelUser t
