@@ -4,7 +4,7 @@ import potatoes.server.entity.Chat;
 
 public record ChatSummaryResponse(
 	Long chatId,
-	String chatName,
+	String chattingName,
 	String description,
 	String host,
 	String hostProfileImage,

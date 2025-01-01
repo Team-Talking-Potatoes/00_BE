@@ -167,8 +167,12 @@ public class ChatService {
 					chatUser.getChat().getId());
 				ChatMessage chatMessage = chatMessageRepository.findLatestMessageByChatId(chatUser.getChat().getId())
 					.orElseGet(() -> new ChatMessage(chatUser.getChat(), null, ""));
-				return ChatSummaryResponse.of(chatUser.getChat(), true, unreadMessages,
-					DateTimeUtils.getYearMonthDayTime(chatMessage.getCreatedAt()));
+				return ChatSummaryResponse.of(
+					chatUser.getChat(),
+					true,
+					unreadMessages,
+					chatMessage.getCreatedAt() == null ? Instant.now().toString() :
+						getYearMonthDayTime(chatMessage.getCreatedAt()));
 			}).toList();
 
 		// 참여할 수 있는 채팅방 메시지 카운트
