@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.joda.time.Instant;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -191,7 +192,8 @@ public class ChatService {
 					chat,
 					false,
 					unreadMessages,
-					DateTimeUtils.getYearMonthDayTime(chatMessage.getCreatedAt())
+					chatMessage.getCreatedAt() == null ? Instant.now().toString() :
+						getYearMonthDayTime(chatMessage.getCreatedAt())
 				);
 			})
 			.filter(Objects::nonNull)
