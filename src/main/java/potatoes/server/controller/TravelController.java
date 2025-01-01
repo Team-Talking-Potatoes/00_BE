@@ -57,18 +57,21 @@ public class TravelController {
 		@RequestParam(required = false) String startAt,
 		@RequestParam(required = false) String endAt,
 		@RequestParam(required = false, defaultValue = "recent") TravelSortType sortOrder,
-		@RequestParam(required = false) String query
+		@RequestParam(required = false) String query,
+		@NonLoginAuthorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(
 			CommonResponse.from(
-				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query)));
+				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query, userId)));
 	}
 
 	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")
 	@GetMapping("/{id}")
 	public ResponseEntity<CommonResponse<TravelDetailResponse>> getTravelDetails(
-		@PathVariable(name = "id") Long travelId) {
-		return ResponseEntity.ok(CommonResponse.from(travelService.getDetails(travelId)));
+		@PathVariable(name = "id") Long travelId,
+		@NonLoginAuthorization @Parameter(hidden = true) Long userId
+	) {
+		return ResponseEntity.ok(CommonResponse.from(travelService.getDetails(travelId, userId)));
 	}
 
 	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")

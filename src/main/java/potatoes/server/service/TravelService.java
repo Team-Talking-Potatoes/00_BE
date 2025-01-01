@@ -134,25 +134,38 @@ public class TravelService {
 		travelUserRepository.save(travelUser);
 	}
 
-	public TravelDetailResponse getDetails(Long travelId) {
+	public TravelDetailResponse getDetails(Long travelId, Long userId) {
 		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+
+		Boolean participationFlag = null;
+		if (userId != -1L) {
+			participationFlag = travelUserRepository.existsByTravelIdAndUserId(travelId, userId);
+		}
+
 		List<TravelPlanResponse> travelPlanResponses = travelPlanRepository.findAllByTravel(travel).stream()
 			.map(TravelPlanResponse::from)
 			.toList();
 		List<ParticipantResponse> participantResponses = travelUserRepository.findAllByTravel(travel).stream()
 			.map(ParticipantResponse::from)
 			.toList();
-		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses);
+		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses, participationFlag);
 	}
 
-	public TravelListResponse getTravelList(int page, int size, Boolean isDomestic, String startAt, String endAt,
-		TravelSortType sortOrder, String query) {
+	public TravelListResponse getTravelList(
+		int page, int size, Boolean isDomestic, String startAt, String endAt,
+		TravelSortType sortOrder, String query, Long userId
+	) {
 		Pageable pageable = createPageable(page, size, sortOrder);
 		Page<Travel> travels = travelRepository.findTravels(isDomestic, startAt, endAt, query, pageable);
 		List<TravelSummaryResponse> travelSummaryResponses = travels.getContent().stream()
 			.map(travel -> {
 				int travelUserCount = (int)travelUserRepository.countByTravel(travel);
-				return TravelSummaryResponse.from(travel, travelUserCount);
+				Boolean isBookmark = null;
+
+				if (userId != -1L) {
+					isBookmark = bookmarkRepository.existsByUserIdAndTravelId(userId, travel.getId());
+				}
+				return TravelSummaryResponse.from(travel, travelUserCount, isBookmark);
 			})
 			.toList();
 		return new TravelListResponse(travelSummaryResponses, travels.getTotalPages() + 1 > page, page);
