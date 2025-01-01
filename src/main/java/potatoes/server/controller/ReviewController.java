@@ -27,6 +27,7 @@ import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.dto.SimpleReviewResponse;
 import potatoes.server.service.ReviewService;
 import potatoes.server.utils.annotation.Authorization;
+import potatoes.server.utils.annotation.NonLoginAuthorization;
 
 @Tag(name = "Review", description = "Review API")
 @RequestMapping("/reviews")
@@ -46,19 +47,13 @@ public class ReviewController {
 		return ResponseEntity.ok(CommonResponse.create());
 	}
 
-	@Operation(summary = "리뷰 리스트 조회", description = "최근에 추가된 리뷰를 조회합니다.")
-	@GetMapping("/popular")
-	public ResponseEntity<CommonResponse<List<SimpleReviewResponse>>> getSimpleReviewList() {
-		return ResponseEntity.ok(CommonResponse.from(reviewService.getSimpleReviews()));
-	}
-
 	@Operation(summary = "리뷰 목록 조회", description = "최신순 인기순 조건이있습니다. 디폴트값(page = 0, size = 10)")
 	@GetMapping("")
 	public ResponseEntity<CommonResponse<PageResponse<GetReviewResponse>>> getReviews(
 		@RequestParam(defaultValue = "LATEST") SortByType sortByType,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size,
-		@Authorization @Parameter(hidden = true) Long userId
+		@NonLoginAuthorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(reviewService.getReviews(sortByType, page, size, userId)));
 	}
@@ -67,9 +62,15 @@ public class ReviewController {
 	@GetMapping("/{reviewId}")
 	public ResponseEntity<CommonResponse<GetDetailsReview>> getDetailsReview(
 		@PathVariable Long reviewId,
-		@Authorization @Parameter(hidden = true) Long userId
+		@NonLoginAuthorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(reviewService.getDetailsReview(reviewId, userId)));
+	}
+
+	@Operation(summary = "리뷰 리스트 조회", description = "최근에 추가된 리뷰를 조회합니다.")
+	@GetMapping("/popular")
+	public ResponseEntity<CommonResponse<List<SimpleReviewResponse>>> getSimpleReviewList() {
+		return ResponseEntity.ok(CommonResponse.from(reviewService.getSimpleReviews()));
 	}
 
 	@Operation(summary = "내가 작성한 리뷰 조회", description = "내가 작성한 리뷰를 조회합니다.")

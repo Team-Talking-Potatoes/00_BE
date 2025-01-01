@@ -80,7 +80,7 @@ public class ReviewService {
 	public GetDetailsReview getDetailsReview(Long reviewId, Long userId) {
 		int reviewLikes = reviewLikeRepository.countAllByReviewId(reviewId);
 		Review review = reviewRepository.findReviewWithImagesAndCommenter(reviewId);
-		boolean likesFlag = reviewLikeRepository.existsByUserIdAndReviewId(userId, reviewId);
+		Boolean likesFlag = reviewLikeRepository.existsByUserIdAndReviewIdWithNull(userId, reviewId);
 
 		return GetDetailsReview.from(review, reviewLikes, likesFlag);
 	}
@@ -92,9 +92,15 @@ public class ReviewService {
 	}
 
 	private Page<GetReviewResponse> getReviewsWithSort(SortByType sortByType, Pageable pageable, Long userId) {
+		boolean isGuestUser = userId == -1L;
+
 		return switch (sortByType) {
-			case LATEST -> reviewRepository.findAllByOrderByCreatedAtDesc(pageable, userId);
-			case POPULAR -> reviewRepository.findAllByOrderByLikesCountDesc(pageable, userId);
+			case LATEST -> isGuestUser
+				? reviewRepository.findAllByOrderByCreatedAtDesc(pageable)
+				: reviewRepository.findAllByOrderByCreatedAtDesc(pageable, userId);
+			case POPULAR -> isGuestUser
+				? reviewRepository.findAllByOrderByLikesCountDesc(pageable)
+				: reviewRepository.findAllByOrderByLikesCountDesc(pageable, userId);
 		};
 	}
 

@@ -11,7 +11,7 @@ public record GetReviewResponse(
 	String reviewImage,
 	String nickname,
 	int likesCount,
-	boolean likesFlag,
+	Boolean likesFlag,
 	String travelLocation,
 	Instant createdAt
 ) implements PagePolymorphic {

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.CommonResponse;
@@ -36,10 +35,9 @@ public class AuthController {
 	@Operation(summary = "로그인", description = "로그인을 성공하면 SET_COOKIE형태로 토큰이 설정됩니다.")
 	@PostMapping("/sign-in")
 	public ResponseEntity<CommonResponse<?>> signIn(
-		@RequestBody @Valid SignInRequest request,
-		HttpServletRequest httpRequest
+		@RequestBody @Valid SignInRequest request
 	) {
-		ResponseCookie tokenResponse = authService.signIn(request, httpRequest);
+		ResponseCookie tokenResponse = authService.signIn(request);
 
 		return ResponseEntity.ok()
 			.header(HttpHeaders.SET_COOKIE, tokenResponse.toString())
@@ -51,6 +49,15 @@ public class AuthController {
 	public ResponseEntity<CommonResponse<?>> signUp(@RequestBody @Valid SignUpRequest request) {
 		authService.signUp(request);
 		return ResponseEntity.ok().body(CommonResponse.create());
+	}
+
+	@Operation(summary = "로그아웃", description = "쿠키를 만료시킨다.")
+	@PostMapping("sign-out")
+	public ResponseEntity<CommonResponse<?>> signOut() {
+		ResponseCookie tokenResponse = authService.signOut();
+		return ResponseEntity.ok()
+			.header(HttpHeaders.SET_COOKIE, tokenResponse.toString())
+			.body(CommonResponse.create());
 	}
 
 	@Operation(summary = "비밀번호 재설정", description = "로그인 안된 상황에 대한 비밀번호 재설정")

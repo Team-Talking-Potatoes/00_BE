@@ -6,7 +6,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SignInRequest;
 import potatoes.server.dto.SignUpRequest;
@@ -27,7 +26,7 @@ public class AuthService {
 	private final CookieProvider cookieProvider;
 	private final JwtTokenUtil jwtTokenUtil;
 
-	public ResponseCookie signIn(SignInRequest request, HttpServletRequest httpRequest) {
+	public ResponseCookie signIn(SignInRequest request) {
 		User getUser = userRepository.findByEmail(request.email())
 			.orElseThrow(() -> new WeGoException(INVALID_CREDENTIALS));
 
@@ -37,7 +36,7 @@ public class AuthService {
 		}
 
 		String accessToken = jwtTokenUtil.createAccessToken(getUser.getId().toString());
-		return cookieProvider.accessTokenCookie(accessToken, httpRequest);
+		return cookieProvider.accessTokenCookie(accessToken);
 	}
 
 	@Transactional
@@ -54,6 +53,11 @@ public class AuthService {
 			.build();
 
 		userRepository.save(createdUser);
+	}
+
+	@Transactional
+	public ResponseCookie signOut() {
+		return cookieProvider.expireAccessTokenCookie();
 	}
 
 	@Transactional

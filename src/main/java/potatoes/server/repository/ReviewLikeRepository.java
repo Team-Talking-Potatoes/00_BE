@@ -7,9 +7,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import potatoes.server.entity.ReviewLike;
 
 public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
-	Optional<ReviewLike> findByUserIdAndReviewId(Long userId, Long reviewId);
+	default Boolean existsByUserIdAndReviewIdWithNull(Long userId, Long reviewId) {
+		if (userId == -1) {
+			return null;
+		}
+		return existsByUserIdAndReviewId(userId, reviewId);
+	}
 
-	boolean existsByUserIdAndReviewId(Long userId, Long reviewId);
+	Boolean existsByUserIdAndReviewId(Long userId, Long reviewId);
+
+	Optional<ReviewLike> findByUserIdAndReviewId(Long userId, Long reviewId);
 
 	int countAllByReviewId(Long id);
 }

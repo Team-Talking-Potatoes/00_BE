@@ -38,4 +38,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 		GROUP BY t.id, t.name, t.maxTravelMateCount, t.isDomestic, t.travelLocation, t.image, t.startAt, t.endAt
 		""")
 	Page<GetMyTravelResponse> findMyTravelsByBookmark(Pageable pageable, Long userId);
+
+	boolean existsByUserIdAndTravelId(Long userId, Long travelId);
 }

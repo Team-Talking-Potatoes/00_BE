@@ -13,9 +13,11 @@ import lombok.RequiredArgsConstructor;
 public class AuthorizationConfig implements WebMvcConfigurer {
 
 	private final AuthorizationArgumentResolver authorizationArgumentResolver;
+	private final NonLoginAuthorizationArgumentResolver nonLoginAuthorizationArgumentResolver;
 
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
 		resolvers.add(authorizationArgumentResolver);
+		resolvers.add(nonLoginAuthorizationArgumentResolver);
 	}
 }

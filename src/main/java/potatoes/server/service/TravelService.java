@@ -171,11 +171,17 @@ public class TravelService {
 		};
 	}
 
-	public List<SimpleTravelResponse> getPopularTravels() {
+	public List<SimpleTravelResponse> getPopularTravels(Long userId) {
 		return travelRepository.findTop4ByOrderByIdDesc().stream()
 			.map(travel -> {
 				int currentTravelMate = (int)travelUserRepository.countByTravel(travel);
-				return SimpleTravelResponse.from(travel, currentTravelMate);
+
+				Boolean isBookmark = null;
+				if (userId != -1) {
+					isBookmark = bookmarkRepository.existsByUserIdAndTravelId(userId, travel.getId());
+				}
+
+				return SimpleTravelResponse.from(travel, currentTravelMate, isBookmark);
 			}).toList();
 	}
 

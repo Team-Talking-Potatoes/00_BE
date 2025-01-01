@@ -19,14 +19,14 @@ public record GetDetailsReview(
 	List<String> reviewImages,
 	String nickname,
 	int likesCount,
-	boolean likesFlag,
+	Boolean likesFlag,
 	String travelLocation,
 	Instant createdAt
 ) {
 	public static GetDetailsReview from(
 		Review review,
 		int reviewLikes,
-		boolean likesFlag
+		Boolean likesFlag
 	) {
 		return new GetDetailsReview(
 			review.getId(),
