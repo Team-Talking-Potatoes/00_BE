@@ -21,6 +21,7 @@ import potatoes.server.repository.ChatRepository;
 import potatoes.server.repository.TravelRepository;
 import potatoes.server.repository.TravelUserRepository;
 import potatoes.server.repository.UserRepository;
+import potatoes.server.utils.crypto.PasswordEncoder;
 
 @RequiredArgsConstructor
 @Component
@@ -30,13 +31,14 @@ public class DataLoader implements CommandLineRunner {
 	private final TravelRepository travelRepository;
 	private final TravelUserRepository travelUserRepository;
 	private final ChatRepository chatRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args) {
 		// Mock 유저 생성
 		User user = User.builder()
 			.email("testUser@test.com")
-			.password("testPassword")
+			.password(passwordEncoder.encrypt("testPassword12!"))
 			.name("Test User")
 			.nickname("Test User")
 			.birthDate(20001231)
@@ -46,13 +48,13 @@ public class DataLoader implements CommandLineRunner {
 
 		User user2 = User.builder()
 			.email("testUser2@test.com")
-			.password("testPassword")
+			.password(passwordEncoder.encrypt("testPassword12!"))
 			.name("Test User2")
 			.nickname("Test User")
 			.birthDate(20001231)
 			.contact("010-0000-0000")
 			.build();
-		userRepository.save(user);
+		userRepository.save(user2);
 
 		// Mock 여행 생성
 		List<MockTravelData> mockTravelDataList = createMockTravelDataList();
