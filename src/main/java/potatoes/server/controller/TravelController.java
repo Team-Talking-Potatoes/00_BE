@@ -48,13 +48,6 @@ public class TravelController {
 		return ResponseEntity.ok(CommonResponse.create());
 	}
 
-	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")
-	@GetMapping("/{id}")
-	public ResponseEntity<CommonResponse<TravelDetailResponse>> getTravelDetails(
-		@PathVariable(name = "id") Long travelId) {
-		return ResponseEntity.ok(CommonResponse.from(travelService.getDetails(travelId)));
-	}
-
 	@Operation(summary = "여행 리스트 조회", description = "조건에 맞는 여행 리스트 조회합니다.")
 	@GetMapping()
 	public ResponseEntity<CommonResponse<TravelListResponse>> getTravelList(
@@ -69,6 +62,13 @@ public class TravelController {
 		return ResponseEntity.ok(
 			CommonResponse.from(
 				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query)));
+	}
+
+	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")
+	@GetMapping("/{id}")
+	public ResponseEntity<CommonResponse<TravelDetailResponse>> getTravelDetails(
+		@PathVariable(name = "id") Long travelId) {
+		return ResponseEntity.ok(CommonResponse.from(travelService.getDetails(travelId)));
 	}
 
 	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
