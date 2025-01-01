@@ -16,6 +16,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import potatoes.server.controller.AuthController;
+import potatoes.server.controller.ChatController;
 import potatoes.server.controller.MailController;
 import potatoes.server.controller.ReviewController;
 import potatoes.server.controller.TravelController;
@@ -60,11 +61,11 @@ public class SwaggerConfig implements WebMvcConfigurer {
 			.group("travel")
 			.addOpenApiMethodFilter(method ->
 				method.getDeclaringClass().equals(TravelController.class))
-      .packagesToScan("potatoes.server.controller")
+			.packagesToScan("potatoes.server.controller")
 			.build();
-  }
-  
-  @Bean
+	}
+
+	@Bean
 	public GroupedOpenApi getMailApi() {
 		return GroupedOpenApi.builder()
 			.group("mail")
@@ -100,6 +101,16 @@ public class SwaggerConfig implements WebMvcConfigurer {
 			.group("review")
 			.addOpenApiMethodFilter(method ->
 				method.getDeclaringClass().equals(ReviewController.class))
+			.packagesToScan("potatoes.server.controller")
+			.build();
+	}
+
+	@Bean
+	public GroupedOpenApi getChatApi() {
+		return GroupedOpenApi.builder()
+			.group("chat")
+			.addOpenApiMethodFilter(method ->
+				method.getDeclaringClass().equals(ChatController.class))
 			.packagesToScan("potatoes.server.controller")
 			.build();
 	}

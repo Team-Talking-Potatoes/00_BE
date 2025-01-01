@@ -105,4 +105,28 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 	boolean existsByTravelIdAndUserId(Long travelId, Long userId);
 
 	long countByTravel(Travel travel);
+
+	@Query("""
+			SELECT t FROM TravelUser t
+			JOIN FETCH t.travel
+			JOIN FETCH t.user
+			WHERE t.user = :userId
+		""")
+	List<TravelUser> findAllByUserId(@Param("user") Long userId);
+
+	@Query("""
+			SELECT t FROM TravelUser t
+			JOIN FETCH t.user
+			WHERE t.travel.id = :travelId
+			AND t.user.id = :userId
+		""")
+	Optional<TravelUser> findByTravelAndUserJoinFetchUser(@Param("travelId") Long travelId,
+		@Param("userId") Long userId);
+
+	@Query("""
+		SELECT COUNT(t) FROM TravelUser t
+		WHERE t.user.id = :userId
+		AND t.role = 'ORGANIZER'
+		""")
+	long countTravelWhereUserIsHost(@Param("userId") Long userId);
 }
