@@ -38,7 +38,6 @@ import potatoes.server.repository.ChatMessageUserRepository;
 import potatoes.server.repository.ChatRepository;
 import potatoes.server.repository.ChatUserRepository;
 import potatoes.server.repository.TravelUserRepository;
-import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.s3.S3UtilsProvider;
 import potatoes.server.utils.stomp.StompUserPrincipal;
 import potatoes.server.utils.time.DateTimeUtils;
