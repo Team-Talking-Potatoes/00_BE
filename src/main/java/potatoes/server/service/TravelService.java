@@ -134,15 +134,21 @@ public class TravelService {
 		travelUserRepository.save(travelUser);
 	}
 
-	public TravelDetailResponse getDetails(Long travelId) {
+	public TravelDetailResponse getDetails(Long travelId, Long userId) {
 		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+
+		Boolean participationFlag = null;
+		if (userId != -1L) {
+			participationFlag = travelUserRepository.existsByTravelIdAndUserId(travelId, userId);
+		}
+
 		List<TravelPlanResponse> travelPlanResponses = travelPlanRepository.findAllByTravel(travel).stream()
 			.map(TravelPlanResponse::from)
 			.toList();
 		List<ParticipantResponse> participantResponses = travelUserRepository.findAllByTravel(travel).stream()
 			.map(ParticipantResponse::from)
 			.toList();
-		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses);
+		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses, participationFlag);
 	}
 
 	public TravelListResponse getTravelList(
