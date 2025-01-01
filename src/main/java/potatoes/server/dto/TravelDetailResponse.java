@@ -23,10 +23,11 @@ public record TravelDetailResponse(
 	String registrationEnd,
 	int tripDuration,
 	List<TravelPlanResponse> travelPlan,
-	List<ParticipantResponse> participant
+	List<ParticipantResponse> participant,
+	Boolean participationFlag
 ) {
 	public static TravelDetailResponse from(Travel travel, List<TravelPlanResponse> travelPlan,
-		List<ParticipantResponse> participant) {
+		List<ParticipantResponse> participant, Boolean participationFlag) {
 		return new TravelDetailResponse(
 			travel.getId(),
 			travel.getName(),
@@ -45,7 +46,8 @@ public record TravelDetailResponse(
 			DateTimeUtils.getYearMonthDay(travel.getRegistrationEnd()),
 			travel.getTripDuration(),
 			travelPlan,
-			participant
+			participant,
+			participationFlag
 		);
 	}
 }

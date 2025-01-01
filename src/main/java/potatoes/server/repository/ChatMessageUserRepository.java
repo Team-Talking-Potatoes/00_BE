@@ -36,4 +36,12 @@ public interface ChatMessageUserRepository extends JpaRepository<ChatMessageUser
 		@Param("userId") Long userId,
 		@Param("chatId") Long chatId
 	);
+
+	@Query("""
+		SELECT COUNT(c) FROM ChatMessageUser c
+		WHERE c.chat.id = :chatId
+		AND c.user.id = :userId
+		AND c.hasRead = false
+		""")
+	long countUserUnReadMessages(@Param("chatId") Long chatId, @Param("userId") Long userId);
 }

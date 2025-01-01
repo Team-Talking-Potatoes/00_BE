@@ -1,7 +1,7 @@
 package potatoes.server.dto;
 
 public record MessagePublish(
-	boolean isImage,
+	String[] images,
 	String message
 ) {
 }

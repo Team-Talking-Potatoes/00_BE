@@ -29,6 +29,7 @@ import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.dto.TravelListResponse;
 import potatoes.server.service.TravelService;
 import potatoes.server.utils.annotation.Authorization;
+import potatoes.server.utils.annotation.NonLoginAuthorization;
 
 @RequiredArgsConstructor
 @RequestMapping("/travels")
@@ -47,13 +48,6 @@ public class TravelController {
 		return ResponseEntity.ok(CommonResponse.create());
 	}
 
-	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")
-	@GetMapping("/{id}")
-	public ResponseEntity<CommonResponse<TravelDetailResponse>> getTravelDetails(
-		@PathVariable(name = "id") Long travelId) {
-		return ResponseEntity.ok(CommonResponse.from(travelService.getDetails(travelId)));
-	}
-
 	@Operation(summary = "여행 리스트 조회", description = "조건에 맞는 여행 리스트 조회합니다.")
 	@GetMapping()
 	public ResponseEntity<CommonResponse<TravelListResponse>> getTravelList(
@@ -63,18 +57,30 @@ public class TravelController {
 		@RequestParam(required = false) String startAt,
 		@RequestParam(required = false) String endAt,
 		@RequestParam(required = false, defaultValue = "recent") TravelSortType sortOrder,
-		@RequestParam(required = false) String query
+		@RequestParam(required = false) String query,
+		@NonLoginAuthorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(
 			CommonResponse.from(
-				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query)));
+				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query, userId)));
+	}
+
+	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")
+	@GetMapping("/{id}")
+	public ResponseEntity<CommonResponse<TravelDetailResponse>> getTravelDetails(
+		@PathVariable(name = "id") Long travelId,
+		@NonLoginAuthorization @Parameter(hidden = true) Long userId
+	) {
+		return ResponseEntity.ok(CommonResponse.from(travelService.getDetails(travelId, userId)));
 	}
 
 	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
 	@GetMapping("/popular")
-	public ResponseEntity<CommonResponse<List<SimpleTravelResponse>>> getPopularTravels() {
+	public ResponseEntity<CommonResponse<List<SimpleTravelResponse>>> getPopularTravels(
+		@NonLoginAuthorization @Parameter(hidden = true) Long userId
+	) {
 		// TODO - 조회수 카운트 방법 논의 필요
-		return ResponseEntity.ok(CommonResponse.from(travelService.getPopularTravels()));
+		return ResponseEntity.ok(CommonResponse.from(travelService.getPopularTravels(userId)));
 	}
 
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")
