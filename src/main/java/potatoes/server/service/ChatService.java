@@ -1,6 +1,8 @@
 package potatoes.server.service;
 
+import static java.util.Comparator.*;
 import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.time.DateTimeUtils.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import potatoes.server.constant.ChatSortType;
 import potatoes.server.dto.ChatAlbumResponse;
 import potatoes.server.dto.ChatOverviewResponse;
 import potatoes.server.dto.ChatSummaryResponse;
@@ -62,7 +65,6 @@ public class ChatService {
 		Chat chat = chatRepository.findById(chatId).orElseThrow(
 			() -> new WeGoException(CHAT_NOT_FOUND)
 		);
-
 
 		List<ChatUser> chatUserList = chatUserRepository.findAllChatUserByChatID(chatId);
 		User sender = null;
@@ -156,7 +158,7 @@ public class ChatService {
 		chatUserRepository.save(chatUser);
 	}
 
-	public List<ChatSummaryResponse> getChatSummaryList(Long userId) {
+	public List<ChatSummaryResponse> getChatSummaryList(Long userId, ChatSortType sortType) {
 		// 참여중인 채팅방 카운트
 		List<ChatSummaryResponse> joinedChats = chatUserRepository.findAllByUserId(userId).stream()
 			.map(chatUser -> {
@@ -198,6 +200,17 @@ public class ChatService {
 		List<ChatSummaryResponse> result = new ArrayList<>();
 		result.addAll(joinedChats);
 		result.addAll(availableChats);
+
+		if (sortType.equals(ChatSortType.UNREAD)) {
+			result.sort(comparingLong((ChatSummaryResponse chatSummary) ->
+				chatSummary.hasJoined() ?
+					chatMessageUserRepository.countUserUnReadMessages(chatSummary.chatId(), userId) :
+					chatMessageRepository.countAll()
+			).reversed());
+
+		} else {
+			result.sort(comparing(msg -> parseYearMonthDayTime(msg.lastMessageTime()), reverseOrder()));
+		}
 		return result;
 	}
 
@@ -319,7 +332,8 @@ public class ChatService {
 				.forEach(chatMessageUser -> {
 					chatMessageUser.markAsRead();
 					chatMessageUserRepository.flush();
-					long readCount = chatMessageUserRepository.countByChatMessageAndHasReadIsTrue(chatMessageUser.getChatMessage());
+					long readCount = chatMessageUserRepository.countByChatMessageAndHasReadIsTrue(
+						chatMessageUser.getChatMessage());
 					long unreadCount = chatMessageUser.getChat().getCurrentMemberCount() - readCount;
 					messagingTemplate.convertAndSend("/sub/chat/read/" + chatId,
 						new MarkAsReadSubscribe(chatMessageUser.getChat().getId(), unreadCount));

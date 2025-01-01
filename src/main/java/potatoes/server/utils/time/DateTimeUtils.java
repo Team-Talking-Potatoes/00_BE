@@ -2,6 +2,7 @@ package potatoes.server.utils.time;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
@@ -21,6 +22,11 @@ public class DateTimeUtils {
 
 	public static String getYearMonthDayTime(Instant instant) {
 		return YEAR_DATE_TIME_FORMATTER.format(instant);
+	}
+
+	public static Instant parseYearMonthDayTime(String dateTimeString) {
+		LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, YEAR_DATE_TIME_FORMATTER);
+		return localDateTime.atZone(TimeZone.getTimeZone(KST_ZONE_ID).toZoneId()).toInstant();
 	}
 
 	public static Instant getStartOfDay(String dateStr) {

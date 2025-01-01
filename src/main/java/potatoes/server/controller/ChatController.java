@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import potatoes.server.constant.ChatSortType;
 import potatoes.server.dto.ChatOverviewResponse;
 import potatoes.server.dto.ChatSummaryResponse;
 import potatoes.server.dto.CommonResponse;
@@ -63,9 +64,10 @@ public class ChatController {
 	@Operation(summary = "채팅방 목록 불러오기", description = "현재 참여중인 채팅방 목록을 조회합니다.")
 	@GetMapping("/chat")
 	public ResponseEntity<CommonResponse<List<ChatSummaryResponse>>> getChatSummaryList(
-		@Authorization @Parameter(hidden = true) Long userId
+		@Authorization @Parameter(hidden = true) Long userId,
+		@RequestParam(defaultValue = "UNREAD") ChatSortType sortType
 	) {
-		return ResponseEntity.ok(CommonResponse.from(chatService.getChatSummaryList(userId)));
+		return ResponseEntity.ok(CommonResponse.from(chatService.getChatSummaryList(userId, sortType)));
 	}
 
 	@Operation(summary = "채팅방 입장 요청")
