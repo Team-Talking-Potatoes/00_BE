@@ -57,11 +57,12 @@ public class TravelController {
 		@RequestParam(required = false) String startAt,
 		@RequestParam(required = false) String endAt,
 		@RequestParam(required = false, defaultValue = "recent") TravelSortType sortOrder,
-		@RequestParam(required = false) String query
+		@RequestParam(required = false) String query,
+		@NonLoginAuthorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(
 			CommonResponse.from(
-				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query)));
+				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query, userId)));
 	}
 
 	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")

@@ -14,9 +14,10 @@ public record TravelSummaryResponse(
 	String location,
 	String image,
 	String startAt,
-	String endAt
+	String endAt,
+	Boolean isBookmark
 ) {
-	public static TravelSummaryResponse from(Travel travel, int travelMateCount) {
+	public static TravelSummaryResponse from(Travel travel, int travelMateCount, Boolean isBookmark) {
 		return new TravelSummaryResponse(
 			travel.getId(),
 			travel.getName(),
@@ -28,7 +29,8 @@ public record TravelSummaryResponse(
 			travel.getTravelLocation(),
 			travel.getImage(),
 			DateTimeUtils.getYearMonthDay(travel.getStartAt()),
-			DateTimeUtils.getYearMonthDay(travel.getEndAt())
+			DateTimeUtils.getYearMonthDay(travel.getEndAt()),
+			isBookmark
 		);
 	}
 }

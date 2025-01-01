@@ -145,14 +145,21 @@ public class TravelService {
 		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses);
 	}
 
-	public TravelListResponse getTravelList(int page, int size, Boolean isDomestic, String startAt, String endAt,
-		TravelSortType sortOrder, String query) {
+	public TravelListResponse getTravelList(
+		int page, int size, Boolean isDomestic, String startAt, String endAt,
+		TravelSortType sortOrder, String query, Long userId
+	) {
 		Pageable pageable = createPageable(page, size, sortOrder);
 		Page<Travel> travels = travelRepository.findTravels(isDomestic, startAt, endAt, query, pageable);
 		List<TravelSummaryResponse> travelSummaryResponses = travels.getContent().stream()
 			.map(travel -> {
 				int travelUserCount = (int)travelUserRepository.countByTravel(travel);
-				return TravelSummaryResponse.from(travel, travelUserCount);
+				Boolean isBookmark = null;
+
+				if (userId != -1L) {
+					isBookmark = bookmarkRepository.existsByUserIdAndTravelId(userId, travel.getId());
+				}
+				return TravelSummaryResponse.from(travel, travelUserCount, isBookmark);
 			})
 			.toList();
 		return new TravelListResponse(travelSummaryResponses, travels.getTotalPages() + 1 > page, page);
