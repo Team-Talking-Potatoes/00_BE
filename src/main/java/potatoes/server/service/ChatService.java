@@ -176,9 +176,9 @@ public class ChatService {
 				Chat chat = chatRepository.findByTravel(travelUser.getTravel())
 					.orElseThrow(() -> new WeGoException(CHAT_NOT_FOUND));
 
-				if (!chatUserRepository.existsByUserIdAndChatId(
+				if (chatUserRepository.existsByUserIdAndChatId(
 					travelUser.getUser().getId(),
-					chat.getTravel().getId())) {
+					chat.getId())) {
 					return null;
 				}
 
