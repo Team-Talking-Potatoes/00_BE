@@ -123,6 +123,7 @@ public class TravelService {
 			.build();
 
 		Chat chat = Chat.builder()
+			.name(travel.getName())
 			.host(user)
 			.travel(travel)
 			.currentMemberCount(1)

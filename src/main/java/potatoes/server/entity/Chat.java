@@ -41,7 +41,8 @@ public class Chat {
 	private int currentMemberCount;
 
 	@Builder
-	public Chat(Travel travel, User host, int maxMemberCount, int currentMemberCount) {
+	public Chat(String name, Travel travel, User host, int maxMemberCount, int currentMemberCount) {
+		this.name = name;
 		this.travel = travel;
 		this.host = host;
 		this.maxMemberCount = maxMemberCount;
