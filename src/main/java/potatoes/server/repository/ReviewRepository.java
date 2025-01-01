@@ -22,12 +22,45 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
 		    r.commenter.nickname,
 		    CAST((SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) AS int),
-		    (CASE
-		        WHEN :userId = -1 THEN CAST(NULL AS boolean)
-		        WHEN EXISTS (SELECT 1 FROM ReviewLike rl WHERE rl.review = r AND rl.user.id = :userId)
-		        THEN true
-		        ELSE false
-		    END),
+		    CAST(NULL AS boolean),
+		    r.travel.travelLocation,
+		    r.createdAt
+		)
+		FROM Review r
+		ORDER BY r.createdAt DESC
+		""")
+	Page<GetReviewResponse> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+	@Query("""
+		SELECT new potatoes.server.dto.GetReviewResponse(
+		    r.id,
+		    r.title,
+		    r.starRating,
+		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
+		    r.commenter.nickname,
+		    CAST((SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) AS int),
+		    CAST(NULL AS boolean),
+		    r.travel.travelLocation,
+		    r.createdAt
+		)
+		FROM Review r
+		ORDER BY (SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) DESC
+		""")
+	Page<GetReviewResponse> findAllByOrderByLikesCountDesc(Pageable pageable);
+
+	@Query("""
+		SELECT new potatoes.server.dto.GetReviewResponse(
+		    r.id,
+		    r.title,
+		    r.starRating,
+		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
+		    r.commenter.nickname,
+		    CAST((SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) AS int),
+		     (CASE
+		         WHEN EXISTS (SELECT 1 FROM ReviewLike rl WHERE rl.review = r AND rl.user.id = :userId)
+		         THEN true
+		         ELSE false
+		     END),
 		    r.travel.travelLocation,
 		    r.createdAt
 		)
@@ -44,12 +77,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
 		    r.commenter.nickname,
 		    CAST((SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) AS int),
-		    (CASE
-		        WHEN :userId = -1 THEN CAST(NULL AS boolean)
-		        WHEN EXISTS (SELECT 1 FROM ReviewLike rl WHERE rl.review = r AND rl.user.id = :userId)
-		        THEN true
-		        ELSE false
-		    END),
+		     (CASE
+		         WHEN EXISTS (SELECT 1 FROM ReviewLike rl WHERE rl.review = r AND rl.user.id = :userId)
+		         THEN true
+		         ELSE false
+		     END),
 		    r.travel.travelLocation,
 		    r.createdAt
 		)
