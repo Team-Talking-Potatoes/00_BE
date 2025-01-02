@@ -4,6 +4,7 @@ import java.util.List;
 
 import potatoes.server.entity.ChatMessage;
 import potatoes.server.entity.User;
+import potatoes.server.utils.time.DateTimeUtils;
 
 public record MessageSubscribe(
 	Long chatMessageId,
@@ -21,7 +22,7 @@ public record MessageSubscribe(
 			chatMessage.getMessage(),
 			user.getNickname(),
 			user.getProfileImage(),
-			chatMessage.getMessage(),
+			DateTimeUtils.getYearMonthDayTime(chatMessage.getCreatedAt()),
 			unreadCount
 		);
 	}

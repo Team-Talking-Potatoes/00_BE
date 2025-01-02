@@ -33,7 +33,6 @@ public enum ErrorCode {
 	NOT_PARTICIPATED_TRAVEL(400, "NOT_PRATICIPATED_TRAVEL", "참여하지 않은 여행입니다"),
 	ALREADY_PARTICIPATED_TRAVEL(400, "ALREADY_PARTICIPATED_TRAVEL", "이미 참여한 여행입니다"),
 
-
 	// Bookmark
 	BOOKMARK_ALREADY_EXIST(400, "BOOKMARK_ALREADY_EXIST", "이미 등록한 북마크입니다."),
 	BOOKMARK_NOT_FOUND(400, "BOOKMARK_NOT_FOUND", "등록되지 않은 북마크입니다."),
@@ -49,7 +48,10 @@ public enum ErrorCode {
 
 	// Chat
 	CHAT_NOT_FOUND(400, "CHAT_NOT_FOUND", "존재하지 않는 채팅입니다."),
-	UNABLE_TO_JOIN_CHAT(400, "UNABLE_TO_JOIN_CHAT", "채팅에 참여할 수 없습니다.");
+	UNABLE_TO_JOIN_CHAT(400, "UNABLE_TO_JOIN_CHAT", "채팅에 참여할 수 없습니다."),
+
+	// STOMP
+	STOMP_SUBSCRIBE_FAILED(400, "STOMP_SUBSCRIBE_FAILED", "채팅방 구독 실패");
 
 	private final int status;
 	private final String code;

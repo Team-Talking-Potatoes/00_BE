@@ -316,33 +316,17 @@ public class ChatService {
 	}
 
 	@Transactional
-	public void checkIsUserHasJoined(Long chatId, Long userId, boolean isFirstSubscribe) {
-		if (!chatRepository.existsById(chatId)) {
-			throw new WeGoException(CHAT_NOT_FOUND);
-		}
-		List<ChatUser> chatUserList = chatUserRepository.findAllChatUserByChatID(chatId);
-		User sender = null;
-		for (ChatUser chatUser : chatUserList) {
-			if (chatUser.getUser().getId().equals(userId)) {
-				sender = chatUser.getUser();
-				break;
-			}
-		}
-		if (sender == null) {
-			throw new WeGoException(USER_NOT_FOUND);
-		}
-
-		if (isFirstSubscribe) {
-			chatMessageUserRepository.findAllUnReadMessageByUserIdAndChatId(userId, chatId)
-				.forEach(chatMessageUser -> {
-					chatMessageUser.markAsRead();
-					chatMessageUserRepository.flush();
-					long readCount = chatMessageUserRepository.countByChatMessageAndHasReadIsTrue(
-						chatMessageUser.getChatMessage());
-					long unreadCount = chatMessageUser.getChat().getCurrentMemberCount() - readCount;
-					messagingTemplate.convertAndSend("/sub/chat/read/" + chatId,
-						new MarkAsReadSubscribe(chatMessageUser.getChat().getId(), unreadCount));
-				});
-		}
+	public void readAllUnReadChatMessages(Long chatId, Long userId) {
+		chatMessageUserRepository.findAllUnReadMessageByUserIdAndChatId(userId, chatId)
+			.forEach(chatMessageUser -> {
+				chatMessageUser.markAsRead();
+				chatMessageUserRepository.flush();
+				long readCount = chatMessageUserRepository.countByChatMessageAndHasReadIsTrue(
+					chatMessageUser.getChatMessage());
+				long unreadCount = chatMessageUser.getChat().getCurrentMemberCount() - readCount;
+				messagingTemplate.convertAndSend("/sub/chat/read/" + chatId,
+					new MarkAsReadSubscribe(chatMessageUser.getChat().getId(), unreadCount));
+			});
 	}
+
 }
