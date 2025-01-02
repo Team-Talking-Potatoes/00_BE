@@ -3,7 +3,9 @@ package potatoes.server.service;
 import static potatoes.server.error.ErrorCode.*;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 
@@ -86,7 +88,10 @@ public class UserService {
 	}
 
 	public List<PopularUserResponse> findPopularUsers() {
-		LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1L);
+		Instant oneMonthAgo = LocalDateTime.now()
+			.minusMonths(1L)
+			.atZone(ZoneId.systemDefault())
+			.toInstant();
 
 		return userRepository.findAll().stream()
 			.map(user -> {

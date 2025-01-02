@@ -1,6 +1,6 @@
 package potatoes.server.repository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,7 +93,7 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 		AND t.role = 'ORGANIZER'
 		AND t.user.id = :userId
 		""")
-	List<TravelUser> findOrganizersCreatedAfter(@Param("date") LocalDateTime date, @Param("userId") Long userId);
+	List<TravelUser> findOrganizersCreatedAfter(@Param("date") Instant date, @Param("userId") Long userId);
 
 	@Query("""
 			SELECT tu FROM TravelUser tu
