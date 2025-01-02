@@ -3,6 +3,7 @@ package potatoes.server.controller;
 import static org.springframework.http.MediaType.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -58,7 +59,7 @@ public class TravelController {
 		@RequestParam(required = false) String endAt,
 		@RequestParam(required = false, defaultValue = "recent") TravelSortType sortOrder,
 		@RequestParam(required = false) String query,
-		@NonLoginAuthorization @Parameter(hidden = true) Long userId
+		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
 	) {
 		return ResponseEntity.ok(
 			CommonResponse.from(
@@ -69,7 +70,7 @@ public class TravelController {
 	@GetMapping("/{id}")
 	public ResponseEntity<CommonResponse<TravelDetailResponse>> getTravelDetails(
 		@PathVariable(name = "id") Long travelId,
-		@NonLoginAuthorization @Parameter(hidden = true) Long userId
+		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(travelService.getDetails(travelId, userId)));
 	}
@@ -77,7 +78,7 @@ public class TravelController {
 	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
 	@GetMapping("/popular")
 	public ResponseEntity<CommonResponse<List<SimpleTravelResponse>>> getPopularTravels(
-		@NonLoginAuthorization @Parameter(hidden = true) Long userId
+		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
 	) {
 		// TODO - 조회수 카운트 방법 논의 필요
 		return ResponseEntity.ok(CommonResponse.from(travelService.getPopularTravels(userId)));

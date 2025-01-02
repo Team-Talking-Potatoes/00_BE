@@ -1,5 +1,8 @@
 package potatoes.server.utils.annotation;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -26,35 +29,25 @@ public class NonLoginAuthorizationArgumentResolver implements HandlerMethodArgum
 	}
 
 	@Override
-	public Object resolveArgument(
+	public Optional<Long> resolveArgument(
 		MethodParameter parameter,
 		ModelAndViewContainer mavContainer,
 		NativeWebRequest webRequest,
 		WebDataBinderFactory binderFactory
 	) {
 		HttpServletRequest request = (HttpServletRequest)webRequest.getNativeRequest();
-		Cookie[] cookies = request.getCookies();
 
-		if (cookies == null) {
-			return -1L;
-		}
+		return Optional.ofNullable(request.getCookies())
+			.flatMap(this::findAccessTokenCookie)
+			.filter(jwtTokenProvider::validateToken)
+			.map(jwtTokenProvider::getPayload)
+			.map(Long::parseLong);
+	}
 
-		String accessToken = null;
-		for (Cookie cookie : cookies) {
-			if ("accessToken".equals(cookie.getName())) {
-				accessToken = cookie.getValue();
-				break;
-			}
-		}
-
-		if (accessToken == null) {
-			return -1L;
-		}
-
-		if (!jwtTokenProvider.validateToken(accessToken)) {
-			return -1L;
-		}
-
-		return Long.parseLong(jwtTokenProvider.getPayload(accessToken));
+	private Optional<String> findAccessTokenCookie(Cookie[] cookies) {
+		return Arrays.stream(cookies)
+			.filter(cookie -> "accessToken".equals(cookie.getName()))
+			.map(Cookie::getValue)
+			.findFirst();
 	}
 }
