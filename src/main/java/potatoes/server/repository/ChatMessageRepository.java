@@ -29,4 +29,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 		@Param("messageId") Long messageId,
 		Pageable pageable
 	);
+
+	List<ChatMessage> findByChatIdAndIdLessThanOrderByIdDesc(Long chatId, Long messageId, Pageable pageable);
 }

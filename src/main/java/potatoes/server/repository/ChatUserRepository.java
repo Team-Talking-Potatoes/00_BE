@@ -1,6 +1,7 @@
 package potatoes.server.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +28,6 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long> {
 	List<ChatUser> findAllByUserId(@Param("userId") Long userId);
 
 	boolean existsByUserIdAndChatId(Long userId, Long chatId);
+
+	Optional<ChatUser> findByChatIdAndUserId(Long chatId, Long userId);
 }
