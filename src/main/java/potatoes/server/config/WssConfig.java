@@ -1,15 +1,16 @@
 package potatoes.server.config;
 
-import static potatoes.server.error.ErrorCode.*;
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageDeliveryException;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -17,7 +18,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import potatoes.server.error.exception.WeGoException;
 import potatoes.server.utils.stomp.ChatEventHandler;
 import potatoes.server.utils.stomp.CustomHandshakeInterceptor;
 
@@ -49,23 +49,35 @@ public class WssConfig implements WebSocketMessageBrokerConfigurer {
 			public Message<?> preSend(Message<?> message, MessageChannel channel) {
 				StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(
 					message, StompHeaderAccessor.class);
-
-				if (StompCommand.CONNECT.equals(headerAccessor.getCommand())) {
-					log.info("Connect");
-					chatEventHandler.handleConnect(headerAccessor);
-				}
-
-				if (StompCommand.SUBSCRIBE.equals(headerAccessor.getCommand())) {
-					log.info("Subscribe");
-					try {
-						chatEventHandler.handleSubscribe(headerAccessor);
-					} catch (Exception e) {
-						log.error(e.getMessage(), e);
-						throw new WeGoException(STOMP_SUBSCRIBE_FAILED);
+				try {
+					if (StompCommand.CONNECT.equals(headerAccessor.getCommand())) {
+						log.info("Connect");
+						chatEventHandler.handleConnect(headerAccessor);
 					}
-				}
 
-				return message;
+					if (StompCommand.SUBSCRIBE.equals(headerAccessor.getCommand())) {
+						log.info("Subscribe");
+						chatEventHandler.handleSubscribe(headerAccessor);
+					}
+
+					return message;
+
+				} catch (Exception e) {
+					log.error("WebSocket 오류: {}", e.getMessage(), e);
+
+					// 에러 메시지 생성
+					StompHeaderAccessor errorHeaderAccessor = StompHeaderAccessor.create(StompCommand.ERROR);
+					errorHeaderAccessor.setSessionId(headerAccessor.getSessionId());
+					errorHeaderAccessor.setMessage(e.getMessage());
+
+					// 연결 종료 메시지 전송
+					StompHeaderAccessor disconnectHeaderAccessor = StompHeaderAccessor.create(StompCommand.DISCONNECT);
+					disconnectHeaderAccessor.setSessionId(headerAccessor.getSessionId());
+					MessageHeaders headers = disconnectHeaderAccessor.getMessageHeaders();
+					channel.send(MessageBuilder.createMessage(new byte[0], headers));
+
+					throw new MessageDeliveryException(message, e);
+				}
 			}
 		});
 	}
