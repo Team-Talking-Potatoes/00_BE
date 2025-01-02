@@ -26,6 +26,7 @@ import potatoes.server.dto.GetReviewResponse;
 import potatoes.server.dto.PageResponse;
 import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.dto.SimpleReviewResponse;
+import potatoes.server.dto.TotalRatingResponse;
 import potatoes.server.service.ReviewService;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.annotation.NonLoginAuthorization;
@@ -82,6 +83,14 @@ public class ReviewController {
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(reviewService.getMyReviews(page, size, userId)));
+	}
+
+	@Operation(summary = "리뷰 평점 종합 조회")
+	@GetMapping("/{travelId}/ratings")
+	public ResponseEntity<CommonResponse<TotalRatingResponse>> getTotalReviewsRatings(
+		@PathVariable Long travelId
+	) {
+		return ResponseEntity.ok(CommonResponse.from(reviewService.getTotalReviewsRatings(travelId)));
 	}
 
 	@Operation(summary = "리뷰 좋아요 등록", description = "")
