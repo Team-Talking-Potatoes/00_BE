@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import potatoes.server.dto.GetMyReviewResponse;
 import potatoes.server.dto.GetReviewResponse;
+import potatoes.server.dto.TotalCountReviews;
 import potatoes.server.entity.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
@@ -116,6 +117,20 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		    WHERE r.id = :reviewId
 		""")
 	Review findReviewWithImagesAndCommenter(Long reviewId);
+
+	@Query("""
+		    SELECT NEW potatoes.server.dto.TotalCountReviews(
+		        CAST((SELECT COUNT(r2) FROM Review r2 WHERE r2.travel.id = :travelId AND r2.starRating = 1.0) AS int),
+		        CAST((SELECT COUNT(r2) FROM Review r2 WHERE r2.travel.id = :travelId AND r2.starRating = 2.0) AS int),
+		        CAST((SELECT COUNT(r2) FROM Review r2 WHERE r2.travel.id = :travelId AND r2.starRating = 3.0) AS int),
+		        CAST((SELECT COUNT(r2) FROM Review r2 WHERE r2.travel.id = :travelId AND r2.starRating = 4.0) AS int),
+		        CAST((SELECT COUNT(r2) FROM Review r2 WHERE r2.travel.id = :travelId AND r2.starRating = 5.0) AS int),
+		        CAST(COUNT(r) AS int)
+		    )
+		    FROM Review r
+		    WHERE r.travel.id = :travelId
+		""")
+	TotalCountReviews countReviewsByRating(@Param("travelId") Long travelId);
 
 	@Query("SELECT r FROM Review r JOIN FETCH r.commenter ORDER BY r.createdAt DESC")
 	List<Review> findRecentReviews(Pageable pageable);
