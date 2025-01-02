@@ -7,7 +7,7 @@ public record TravelSummaryResponse(
 	Long travelId,
 	String travelName,
 	int expectedTripCost,
-	int travelMateCount,
+	int currentTravelMateCount,
 	int minTravelMateCount,
 	int maxTravelMateCount,
 	boolean isDomestic,
@@ -17,12 +17,12 @@ public record TravelSummaryResponse(
 	String endAt,
 	Boolean isBookmark
 ) {
-	public static TravelSummaryResponse from(Travel travel, int travelMateCount, Boolean isBookmark) {
+	public static TravelSummaryResponse from(Travel travel, int currentTravelMateCount, Boolean isBookmark) {
 		return new TravelSummaryResponse(
 			travel.getId(),
 			travel.getName(),
 			travel.getExpectedTripCost(),
-			travelMateCount,
+			currentTravelMateCount,
 			travel.getMinTravelMateCount(),
 			travel.getMaxTravelMateCount(),
 			travel.isDomestic(),

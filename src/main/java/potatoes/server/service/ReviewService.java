@@ -4,6 +4,7 @@ import static potatoes.server.error.ErrorCode.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -77,30 +78,31 @@ public class ReviewService {
 		reviewRepository.save(review);
 	}
 
-	public GetDetailsReview getDetailsReview(Long reviewId, Long userId) {
+	public GetDetailsReview getDetailsReview(Long reviewId, Optional<Long> userId) {
 		int reviewLikes = reviewLikeRepository.countAllByReviewId(reviewId);
 		Review review = reviewRepository.findReviewWithImagesAndCommenter(reviewId);
+
 		Boolean likesFlag = reviewLikeRepository.existsByUserIdAndReviewIdWithNull(userId, reviewId);
 
 		return GetDetailsReview.from(review, reviewLikes, likesFlag);
 	}
 
-	public PageResponse<GetReviewResponse> getReviews(SortByType sortByType, int page, int size, Long userId) {
+	public PageResponse<GetReviewResponse> getReviews(SortByType sortByType, int page, int size,
+		Optional<Long> userId) {
 		PageRequest pageable = PageRequest.of(page, size);
 		Page<GetReviewResponse> findReviews = getReviewsWithSort(sortByType, pageable, userId);
 		return PageResponse.from(findReviews);
 	}
 
-	private Page<GetReviewResponse> getReviewsWithSort(SortByType sortByType, Pageable pageable, Long userId) {
-		boolean isGuestUser = userId == -1L;
-
+	private Page<GetReviewResponse> getReviewsWithSort(SortByType sortByType, Pageable pageable,
+		Optional<Long> userId) {
 		return switch (sortByType) {
-			case LATEST -> isGuestUser
-				? reviewRepository.findAllByOrderByCreatedAtDesc(pageable)
-				: reviewRepository.findAllByOrderByCreatedAtDesc(pageable, userId);
-			case POPULAR -> isGuestUser
-				? reviewRepository.findAllByOrderByLikesCountDesc(pageable)
-				: reviewRepository.findAllByOrderByLikesCountDesc(pageable, userId);
+			case LATEST -> userId
+				.map(uid -> reviewRepository.findAllByOrderByCreatedAtDesc(pageable, uid))
+				.orElseGet(() -> reviewRepository.findAllByOrderByCreatedAtDesc(pageable));
+			case POPULAR -> userId
+				.map(uid -> reviewRepository.findAllByOrderByLikesCountDesc(pageable, uid))
+				.orElseGet(() -> reviewRepository.findAllByOrderByLikesCountDesc(pageable));
 		};
 	}
 

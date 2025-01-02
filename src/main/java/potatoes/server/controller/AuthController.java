@@ -52,7 +52,7 @@ public class AuthController {
 	}
 
 	@Operation(summary = "로그아웃", description = "쿠키를 만료시킨다.")
-	@PostMapping("sign-out")
+	@PostMapping("/sign-out")
 	public ResponseEntity<CommonResponse<?>> signOut() {
 		ResponseCookie tokenResponse = authService.signOut();
 		return ResponseEntity.ok()

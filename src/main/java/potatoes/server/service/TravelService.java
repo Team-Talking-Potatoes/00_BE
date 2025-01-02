@@ -5,6 +5,7 @@ import static potatoes.server.error.ErrorCode.*;
 import java.time.Duration;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -134,13 +135,12 @@ public class TravelService {
 		travelUserRepository.save(travelUser);
 	}
 
-	public TravelDetailResponse getDetails(Long travelId, Long userId) {
+	public TravelDetailResponse getDetails(Long travelId, Optional<Long> userId) {
 		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
 
-		Boolean participationFlag = null;
-		if (userId != -1L) {
-			participationFlag = travelUserRepository.existsByTravelIdAndUserId(travelId, userId);
-		}
+		Boolean participationFlag = userId
+			.map(uid -> travelUserRepository.existsByTravelIdAndUserId(travelId, uid))
+			.orElse(null);
 
 		List<TravelPlanResponse> travelPlanResponses = travelPlanRepository.findAllByTravel(travel).stream()
 			.map(TravelPlanResponse::from)
@@ -153,19 +153,19 @@ public class TravelService {
 
 	public TravelListResponse getTravelList(
 		int page, int size, Boolean isDomestic, String startAt, String endAt,
-		TravelSortType sortOrder, String query, Long userId
+		TravelSortType sortOrder, String query, Optional<Long> userId
 	) {
 		Pageable pageable = createPageable(page, size, sortOrder);
 		Page<Travel> travels = travelRepository.findTravels(isDomestic, startAt, endAt, query, pageable);
 		List<TravelSummaryResponse> travelSummaryResponses = travels.getContent().stream()
 			.map(travel -> {
-				int travelUserCount = (int)travelUserRepository.countByTravel(travel);
-				Boolean isBookmark = null;
+				int currentTravelMateCount = (int)travelUserRepository.countByTravel(travel);
 
-				if (userId != -1L) {
-					isBookmark = bookmarkRepository.existsByUserIdAndTravelId(userId, travel.getId());
-				}
-				return TravelSummaryResponse.from(travel, travelUserCount, isBookmark);
+				Boolean isBookmark = userId
+					.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travel.getId()))
+					.orElse(null);
+
+				return TravelSummaryResponse.from(travel, currentTravelMateCount, isBookmark);
 			})
 			.toList();
 		return new TravelListResponse(travelSummaryResponses, travels.getTotalPages() + 1 > page, page);
@@ -184,18 +184,18 @@ public class TravelService {
 		};
 	}
 
-	public List<SimpleTravelResponse> getPopularTravels(Long userId) {
+	public List<SimpleTravelResponse> getPopularTravels(Optional<Long> userId) {
 		return travelRepository.findTop4ByOrderByIdDesc().stream()
 			.map(travel -> {
 				int currentTravelMate = (int)travelUserRepository.countByTravel(travel);
 
-				Boolean isBookmark = null;
-				if (userId != -1) {
-					isBookmark = bookmarkRepository.existsByUserIdAndTravelId(userId, travel.getId());
-				}
+				Boolean isBookmark = userId
+					.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travel.getId()))
+					.orElse(null);
 
 				return SimpleTravelResponse.from(travel, currentTravelMate, isBookmark);
-			}).toList();
+			})
+			.toList();
 	}
 
 	@Transactional

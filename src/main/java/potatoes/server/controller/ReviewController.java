@@ -1,6 +1,7 @@
 package potatoes.server.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,7 +54,7 @@ public class ReviewController {
 		@RequestParam(defaultValue = "LATEST") SortByType sortByType,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size,
-		@NonLoginAuthorization @Parameter(hidden = true) Long userId
+		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(reviewService.getReviews(sortByType, page, size, userId)));
 	}
@@ -62,7 +63,7 @@ public class ReviewController {
 	@GetMapping("/{reviewId}")
 	public ResponseEntity<CommonResponse<GetDetailsReview>> getDetailsReview(
 		@PathVariable Long reviewId,
-		@NonLoginAuthorization @Parameter(hidden = true) Long userId
+		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(reviewService.getDetailsReview(reviewId, userId)));
 	}
