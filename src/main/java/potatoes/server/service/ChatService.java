@@ -4,12 +4,12 @@ import static java.util.Comparator.*;
 import static potatoes.server.error.ErrorCode.*;
 import static potatoes.server.utils.time.DateTimeUtils.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.joda.time.Instant;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -44,7 +44,6 @@ import potatoes.server.repository.ChatUserRepository;
 import potatoes.server.repository.TravelUserRepository;
 import potatoes.server.utils.s3.S3UtilsProvider;
 import potatoes.server.utils.stomp.StompUserPrincipal;
-import potatoes.server.utils.time.DateTimeUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -171,7 +170,7 @@ public class ChatService {
 					chatUser.getChat(),
 					true,
 					unreadMessages,
-					chatMessage.getCreatedAt() == null ? Instant.now().toString() :
+					chatMessage.getCreatedAt() == null ? getYearMonthDayTime(Instant.now()) :
 						getYearMonthDayTime(chatMessage.getCreatedAt()));
 			}).toList();
 
@@ -196,7 +195,7 @@ public class ChatService {
 					chat,
 					false,
 					unreadMessages,
-					chatMessage.getCreatedAt() == null ? Instant.now().toString() :
+					chatMessage.getCreatedAt() == null ? getYearMonthDayTime(Instant.now()) :
 						getYearMonthDayTime(chatMessage.getCreatedAt())
 				);
 			})
@@ -213,8 +212,8 @@ public class ChatService {
 					chatMessageUserRepository.countUserUnReadMessages(chatSummary.chatId(), userId) :
 					chatMessageRepository.countAll()
 			).reversed());
-
 		} else {
+			log.info(result.getFirst().lastMessageTime());
 			result.sort(comparing(msg -> parseYearMonthDayTime(msg.lastMessageTime()), reverseOrder()));
 		}
 		return result;
