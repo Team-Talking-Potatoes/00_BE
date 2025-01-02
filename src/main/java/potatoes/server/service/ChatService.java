@@ -6,12 +6,16 @@ import static potatoes.server.utils.time.DateTimeUtils.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -249,40 +253,35 @@ public class ChatService {
 	}
 
 	public RecentChatResponse getRecentChatMessages(Long userId, Long chatId, int size, Long latestChatId) {
-		Chat chat = chatRepository.findById(chatId).orElseThrow(
-			() -> new WeGoException(CHAT_NOT_FOUND)
-		);
-		List<ChatUser> chatUserList = chatUserRepository.findAllChatUserByChatID(chatId);
-		User sender = null;
-		for (ChatUser chatUser : chatUserList) {
-			if (chatUser.getUser().getId().equals(userId)) {
-				sender = chatUser.getUser();
-				break;
-			}
-		}
-		if (sender == null) {
-			throw new WeGoException(USER_NOT_FOUND);
-		}
+		Chat chat = chatRepository.findById(chatId)
+			.orElseThrow(() -> new WeGoException(CHAT_NOT_FOUND));
 
-		if (latestChatId.equals(0L)) {
-			chatId = chatMessageRepository.countAll();
-		}
+		User sender = chatUserRepository.findByChatIdAndUserId(chatId, userId)
+			.map(ChatUser::getUser)
+			.orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 
-		Pageable pageable = PageRequest.of(0, size);
-		List<MessageSubscribe> messageSubscribes = chatMessageRepository.findPreviousMessages(chatId,
-				latestChatId, pageable)
+		Pageable pageable = PageRequest.of(0, size, Sort.by("id").descending());
+		List<ChatMessage> chatMessages = chatMessageRepository.findByChatIdAndIdLessThanOrderByIdDesc(
+			chatId, latestChatId == 0L ? Long.MAX_VALUE : latestChatId, pageable);
+
+		List<Long> messageIds = chatMessages.stream().map(ChatMessage::getId).collect(Collectors.toList());
+		Map<Long, List<String>> imageUrlMap = chatImageRepository.findAllByChatMessageIdIn(messageIds)
 			.stream()
+			.collect(Collectors.groupingBy(
+				chatImage -> chatImage.getChatMessage().getId(),
+				Collectors.mapping(ChatImage::getImageUrl, Collectors.toList())
+			));
+
+		Map<Long, Long> unreadCountMap = chatMessageUserRepository.countUnreadByMessageIds(messageIds);
+
+		List<MessageSubscribe> messageSubscribes = chatMessages.stream()
 			.map(chatMessage -> {
-				List<String> images = chatImageRepository.findAllByChat(chatMessage.getChat().getId())
-					.stream()
-					.map(ChatImage::getImageUrl)
-					.toList();
-				long totalMembers = chat.getCurrentMemberCount();
-				long readCount = chatMessageUserRepository.countByChatMessageAndHasReadIsTrue(chatMessage);
-				long unreadCount = totalMembers - readCount;
+				List<String> images = imageUrlMap.getOrDefault(chatMessage.getId(), Collections.emptyList());
+				long unreadCount = unreadCountMap.getOrDefault(chatMessage.getId(), 0L);
 				return MessageSubscribe.of(chatMessage, images, chatMessage.getSender(), (int)unreadCount);
 			})
-			.toList();
+			.collect(Collectors.toList());
+
 		return new RecentChatResponse(chat.getName(), messageSubscribes);
 	}
 
