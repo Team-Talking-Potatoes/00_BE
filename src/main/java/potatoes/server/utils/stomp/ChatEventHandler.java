@@ -67,7 +67,7 @@ public class ChatEventHandler {
 			throw new WeGoException(UNAUTHORIZED);
 		}
 
-		Long userId = Long.parseLong(jwtTokenProvider.getPayload(accessToken));
+		long userId = Long.parseLong(jwtTokenProvider.getPayload(accessToken));
 		headerAccessor.setUser(new StompUserPrincipal(userId, headerAccessor.getSessionId()));
 	}
 }

@@ -1,5 +1,7 @@
 package potatoes.server.utils.stomp;
 
+import static potatoes.server.error.ErrorCode.*;
+
 import java.util.Map;
 
 import org.springframework.http.server.ServerHttpRequest;
@@ -7,11 +9,11 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
-import org.springframework.web.util.WebUtils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import potatoes.server.error.exception.WeGoException;
 
 @Slf4j
 public class CustomHandshakeInterceptor implements HandshakeInterceptor {
@@ -24,10 +26,21 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
 			ServletServerHttpRequest servletRequest = (ServletServerHttpRequest)request;
 			HttpServletRequest httpServletRequest = servletRequest.getServletRequest();
 
-			// 쿠키 추출
-			Cookie cookie = WebUtils.getCookie(httpServletRequest, "accessToken");
-			if (cookie != null) {
-				attributes.put("accessToken", cookie.getValue());
+			Cookie[] cookies = httpServletRequest.getCookies();
+			if (cookies == null) {
+				throw new WeGoException(COOKIE_NOT_FOUND);
+			}
+
+			String accessToken = null;
+			for (Cookie cookie : cookies) {
+				log.info("accsseToken = {}, value = {}", cookie.getName(), cookie.getValue());
+				if ("accessToken".equals(cookie.getName())) {
+					accessToken = cookie.getValue();
+					break;
+				}
+			}
+			if (accessToken != null) {
+				attributes.put("accessToken", accessToken);
 			} else {
 				log.info("no cookie");
 			}
