@@ -24,4 +24,6 @@ public interface ChatImageRepository extends JpaRepository<ChatImage, Long> {
 		WHERE ci.chatMessage.chat.id = :chatId
 		""")
 	List<ChatImage> findAllByChat(@Param("chatId") Long chatId);
+
+	List<ChatImage> findAllByChatMessageIdIn(List<Long> messageIds);
 }
