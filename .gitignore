@@ -40,7 +40,7 @@ out/
 
 ### Log file ###
 *.log
-
+*.sql
 
 ### Secret file ###
 *.p8
