@@ -2,8 +2,6 @@ package potatoes.server.config;
 
 import static potatoes.server.error.ErrorCode.*;
 
-import java.util.List;
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -20,8 +18,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.error.exception.WeGoException;
-import potatoes.server.utils.stomp.StompUserPrincipal;
-import potatoes.server.utils.jwt.JwtTokenUtil;
+import potatoes.server.utils.stomp.ChatEventHandler;
+import potatoes.server.utils.stomp.CustomHandshakeInterceptor;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ import potatoes.server.utils.jwt.JwtTokenUtil;
 @EnableWebSocketMessageBroker
 public class WssConfig implements WebSocketMessageBrokerConfigurer {
 
-	private final JwtTokenUtil jwtTokenProvider;
+	private final ChatEventHandler chatEventHandler;
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -40,6 +38,7 @@ public class WssConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws")
+			.addInterceptors(new CustomHandshakeInterceptor())
 			.setAllowedOrigins("*");
 	}
 
@@ -48,41 +47,25 @@ public class WssConfig implements WebSocketMessageBrokerConfigurer {
 		registration.interceptors(new ChannelInterceptor() {
 			@Override
 			public Message<?> preSend(Message<?> message, MessageChannel channel) {
-				StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(
+				StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(
 					message, StompHeaderAccessor.class);
 
-				if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-					List<String> cookieList = accessor.getNativeHeader("Cookie");
+				if (StompCommand.CONNECT.equals(headerAccessor.getCommand())) {
+					log.info("Connect");
+					chatEventHandler.handleConnect(headerAccessor);
+				}
 
-					if (cookieList == null || cookieList.isEmpty()) {
-						throw new WeGoException(COOKIE_NOT_FOUND);
+				if (StompCommand.SUBSCRIBE.equals(headerAccessor.getCommand())) {
+					log.info("Subscribe");
+					try {
+						chatEventHandler.handleSubscribe(headerAccessor);
+					} catch (Exception e) {
+						log.error(e.getMessage(), e);
+						throw new WeGoException(STOMP_SUBSCRIBE_FAILED);
 					}
-					String cookieString = cookieList.getFirst();
-					String accessToken = extractAccessToken(cookieString);
-					if (accessToken == null) {
-						throw new WeGoException(TOKEN_NOT_FOUND);
-					}
-
-					if (!jwtTokenProvider.validateToken(accessToken)) {
-						throw new WeGoException(UNAUTHORIZED);
-					}
-
-					Long userId = Long.parseLong(jwtTokenProvider.getPayload(accessToken));
-					accessor.setUser(new StompUserPrincipal(userId, accessor.getSessionId()));
 				}
 
 				return message;
-			}
-
-			private String extractAccessToken(String cookieString) {
-				String[] cookies = cookieString.split(";");
-				for (String cookie : cookies) {
-					String[] parts = cookie.trim().split("=");
-					if (parts.length == 2 && "accessToken".equals(parts[0])) {
-						return parts[1];
-					}
-				}
-				return null;
 			}
 		});
 	}
