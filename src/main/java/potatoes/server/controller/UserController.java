@@ -37,22 +37,22 @@ public class UserController {
 
 	@Operation(summary = "회원정보 조회", description = "이메일, 닉네임, 프로필이미지, 자기소개 조회")
 	@GetMapping("")
-	public ResponseEntity<GetUserProfileResponse> getUserProfile(
+	public ResponseEntity<CommonResponse<GetUserProfileResponse>> getUserProfile(
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
-		return ResponseEntity.ok(userService.getUserProfile(userId));
+		return ResponseEntity.ok(CommonResponse.from(userService.getUserProfile(userId)));
 	}
 
 	@Operation(summary = "회원정보 수정", description = "프로필이미지, 닉네임, 설명에 대한 정보 수정")
 	@PutMapping("")
-	public ResponseEntity<Void> updateUserProfile(
+	public ResponseEntity<CommonResponse<?>> updateUserProfile(
 		@RequestParam(required = false) MultipartFile profileImage,
 		@RequestParam(required = false) String nickname,
 		@RequestParam(required = false) String description,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		userService.updateUserProfile(profileImage, nickname, description, userId);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(CommonResponse.create());
 	}
 
 	@Operation(summary = "회원탈퇴", description = "토큰과 패스워드를 받는다")

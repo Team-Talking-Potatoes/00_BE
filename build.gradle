@@ -71,6 +71,7 @@ tasks.register('copySecret', Copy) {
     description = 'Copy submodules to project'
     from('00_BE_Secrets') {
         include('*.yml')
+        include('*.sql')
     }
     into('src/main/resources')
 }
