@@ -5,7 +5,6 @@ import static org.springframework.http.MediaType.*;
 import java.util.List;
 import java.util.Optional;
 
-import org.joda.time.LocalDate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,6 +65,8 @@ public class TravelController {
 			CommonResponse.from(
 				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query, userId)));
 	}
+
+	//FIXME defaultvalue 변경
 
 	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")
 	@GetMapping("/{id}")
