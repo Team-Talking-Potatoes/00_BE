@@ -30,5 +30,5 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 		Pageable pageable
 	);
 
-	List<ChatMessage> findByChatIdAndIdLessThanOrderByIdDesc(Long chatId, Long messageId, Pageable pageable);
+	List<ChatMessage> findDistinctByChatIdAndIdLessThanOrderByIdDesc(Long chatId, Long messageId, Pageable pageable);
 }

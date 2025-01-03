@@ -261,9 +261,17 @@ public class ChatService {
 			.map(ChatUser::getUser)
 			.orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 
-		Pageable pageable = PageRequest.of(0, size, Sort.by("id").descending());
-		List<ChatMessage> chatMessages = chatMessageRepository.findByChatIdAndIdLessThanOrderByIdDesc(
-			chatId, latestChatId == 0L ? Long.MAX_VALUE : latestChatId, pageable);
+		Sort sort = Sort.by(
+			Sort.Order.desc("id"),
+			Sort.Order.desc("createdAt")
+		);
+
+		Pageable pageable = PageRequest.of(0, size, sort);
+		List<ChatMessage> chatMessages = chatMessageRepository.findDistinctByChatIdAndIdLessThanOrderByIdDesc(
+			chatId,
+			latestChatId == 0L ? Long.MAX_VALUE : latestChatId,
+			pageable
+		);
 
 		List<Long> messageIds = chatMessages.stream().map(ChatMessage::getId).collect(Collectors.toList());
 		Map<Long, List<String>> imageUrlMap = chatImageRepository.findAllByChatMessageIdIn(messageIds)
