@@ -155,6 +155,10 @@ public class ChatService {
 				() -> new WeGoException(UNABLE_TO_JOIN_CHAT)
 			);
 
+		if (chatUserRepository.findByChatIdAndUserId(chatId, userId).isPresent()) {
+			throw new WeGoException(ALREADY_JOINED_CHAT);
+		}
+
 		ChatUser chatUser = ChatUser.builder()
 			.user(travelUser.getUser())
 			.chat(chat)
