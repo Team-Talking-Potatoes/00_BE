@@ -51,17 +51,13 @@ public class WssConfig implements WebSocketMessageBrokerConfigurer {
 					message, StompHeaderAccessor.class);
 				try {
 					if (StompCommand.CONNECT.equals(headerAccessor.getCommand())) {
-						log.info("Connect");
 						chatEventHandler.handleConnect(headerAccessor);
 					}
 
 					if (StompCommand.SUBSCRIBE.equals(headerAccessor.getCommand())) {
-						log.info("Subscribe");
 						chatEventHandler.handleSubscribe(headerAccessor);
 					}
-
 					return message;
-
 				} catch (Exception e) {
 					log.error("WebSocket 오류: {}", e.getMessage(), e);
 
