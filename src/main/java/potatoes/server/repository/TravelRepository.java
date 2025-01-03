@@ -1,5 +1,6 @@
 package potatoes.server.repository;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -18,8 +19,8 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 		"(:endAt IS NULL OR t.endAt <= :endAt) AND " +
 		"(:query IS NULL OR t.name LIKE %:query%)")
 	Page<Travel> findTravels(@Param("isDomestic") Boolean isDomestic,
-		@Param("startAt") String startAt,
-		@Param("endAt") String endAt,
+		@Param("startAt") Instant startAt,
+		@Param("endAt") Instant endAt,
 		@Param("query") String query,
 		Pageable pageable);
 

@@ -1,6 +1,7 @@
 package potatoes.server.service;
 
 import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.time.DateTimeUtils.*;
 
 import java.time.Duration;
 import java.time.ZoneOffset;
@@ -42,6 +43,7 @@ import potatoes.server.repository.TravelRepository;
 import potatoes.server.repository.TravelUserRepository;
 import potatoes.server.repository.UserRepository;
 import potatoes.server.utils.s3.S3UtilsProvider;
+import potatoes.server.utils.time.DateTimeUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -156,7 +158,10 @@ public class TravelService {
 		TravelSortType sortOrder, String query, Optional<Long> userId
 	) {
 		Pageable pageable = createPageable(page, size, sortOrder);
-		Page<Travel> travels = travelRepository.findTravels(isDomestic, startAt, endAt, query, pageable);
+		Page<Travel> travels = travelRepository.findTravels(isDomestic, parseYearMonthDay(startAt),
+			parseYearMonthDay(endAt),
+			query,
+			pageable);
 		List<TravelSummaryResponse> travelSummaryResponses = travels.getContent().stream()
 			.map(travel -> {
 				int currentTravelMateCount = (int)travelUserRepository.countByTravel(travel);

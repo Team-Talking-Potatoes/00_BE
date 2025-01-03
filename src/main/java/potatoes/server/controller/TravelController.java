@@ -5,6 +5,7 @@ import static org.springframework.http.MediaType.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.joda.time.LocalDate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,8 +56,8 @@ public class TravelController {
 		@RequestParam(required = false, defaultValue = "1") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@RequestParam(required = false) boolean isDomestic,
-		@RequestParam(required = false) String startAt,
-		@RequestParam(required = false) String endAt,
+		@RequestParam(required = false, defaultValue = "20250101") String startAt,
+		@RequestParam(required = false, defaultValue = "20251231") String endAt,
 		@RequestParam(required = false, defaultValue = "recent") TravelSortType sortOrder,
 		@RequestParam(required = false) String query,
 		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
