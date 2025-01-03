@@ -2,6 +2,7 @@ package potatoes.server.utils.stomp;
 
 import static potatoes.server.error.ErrorCode.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -32,11 +33,15 @@ public class ChatEventHandler {
 		log.info(destination);
 		String[] split = destination.substring(1).split("/");
 
+		log.info(Arrays.toString(split));
 		long chatId;
 		if (split.length == 3 && !split[2].equals("read")) {
 			chatId = Long.parseLong(split[2]);
+		} else if (split.length == 4 && split[2].equals("read")) {
+			log.info(split[3]);
+			chatId = Long.parseLong(split[3]);
 		} else {
-			chatId = Long.parseLong(split[1]);
+			throw new WeGoException(STOMP_SUBSCRIBE_FAILED);
 		}
 
 		if (!chatRepository.existsById(chatId)) {
