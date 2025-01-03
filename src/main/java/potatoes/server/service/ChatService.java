@@ -91,16 +91,13 @@ public class ChatService {
 
 		// 채팅 이미지 조회 및 저장
 		List<String> chatImages = new ArrayList<>();
-		if (message.images().length > 0) {
-			String[] StringImageUrlArr = message.message().substring(1, message.message().length() - 1).split(",\\s*");
-			for (String imageUrl : StringImageUrlArr) {
-				Optional<ChatImage> optionalChatImage = chatImageRepository.findByImageUrl(imageUrl);
-				if (optionalChatImage.isPresent()) {
-					ChatImage chatImage = optionalChatImage.get();
-					chatImage.messageSent(chatMessage);
-					chatImageRepository.save(chatImage);
-					chatImages.add(chatImage.getImageUrl());
-				}
+		for (String imageUrl : message.images()) {
+			Optional<ChatImage> optionalChatImage = chatImageRepository.findByImageUrl(imageUrl);
+			if (optionalChatImage.isPresent()) {
+				ChatImage chatImage = optionalChatImage.get();
+				chatImage.messageSent(chatMessage);
+				chatImageRepository.save(chatImage);
+				chatImages.add(chatImage.getImageUrl());
 			}
 		}
 
