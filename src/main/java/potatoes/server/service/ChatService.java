@@ -154,7 +154,7 @@ public class ChatService {
 				() -> new WeGoException(UNABLE_TO_JOIN_CHAT)
 			);
 
-		if (chatUserRepository.findByChatIdAndUserId(chatId, userId).isPresent()) {
+		if (chatUserRepository.existsByUserIdAndChatId(chatId, userId)) {
 			throw new WeGoException(ALREADY_JOINED_CHAT);
 		}
 
@@ -162,7 +162,18 @@ public class ChatService {
 			.user(travelUser.getUser())
 			.chat(chat)
 			.build();
+		chat.newMemberJoined();
 		chatUserRepository.save(chatUser);
+
+		ChatMessage latestChatMessage = chatMessageRepository.findLatestMessageByChatId(chatUser.getChat().getId())
+			.orElseGet(() -> new ChatMessage(chatUser.getChat(), null, ""));
+		chatUserRepository.findAllChatUserByChatID(chatId)
+			.forEach(joinedChatUser -> {
+					AlarmSubscribe alarmSubscribe = new AlarmSubscribe(chat.getId(), chat.getCurrentMemberCount(),
+						getYearMonthDay(latestChatMessage.getCreatedAt()));
+					messagingTemplate.convertAndSend("/sub/alarm/" + joinedChatUser.getId(), alarmSubscribe);
+				}
+			);
 	}
 
 	public List<ChatSummaryResponse> getChatSummaryList(Long userId, ChatSortType sortType) {

@@ -49,4 +49,8 @@ public class Chat {
 		this.maxMemberCount = maxMemberCount;
 		this.currentMemberCount = currentMemberCount;
 	}
+
+	public void newMemberJoined() {
+		currentMemberCount++;
+	}
 }
