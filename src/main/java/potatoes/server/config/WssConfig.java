@@ -31,8 +31,7 @@ public class WssConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
-		registry.enableSimpleBroker("/sub")
-			.setHeartbeatValue(new long[] {600000, 600000});
+		registry.enableSimpleBroker("/sub");
 		registry.setApplicationDestinationPrefixes("/pub");
 	}
 
