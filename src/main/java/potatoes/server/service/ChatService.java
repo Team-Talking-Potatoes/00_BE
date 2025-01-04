@@ -309,7 +309,7 @@ public class ChatService {
 				return ParticipantsInfoResponse.of(chatUser.getUser(), userIsHost);
 			}).toList();
 
-		List<ChatAlbumResponse> chatAlbumResponses = chatImageRepository.findAllByChat(chat.getId()).stream()
+		List<ChatAlbumResponse> chatAlbumResponses = chatMessageRepository.findWhereImagesIsNotNull(chatId).stream()
 			.map(ChatAlbumResponse::from)
 			.toList();
 

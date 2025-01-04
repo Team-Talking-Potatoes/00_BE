@@ -1,18 +1,24 @@
 package potatoes.server.dto;
 
+import static potatoes.server.utils.time.DateTimeUtils.*;
+
+import java.util.List;
+
 import potatoes.server.entity.ChatImage;
-import potatoes.server.utils.time.DateTimeUtils;
+import potatoes.server.entity.ChatMessage;
 
 public record ChatAlbumResponse(
-	String image,
+	List<String> images,
 	String uploadDate,
 	String uploader
 ) {
-	public static ChatAlbumResponse from(ChatImage chatImage) {
+	public static ChatAlbumResponse from(ChatMessage chatMessage) {
 		return new ChatAlbumResponse(
-			chatImage.getImageUrl(),
-			DateTimeUtils.getYearMonthDayTime(chatImage.getChatMessage().getCreatedAt()),
-			chatImage.getChatMessage().getSender().getNickname()
+			chatMessage.getChatImages().stream()
+				.map(ChatImage::getImageUrl)
+				.toList(),
+			getYearMonthDayTime(chatMessage.getCreatedAt()),
+			chatMessage.getSender().getNickname()
 		);
 	}
 }
