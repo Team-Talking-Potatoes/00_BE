@@ -112,7 +112,7 @@ public class TravelController {
 	// 일단은 같은 api돌려쓰고 기획이 좀더 다져지면 그때 분리하는게 좋을것 같습니다.
 
 	@Operation(summary = "사용자 북마크 여행 조회")
-	@GetMapping("/	checked")
+	@GetMapping("/checked")
 	public ResponseEntity<CommonResponse<PageResponse<GetMyTravelResponse>>> getMyTravelsByBookmark(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
