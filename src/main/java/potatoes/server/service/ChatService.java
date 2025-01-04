@@ -6,12 +6,9 @@ import static potatoes.server.utils.time.DateTimeUtils.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -89,14 +86,12 @@ public class ChatService {
 			.build();
 		chatMessageRepository.save(chatMessage);
 
-		// 채팅 이미지 조회 및 저장
 		List<String> chatImages = new ArrayList<>();
 		for (String imageUrl : message.images()) {
 			Optional<ChatImage> optionalChatImage = chatImageRepository.findByImageUrl(imageUrl);
 			if (optionalChatImage.isPresent()) {
 				ChatImage chatImage = optionalChatImage.get();
 				chatImage.messageSent(chatMessage);
-				chatImageRepository.save(chatImage);
 				chatImages.add(chatImage.getImageUrl());
 			}
 		}
@@ -273,23 +268,14 @@ public class ChatService {
 			pageable
 		);
 
-		List<Long> messageIds = chatMessages.stream().map(ChatMessage::getId).collect(Collectors.toList());
-		Map<Long, List<String>> imageUrlMap = chatImageRepository.findAllByChatMessageIdIn(messageIds)
-			.stream()
-			.collect(Collectors.groupingBy(
-				chatImage -> chatImage.getChatMessage().getId(),
-				Collectors.mapping(ChatImage::getImageUrl, Collectors.toList())
-			));
-
-		Map<Long, Long> unreadCountMap = chatMessageUserRepository.countUnreadByMessageIds(messageIds);
-
 		List<MessageSubscribe> messageSubscribes = chatMessages.stream()
 			.map(chatMessage -> {
-				List<String> images = imageUrlMap.getOrDefault(chatMessage.getId(), Collections.emptyList());
-				long unreadCount = unreadCountMap.getOrDefault(chatMessage.getId(), 0L);
+				List<String> images = chatImageRepository.findAllByChatMessageId(chatMessage.getId()).stream()
+					.map(ChatImage::getImageUrl).toList();
+				long unreadCount = chatMessageUserRepository.countUnreadByMessageId(chatMessage.getId());
 				return MessageSubscribe.of(chatMessage, images, chatMessage.getSender(), (int)unreadCount);
 			})
-			.collect(Collectors.toList());
+			.toList();
 
 		return new RecentChatResponse(chat.getName(), messageSubscribes);
 	}

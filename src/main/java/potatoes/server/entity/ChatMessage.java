@@ -4,6 +4,7 @@ import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -36,7 +37,7 @@ public class ChatMessage extends BaseTimeEntity {
 	private User sender;
 
 	@OneToMany(mappedBy = "chatMessage")
-	private List<ChatImage> chatImages;
+	private List<ChatImage> chatImages = new ArrayList<>();
 
 	@Column(nullable = false)
 	private String message;
@@ -46,5 +47,12 @@ public class ChatMessage extends BaseTimeEntity {
 		this.chat = chat;
 		this.sender = sender;
 		this.message = message;
+	}
+
+	public void addChatImage(ChatImage chatImage) {
+		this.chatImages.add(chatImage);
+		if (chatImage.getChatMessage() != this) {
+			chatImage.messageSent(this);
+		}
 	}
 }
