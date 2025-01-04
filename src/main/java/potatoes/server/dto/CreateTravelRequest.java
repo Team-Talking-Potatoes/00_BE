@@ -66,7 +66,6 @@ public class CreateTravelRequest {
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
 	private LocalDateTime registrationEnd;
 
-	@NotEmpty(message = "여행 상세일정을 입력해주세요.")
 	@Valid
 	private List<DetailTravelRequest> detailTravel;
 
