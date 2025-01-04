@@ -19,9 +19,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		SELECT new potatoes.server.dto.GetReviewResponse(
 		    r.id,
 		    r.title,
+		    r.comment,
 		    r.starRating,
 		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
 		    r.commenter.nickname,
+		    r.commenter.profileImage,
 		    CAST((SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) AS int),
 		    CAST(NULL AS boolean),
 		    r.travel.travelLocation,
@@ -36,9 +38,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		SELECT new potatoes.server.dto.GetReviewResponse(
 		    r.id,
 		    r.title,
+		    r.comment,
 		    r.starRating,
 		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
 		    r.commenter.nickname,
+		    r.commenter.profileImage,
 		    CAST((SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) AS int),
 		    CAST(NULL AS boolean),
 		    r.travel.travelLocation,
@@ -53,9 +57,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		SELECT new potatoes.server.dto.GetReviewResponse(
 		    r.id,
 		    r.title,
+		    r.comment,		    
 		    r.starRating,
 		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
 		    r.commenter.nickname,
+		    r.commenter.profileImage,
 		    CAST((SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) AS int),
 		     (CASE
 		         WHEN EXISTS (SELECT 1 FROM ReviewLike rl WHERE rl.review = r AND rl.user.id = :userId)
@@ -74,9 +80,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		SELECT new potatoes.server.dto.GetReviewResponse(
 		    r.id,
 		    r.title,
+		    r.comment,    
 		    r.starRating,
 		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
 		    r.commenter.nickname,
+		    r.commenter.profileImage,
 		    CAST((SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review = r) AS int),
 		     (CASE
 		         WHEN EXISTS (SELECT 1 FROM ReviewLike rl WHERE rl.review = r AND rl.user.id = :userId)
@@ -95,6 +103,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		SELECT new potatoes.server.dto.GetMyReviewResponse(
 		    r.id,
 		    r.title,
+		    r.comment,
 		    MIN(ri.imageUrl),
 		    t.travelLocation,
 		    r.starRating,

@@ -16,7 +16,7 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 	@Query("SELECT t FROM Travel t WHERE " +
 		"(:isDomestic IS NULL OR t.isDomestic = :isDomestic) AND " +
 		"(:startAt IS NULL OR t.startAt >= :startAt) AND " +
-		"(:endAt IS NULL OR t.endAt <= :endAt) AND " +
+		"(:endAt IS NULL OR t.endAt >= :endAt) AND " +
 		"(:query IS NULL OR t.name LIKE %:query%)")
 	Page<Travel> findTravels(@Param("isDomestic") Boolean isDomestic,
 		@Param("startAt") Instant startAt,

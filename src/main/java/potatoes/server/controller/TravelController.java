@@ -55,8 +55,8 @@ public class TravelController {
 		@RequestParam(required = false, defaultValue = "1") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@RequestParam(required = false) boolean isDomestic,
-		@RequestParam(required = false, defaultValue = "20250101") String startAt,
-		@RequestParam(required = false, defaultValue = "20251231") String endAt,
+		@RequestParam(required = false) String startAt,
+		@RequestParam(required = false) String endAt,
 		@RequestParam(required = false, defaultValue = "recent") TravelSortType sortOrder,
 		@RequestParam(required = false) String query,
 		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
@@ -66,7 +66,6 @@ public class TravelController {
 				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query, userId)));
 	}
 
-	//FIXME defaultvalue 변경
 
 	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")
 	@GetMapping("/{id}")
@@ -113,7 +112,7 @@ public class TravelController {
 	// 일단은 같은 api돌려쓰고 기획이 좀더 다져지면 그때 분리하는게 좋을것 같습니다.
 
 	@Operation(summary = "사용자 북마크 여행 조회")
-	@GetMapping("/checked")
+	@GetMapping("/	checked")
 	public ResponseEntity<CommonResponse<PageResponse<GetMyTravelResponse>>> getMyTravelsByBookmark(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
