@@ -115,7 +115,7 @@ public class ChatService {
 		chatMessageUserList.forEach(chatMessageUser -> {
 			AlarmSubscribe alarmSubscribe = new AlarmSubscribe(chat.getId(), chatUserList.size(),
 				getYearMonthDay(chatMessage.getCreatedAt()));
-			messagingTemplate.convertAndSend("/sub/alarm/" + chat.getId(), alarmSubscribe);
+			messagingTemplate.convertAndSend("/sub/alarm/" + chatMessageUser.getUser().getId(), alarmSubscribe);
 		});
 
 		messagingTemplate.convertAndSend(
