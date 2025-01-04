@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,6 +60,16 @@ public class ChatController {
 	) {
 		return ResponseEntity.ok(
 			CommonResponse.from(chatService.getRecentChatMessages(userId, chatId, size, latestChatId)));
+	}
+
+	@Operation(summary = "채팅방 나가기")
+	@DeleteMapping("/chat/{chatId}")
+	public ResponseEntity<CommonResponse<?>> leaveChat(
+		@Authorization @Parameter(hidden = false) Long userId,
+		@PathVariable("chatId") Long chatId
+	) {
+		chatService.leaveChat(userId, chatId);
+		return ResponseEntity.ok(CommonResponse.create());
 	}
 
 	@Operation(summary = "채팅방 목록 불러오기", description = "현재 참여중인 채팅방 목록을 조회합니다.")

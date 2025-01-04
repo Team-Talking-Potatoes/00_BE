@@ -330,4 +330,11 @@ public class ChatService {
 			});
 	}
 
+	@Transactional
+	public void leaveChat(Long userId, Long chatId) {
+		ChatUser chatUser = chatUserRepository.findByChatIdAndUserId(chatId, userId).orElseThrow(
+			() -> new WeGoException(CHAT_NOT_FOUND)
+		);
+		chatUserRepository.delete(chatUser);
+	}
 }
