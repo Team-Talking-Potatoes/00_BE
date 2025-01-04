@@ -113,7 +113,7 @@ public class ChatService {
 		chatMessageUserRepository.saveAll(chatMessageUserList);
 
 		chatMessageUserList.forEach(chatMessageUser -> {
-			AlarmSubscribe alarmSubscribe = new AlarmSubscribe(chat.getId(), chatUserList.size(),
+			AlarmSubscribe alarmSubscribe = new AlarmSubscribe(true, chat.getId(), chatUserList.size(),
 				getYearMonthDay(chatMessage.getCreatedAt()));
 			messagingTemplate.convertAndSend("/sub/alarm/" + chatMessageUser.getUser().getId(), alarmSubscribe);
 		});
@@ -169,7 +169,7 @@ public class ChatService {
 			.orElseGet(() -> new ChatMessage(chatUser.getChat(), null, ""));
 		chatUserRepository.findAllChatUserByChatID(chatId)
 			.forEach(joinedChatUser -> {
-					AlarmSubscribe alarmSubscribe = new AlarmSubscribe(chat.getId(), chat.getCurrentMemberCount(),
+					AlarmSubscribe alarmSubscribe = new AlarmSubscribe(false, chat.getId(), chat.getCurrentMemberCount(),
 						latestChatMessage.getCreatedAt() == null ? getYearMonthDayTime(Instant.now()) :
 							getYearMonthDayTime(latestChatMessage.getCreatedAt()));
 					messagingTemplate.convertAndSend("/sub/alarm/" + joinedChatUser.getUser().getId(), alarmSubscribe);
