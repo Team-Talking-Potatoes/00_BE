@@ -50,9 +50,9 @@ public enum ErrorCode {
 	CHAT_NOT_FOUND(400, "CHAT_NOT_FOUND", "존재하지 않는 채팅입니다."),
 	UNABLE_TO_JOIN_CHAT(400, "UNABLE_TO_JOIN_CHAT", "채팅에 참여할 수 없습니다."),
 	ALREADY_JOINED_CHAT(400, "ALREADY_JOINED_CHAT", "이미 참여한 채팅입니다."),
-	
+
 	// STOMP
-	STOMP_SUBSCRIBE_FAILED(400, "STOMP_SUBSCRIBE_FAILED", "채팅방 구독 실패");
+	STOMP_SUBSCRIBE_FAILED(400, "STOMP_SUBSCRIBE_FAILED", "토픽 구독 실패");
 
 	private final int status;
 	private final String code;

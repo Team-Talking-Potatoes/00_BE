@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.constant.ChatSortType;
+import potatoes.server.dto.AlarmSubscribe;
 import potatoes.server.dto.ChatAlbumResponse;
 import potatoes.server.dto.ChatOverviewResponse;
 import potatoes.server.dto.ChatSummaryResponse;
@@ -110,6 +111,12 @@ public class ChatService {
 			})
 			.toList();
 		chatMessageUserRepository.saveAll(chatMessageUserList);
+
+		chatMessageUserList.forEach(chatMessageUser -> {
+			AlarmSubscribe alarmSubscribe = new AlarmSubscribe(chat.getId(), chatUserList.size(),
+				getYearMonthDay(chatMessage.getCreatedAt()));
+			messagingTemplate.convertAndSend("/sub/alarm/" + chat.getId(), alarmSubscribe);
+		});
 
 		messagingTemplate.convertAndSend(
 			"/sub/chat/" + chatId,
