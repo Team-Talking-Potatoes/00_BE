@@ -103,6 +103,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		SELECT new potatoes.server.dto.GetMyReviewResponse(
 		    r.id,
 		    r.title,
+		    r.comment,
 		    MIN(ri.imageUrl),
 		    t.travelLocation,
 		    r.starRating,
