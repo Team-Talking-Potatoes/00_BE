@@ -36,7 +36,7 @@ public class TravelPlan {
 	@Column(name = "destination", nullable = false)
 	private String destination;
 
-	@Column(name = "image", nullable = false)
+	@Column(name = "image")
 	private String image;
 
 	@Column(name = "description", nullable = false)

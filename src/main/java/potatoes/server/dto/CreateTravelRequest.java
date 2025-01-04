@@ -1,6 +1,5 @@
 package potatoes.server.dto;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -10,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
@@ -80,13 +78,12 @@ public class CreateTravelRequest {
 		@Positive(message = "올바른 값을 입력해주세요.")
 		private Integer tripOrderNumber;
 
-		@NotBlank(message = "상세 일정 목적지 입력해주세요.")
+		@NotNull(message = "상세 일정 목적지 입력해주세요.")
 		private String destination;
 
-		@NotBlank(message = "상세 일정 설명을 입력해주세요.")
+		@NotNull(message = "상세 일정 설명을 입력해주세요.")
 		private String description;
 
-		@NotNull(message = "상세 일정 사진을 입력해주세요.")
 		private MultipartFile destinationImage;
 	}
 }
