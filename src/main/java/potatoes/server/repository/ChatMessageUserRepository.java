@@ -1,7 +1,6 @@
 package potatoes.server.repository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -47,11 +46,9 @@ public interface ChatMessageUserRepository extends JpaRepository<ChatMessageUser
 	long countUserUnReadMessages(@Param("chatId") Long chatId, @Param("userId") Long userId);
 
 	@Query("""
-		SELECT cm.id, COUNT(cmu) FROM ChatMessageUser cmu
-		RIGHT JOIN cmu.chatMessage cm 
-		WHERE cm.id IN :messageIds 
-		AND cmu.hasRead = false 
-		GROUP BY cm.id
+			SELECT COUNT(cmu) FROM ChatMessageUser cmu
+			WHERE cmu.chatMessage.id = :chatMessageId
+			AND cmu.hasRead = false
 		""")
-	Map<Long, Long> countUnreadByMessageIds(@Param("messageIds") List<Long> messageIds);
+	long countUnreadByMessageId(@Param("chatMessageId") Long chatMessageId);
 }

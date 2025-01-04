@@ -32,8 +32,10 @@ public class ChatImage {
 		this.imageUrl = imageUrl;
 	}
 
-	// 연관관계 편의 메서드
 	public void messageSent(ChatMessage chatMessage) {
+		if (this.chatMessage != null) {
+			this.chatMessage.getChatImages().remove(this);
+		}
 		this.chatMessage = chatMessage;
 		chatMessage.getChatImages().add(this);
 	}
