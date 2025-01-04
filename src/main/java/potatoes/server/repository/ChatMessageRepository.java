@@ -31,4 +31,13 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 	);
 
 	List<ChatMessage> findDistinctByChatIdAndIdLessThanOrderByIdDesc(Long chatId, Long messageId, Pageable pageable);
+
+	@Query("""
+		    SELECT DISTINCT cm
+		    FROM ChatMessage cm
+		    LEFT JOIN FETCH cm.chatImages
+		    WHERE cm.chatImages IS NOT EMPTY
+		    AND cm.chat.id = :chatId
+		""")
+	List<ChatMessage> findWhereImagesIsNotNull(@Param("chatId") Long chatId);
 }
