@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -105,6 +106,7 @@ public class TravelService {
 		travelRepository.save(travel);
 
 		List<TravelPlan> travelPlanList = request.getDetailTravel().stream()
+			.filter(Objects::nonNull)
 			.map(details -> {
 				String destinationFileName = s3.uploadFile(details.getDestinationImage());
 				String destinationFileUrl = s3.getFileUrl(destinationFileName);
@@ -116,7 +118,8 @@ public class TravelService {
 					.destination(details.getDestination())
 					.description(details.getDescription())
 					.build();
-			}).toList();
+			})
+			.toList();
 		travelPlanRepository.saveAll(travelPlanList);
 
 		TravelUser travelUser = TravelUser.builder()
