@@ -31,34 +31,17 @@ public class ChatEventHandler {
 		StompUserPrincipal user = (StompUserPrincipal)headerAccessor.getUser();
 		String destination = headerAccessor.getDestination();
 		log.info(destination);
-		String[] split = destination.substring(1).split("/");
 
-		log.info(Arrays.toString(split));
-		long chatId;
-		if (split.length == 3 && !split[2].equals("read")) {
-			chatId = Long.parseLong(split[2]);
-		} else if (split.length == 4 && split[2].equals("read")) {
-			log.info(split[3]);
-			chatId = Long.parseLong(split[3]);
-		} else {
-			throw new WeGoException(STOMP_SUBSCRIBE_FAILED);
+		// destination에 따른 분기
+		String[] destinationSplit = destination.substring(1).split("/");
+		log.info("STOMP 구독 요청: {}", Arrays.toString(destinationSplit));
+
+		if (destinationSplit[1].equals("chat")) {
+			chatTopicVerification(destinationSplit, user.getUserId());
+		} else if (destinationSplit[1].equals("alarm")) {
+			alarmTopicVerification(destinationSplit, user.getUserId());
 		}
 
-		if (!chatRepository.existsById(chatId)) {
-			throw new WeGoException(CHAT_NOT_FOUND);
-		}
-
-		List<ChatUser> chatUserList = chatUserRepository.findAllChatUserByChatID(chatId);
-		User sender = null;
-		for (ChatUser chatUser : chatUserList) {
-			if (chatUser.getUser().getId().equals(user.getUserId())) {
-				sender = chatUser.getUser();
-				break;
-			}
-		}
-		if (sender == null) {
-			throw new WeGoException(USER_NOT_FOUND);
-		}
 	}
 
 	public void handleConnect(StompHeaderAccessor headerAccessor) {
@@ -75,4 +58,40 @@ public class ChatEventHandler {
 		long userId = Long.parseLong(jwtTokenProvider.getPayload(accessToken));
 		headerAccessor.setUser(new StompUserPrincipal(userId, headerAccessor.getSessionId()));
 	}
+
+	// chat관련 토픽 검증 - 구독을 요청한 유저가 해당 채팅방에 참가했는지 검증
+	private void chatTopicVerification(String[] destinationSplit, Long userId) {
+		long chatId;
+		if (destinationSplit.length == 3 && !destinationSplit[2].equals("read")) {
+			chatId = Long.parseLong(destinationSplit[2]);
+		} else if (destinationSplit.length == 4 && destinationSplit[2].equals("read")) {
+			chatId = Long.parseLong(destinationSplit[3]);
+		} else {
+			throw new WeGoException(STOMP_SUBSCRIBE_FAILED);
+		}
+
+		if (!chatRepository.existsById(chatId)) {
+			throw new WeGoException(CHAT_NOT_FOUND);
+		}
+
+		List<ChatUser> chatUserList = chatUserRepository.findAllChatUserByChatID(chatId);
+		User sender = null;
+		for (ChatUser chatUser : chatUserList) {
+			if (chatUser.getUser().getId().equals(userId)) {
+				sender = chatUser.getUser();
+				break;
+			}
+		}
+		if (sender == null) {
+			throw new WeGoException(USER_NOT_FOUND);
+		}
+	}
+
+	private void alarmTopicVerification(String[] destinationSplit, Long userId) {
+		Long destinationUserId = Long.valueOf(destinationSplit[2]);
+		if (!destinationUserId.equals(userId)) {
+			throw new WeGoException(STOMP_SUBSCRIBE_FAILED);
+		}
+	}
+
 }
