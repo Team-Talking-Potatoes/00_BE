@@ -130,7 +130,7 @@ public class ReviewService {
 
 	@Transactional
 	public void removeReviewLike(Long reviewId, Long userId) {
-		ReviewLike reviewLike = reviewLikeRepository.findByUserIdAndReviewId(reviewId, userId).orElseThrow(
+		ReviewLike reviewLike = reviewLikeRepository.findByUserIdAndReviewId(userId, reviewId).orElseThrow(
 			() -> new WeGoException(REVIEW_LIKE_NOT_FOUND)
 		);
 		reviewLikeRepository.delete(reviewLike);
