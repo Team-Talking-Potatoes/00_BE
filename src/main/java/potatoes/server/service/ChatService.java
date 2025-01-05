@@ -65,7 +65,7 @@ public class ChatService {
 
 	@Transactional
 	public void send(Long chatId, MessagePublish message, StompUserPrincipal principal) {
-		Chat chat = chatRepository.findById(chatId).orElseThrow(
+		Chat chat = chatRepository.findChatFetchJoinTravel(chatId).orElseThrow(
 			() -> new WeGoException(CHAT_NOT_FOUND)
 		);
 
@@ -113,15 +113,17 @@ public class ChatService {
 			.toList();
 		chatMessageUserRepository.saveAll(chatMessageUserList);
 
-		chatMessageUserList.forEach(chatMessageUser -> {
-			long userIsHost = travelUserRepository.countTravelWhereUserIsHost(chatMessageUser.getUser().getId());
-			AlarmSubscribe alarmSubscribe = new AlarmSubscribe(
-				chat.getId(),
-				chatUserList.size(),
-				getYearMonthDay(chatMessage.getCreatedAt()), MESSAGE,
-				ParticipantsInfoResponse.of(chatMessageUser.getUser(), userIsHost));
-			messagingTemplate.convertAndSend("/sub/alarm/" + chatMessageUser.getUser().getId(), alarmSubscribe);
-		});
+		long userIsHost = travelUserRepository.countTravelWhereUserIsHost(sender.getId());
+		AlarmSubscribe alarmSubscribe = new AlarmSubscribe(
+			chat.getId(),
+			chatUserList.size(),
+			getYearMonthDay(chatMessage.getCreatedAt()),
+			MESSAGE,
+			ParticipantsInfoResponse.of(sender, userIsHost));
+
+		travelUserRepository.findAllByTravel(chat.getTravel())
+			.forEach(travelUser -> messagingTemplate.convertAndSend("/sub/alarm/" + travelUser.getUser().getId(),
+				alarmSubscribe));
 
 		messagingTemplate.convertAndSend(
 			"/sub/chat/" + chatId,
@@ -154,7 +156,7 @@ public class ChatService {
 			() -> new WeGoException(CHAT_NOT_FOUND)
 		);
 
-		TravelUser travelUser = travelUserRepository.findByTravelAndUserJoinFetchUser(chat.getTravel().getId(), userId)
+		TravelUser joinedUser = travelUserRepository.findByTravelAndUserJoinFetchUser(chat.getTravel().getId(), userId)
 			.orElseThrow(
 				() -> new WeGoException(UNABLE_TO_JOIN_CHAT)
 			);
@@ -164,27 +166,24 @@ public class ChatService {
 		}
 
 		ChatUser chatUser = ChatUser.builder()
-			.user(travelUser.getUser())
+			.user(joinedUser.getUser())
 			.chat(chat)
 			.build();
 		chat.newMemberJoined();
 		chatUserRepository.save(chatUser);
 
-		ChatMessage latestChatMessage = chatMessageRepository.findLatestMessageByChatId(chatUser.getChat().getId())
-			.orElseGet(() -> new ChatMessage(chatUser.getChat(), null, ""));
-		chatUserRepository.findAllChatUserByChatID(chatId)
-			.forEach(joinedChatUser -> {
-					long userIsHost = travelUserRepository.countTravelWhereUserIsHost(chatUser.getId());
-					AlarmSubscribe alarmSubscribe = new AlarmSubscribe(
-						chat.getId(),
-						chat.getCurrentMemberCount(),
-						getYearMonthDayTime(Instant.now()),
-						JOIN,
-						ParticipantsInfoResponse.of(joinedChatUser.getUser(), userIsHost)
-					);
-					messagingTemplate.convertAndSend("/sub/alarm/" + joinedChatUser.getUser().getId(), alarmSubscribe);
-				}
-			);
+		long userIsHost = travelUserRepository.countTravelWhereUserIsHost(chatUser.getId());
+		AlarmSubscribe alarmSubscribe = new AlarmSubscribe(
+			chat.getId(),
+			chat.getCurrentMemberCount(),
+			getYearMonthDayTime(Instant.now()),
+			JOIN,
+			ParticipantsInfoResponse.of(joinedUser.getUser(), userIsHost)
+		);
+
+		travelUserRepository.findAllByTravel(chat.getTravel())
+			.forEach(travelUser -> messagingTemplate.convertAndSend("/sub/alarm/" + travelUser.getUser().getId(),
+				alarmSubscribe));
 	}
 
 	public List<ChatSummaryResponse> getChatSummaryList(Long userId, ChatSortType sortType) {
@@ -352,23 +351,27 @@ public class ChatService {
 
 	@Transactional
 	public void leaveChat(Long userId, Long chatId) {
-		ChatUser deleteRequestUser = chatUserRepository.findByChatIdAndUserId(chatId, userId).orElseThrow(
+		Chat chat = chatRepository.findByIdFetchJoinTravel(chatId).orElseThrow(
 			() -> new WeGoException(CHAT_NOT_FOUND)
 		);
+
+		ChatUser deleteRequestUser = chatUserRepository.findByChatIdAndUserId(chatId, userId).orElseThrow(
+			() -> new WeGoException(HAS_NOT_JOINED_CHAT)
+		);
 		chatUserRepository.delete(deleteRequestUser);
+		chat.memberLeaved();
 
 		long userIsHost = travelUserRepository.countTravelWhereUserIsHost(deleteRequestUser.getId());
 		AlarmSubscribe alarmSubscribe = new AlarmSubscribe(
-			deleteRequestUser.getChat().getId(),
-			deleteRequestUser.getChat().getCurrentMemberCount(),
+			chat.getId(),
+			chat.getCurrentMemberCount(),
 			getYearMonthDayTime(Instant.now()),
 			LEAVE,
 			ParticipantsInfoResponse.of(deleteRequestUser.getUser(), userIsHost)
 		);
 
-		chatUserRepository.findAllChatUserByChatID(chatId)
-			.stream().filter(chatUser -> !chatUser.getId().equals(deleteRequestUser.getId()))
-			.forEach(joinedChatUser ->
-				messagingTemplate.convertAndSend("/sub/alarm/" + joinedChatUser.getUser().getId(), alarmSubscribe));
+		travelUserRepository.findAllByTravel(chat.getTravel())
+			.forEach(travelUser -> messagingTemplate.convertAndSend("/sub/alarm/" + travelUser.getUser().getId(),
+				alarmSubscribe));
 	}
 }

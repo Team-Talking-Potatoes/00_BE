@@ -33,7 +33,6 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
 
 			String accessToken = null;
 			for (Cookie cookie : cookies) {
-				log.info("accsseToken = {}, value = {}", cookie.getName(), cookie.getValue());
 				if ("accessToken".equals(cookie.getName())) {
 					accessToken = cookie.getValue();
 					break;

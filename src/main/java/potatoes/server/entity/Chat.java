@@ -53,4 +53,8 @@ public class Chat {
 	public void newMemberJoined() {
 		currentMemberCount++;
 	}
+
+	public void memberLeaved() {
+		currentMemberCount--;
+	}
 }

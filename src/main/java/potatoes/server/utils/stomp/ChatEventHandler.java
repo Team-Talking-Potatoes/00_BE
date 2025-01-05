@@ -2,7 +2,6 @@ package potatoes.server.utils.stomp;
 
 import static potatoes.server.error.ErrorCode.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -30,11 +29,8 @@ public class ChatEventHandler {
 	public void handleSubscribe(StompHeaderAccessor headerAccessor) {
 		StompUserPrincipal user = (StompUserPrincipal)headerAccessor.getUser();
 		String destination = headerAccessor.getDestination();
-		log.info(destination);
-
-		// destination에 따른 분기
 		String[] destinationSplit = destination.substring(1).split("/");
-		log.info("STOMP 구독 요청: {}", Arrays.toString(destinationSplit));
+		log.info("STOMP 구독 요청: {}", destination);
 
 		if (destinationSplit[1].equals("chat")) {
 			chatTopicVerification(destinationSplit, user.getUserId());
