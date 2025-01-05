@@ -358,5 +358,18 @@ public class ChatService {
 			() -> new WeGoException(CHAT_NOT_FOUND)
 		);
 		chatUserRepository.delete(chatUser);
+
+		long userIsHost = travelUserRepository.countTravelWhereUserIsHost(chatUser.getId());
+		AlarmSubscribe alarmSubscribe = new AlarmSubscribe(
+			chatUser.getChat().getId(),
+			chatUser.getChat().getCurrentMemberCount(),
+			getYearMonthDayTime(Instant.now()),
+			LEAVE,
+			ParticipantsInfoResponse.of(chatUser.getUser(), userIsHost)
+		);
+
+		chatUserRepository.findAllChatUserByChatID(chatId)
+			.forEach(joinedChatUser ->
+				messagingTemplate.convertAndSend("/sub/alarm/" + joinedChatUser.getUser().getId(), alarmSubscribe));
 	}
 }
