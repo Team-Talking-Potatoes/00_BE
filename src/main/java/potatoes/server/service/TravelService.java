@@ -195,7 +195,12 @@ public class TravelService {
 	}
 
 	private Pageable createPageable(int page, int size, TravelSortType sortOrder) {
-		Sort sort = Sort.by(Sort.Direction.DESC, getSortField(sortOrder));
+		Sort sort = Sort.by(
+			sortOrder == TravelSortType.registrationEnd
+				? Sort.Direction.ASC
+				: Sort.Direction.DESC,
+			getSortField(sortOrder)
+		);
 		return PageRequest.of(page, size, sort);
 	}
 
