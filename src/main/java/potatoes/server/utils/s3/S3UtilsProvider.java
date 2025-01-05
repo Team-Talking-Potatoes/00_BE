@@ -55,7 +55,7 @@ public class S3UtilsProvider {
 		}
 
 		String uploadMultipartFile(MultipartFile file) {
-			String fileName = new FileNameGenerator().generate(file.getOriginalFilename());
+			String fileName = new FileNameGenerator().generate(file.getOriginalFilename(), file.getContentType());
 			ObjectMetadata metadata = new MetadataGenerator().generate(file);
 
 			try (InputStream inputStream = file.getInputStream()) {
@@ -77,16 +77,28 @@ public class S3UtilsProvider {
 	}
 
 	private class FileNameGenerator {
-		String generate(String originalFileName) {
+		String generate(String originalFileName, String contentType) {
 			String randomUUID = UUID.randomUUID().toString();
-			String extension = getFileExtension(originalFileName);
+			String extension = getFileExtension(originalFileName, contentType);
 			String date = DateTimeUtils.getYearMonthDay(Instant.now());
 
 			return profile + FOLDER_DELIMITER + date + FOLDER_DELIMITER + randomUUID + extension;
 		}
 
-		private String getFileExtension(String fileName) {
+		private String getFileExtension(String fileName, String contentType) {
 			try {
+				if (fileName.equals("blob") || fileName.lastIndexOf(".") == -1) {
+					switch (contentType) {
+						case "image/webp":
+							return ".webp";
+						case "image/jpeg":
+							return ".jpg";
+						case "image/png":
+							return ".png";
+						default:
+							throw new WeGoException(INVALID_FILE_FORMAT);
+					}
+				}
 				return fileName.substring(fileName.lastIndexOf("."));
 			} catch (StringIndexOutOfBoundsException e) {
 				throw new WeGoException(INVALID_FILE_FORMAT);
