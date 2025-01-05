@@ -24,10 +24,11 @@ public record TravelDetailResponse(
 	int tripDuration,
 	List<TravelPlanResponse> travelPlan,
 	List<ParticipantResponse> participant,
-	Boolean participationFlag
+	Boolean participationFlag,
+	Boolean bookmarkFlag
 ) {
 	public static TravelDetailResponse from(Travel travel, List<TravelPlanResponse> travelPlan,
-		List<ParticipantResponse> participant, Boolean participationFlag) {
+		List<ParticipantResponse> participant, Boolean participationFlag, Boolean bookmarkFlag) {
 		return new TravelDetailResponse(
 			travel.getId(),
 			travel.getName(),
@@ -47,7 +48,8 @@ public record TravelDetailResponse(
 			travel.getTripDuration(),
 			travelPlan,
 			participant,
-			participationFlag
+			participationFlag,
+			bookmarkFlag
 		);
 	}
 }
