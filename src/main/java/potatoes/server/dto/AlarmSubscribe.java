@@ -1,9 +1,12 @@
 package potatoes.server.dto;
 
+import potatoes.server.constant.AlarmStatus;
+
 public record AlarmSubscribe(
-	boolean isNewMessage,
 	Long chatId,
 	int currentMemberCount,
-	String sendAt
+	String sendAt,
+	AlarmStatus status,
+	ParticipantsInfoResponse participant
 ) {
 }
