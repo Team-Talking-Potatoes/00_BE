@@ -354,21 +354,22 @@ public class ChatService {
 
 	@Transactional
 	public void leaveChat(Long userId, Long chatId) {
-		ChatUser chatUser = chatUserRepository.findByChatIdAndUserId(chatId, userId).orElseThrow(
+		ChatUser deleteRequestUser = chatUserRepository.findByChatIdAndUserId(chatId, userId).orElseThrow(
 			() -> new WeGoException(CHAT_NOT_FOUND)
 		);
-		chatUserRepository.delete(chatUser);
+		chatUserRepository.delete(deleteRequestUser);
 
-		long userIsHost = travelUserRepository.countTravelWhereUserIsHost(chatUser.getId());
+		long userIsHost = travelUserRepository.countTravelWhereUserIsHost(deleteRequestUser.getId());
 		AlarmSubscribe alarmSubscribe = new AlarmSubscribe(
-			chatUser.getChat().getId(),
-			chatUser.getChat().getCurrentMemberCount(),
+			deleteRequestUser.getChat().getId(),
+			deleteRequestUser.getChat().getCurrentMemberCount(),
 			getYearMonthDayTime(Instant.now()),
 			LEAVE,
-			ParticipantsInfoResponse.of(chatUser.getUser(), userIsHost)
+			ParticipantsInfoResponse.of(deleteRequestUser.getUser(), userIsHost)
 		);
 
 		chatUserRepository.findAllChatUserByChatID(chatId)
+			.stream().filter(chatUser -> !chatUser.getId().equals(deleteRequestUser.getId()))
 			.forEach(joinedChatUser ->
 				messagingTemplate.convertAndSend("/sub/alarm/" + joinedChatUser.getUser().getId(), alarmSubscribe));
 	}
