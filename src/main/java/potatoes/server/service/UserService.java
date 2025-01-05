@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import potatoes.server.dto.GetUserProfileResponse;
 import potatoes.server.dto.PasswordCertification;
 import potatoes.server.dto.PopularUserResponse;
 import potatoes.server.dto.ResetPasswordRequest;
+import potatoes.server.entity.Review;
 import potatoes.server.entity.TravelUser;
 import potatoes.server.entity.User;
 import potatoes.server.error.exception.WeGoException;
@@ -106,13 +108,19 @@ public class UserService {
 					.mapToLong(tu -> reviewRepository.countByTravelId(tu.getTravel().getId()))
 					.sum();
 
+				String hashTags = reviewRepository.findTop3ReviewsByOrganizerIdOrderByCreatedAtDesc(user.getId())
+					.stream()
+					.map(Review::getOrganizerReviewTags)
+					.filter(Objects::nonNull)
+					.collect(Collectors.joining());
+
 				return new PopularUserResponse(
 					user.getId(),
 					user.getProfileImage(),
 					user.getNickname(),
 					travelUsers.size(),
 					totalReviews,
-					travelUsers.getFirst().getTravel().getHashTags()
+					hashTags.isEmpty() ? null : hashTags
 				);
 			})
 			.filter(Objects::nonNull)
