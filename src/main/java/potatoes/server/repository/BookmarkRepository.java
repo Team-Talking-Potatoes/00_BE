@@ -24,7 +24,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 		    t.name,
 		    t.maxTravelMateCount,
 		    CAST(COUNT(tu2) AS int),
-			t.isDomestic,
+		    t.isDomestic,
 		    t.travelLocation,
 		    t.image,
 		    CAST(t.startAt AS string),
@@ -32,9 +32,8 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 		)
 		FROM Travel t
 		LEFT JOIN TravelUser tu2 ON tu2.travel = t
-		LEFT JOIN Bookmark bk ON bk.travel = t
-		LEFT JOIN TravelUser tu ON tu.travel = t
-		WHERE (bk.user.id = :userId) OR (tu.user.id = :userId)
+		JOIN Bookmark bk ON bk.travel = t
+		WHERE bk.user.id = :userId
 		GROUP BY t.id, t.name, t.maxTravelMateCount, t.isDomestic, t.travelLocation, t.image, t.startAt, t.endAt
 		""")
 	Page<GetMyTravelResponse> findMyTravelsByBookmark(Pageable pageable, Long userId);
