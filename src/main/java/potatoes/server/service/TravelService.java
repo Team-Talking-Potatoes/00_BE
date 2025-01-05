@@ -149,13 +149,18 @@ public class TravelService {
 			.map(uid -> travelUserRepository.existsByTravelIdAndUserId(travelId, uid))
 			.orElse(null);
 
+		Boolean bookmarkFlag = userId
+			.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travelId))
+			.orElse(null);
+
 		List<TravelPlanResponse> travelPlanResponses = travelPlanRepository.findAllByTravel(travel).stream()
 			.map(TravelPlanResponse::from)
 			.toList();
 		List<ParticipantResponse> participantResponses = travelUserRepository.findAllByTravel(travel).stream()
 			.map(ParticipantResponse::from)
 			.toList();
-		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses, participationFlag);
+		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses, participationFlag,
+			bookmarkFlag);
 	}
 
 	public TravelListResponse getTravelList(
