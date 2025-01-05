@@ -1,6 +1,7 @@
 package potatoes.server.service;
 
 import static java.util.Comparator.*;
+import static potatoes.server.constant.AlarmStatus.*;
 import static potatoes.server.error.ErrorCode.*;
 import static potatoes.server.utils.time.DateTimeUtils.*;
 
@@ -113,8 +114,12 @@ public class ChatService {
 		chatMessageUserRepository.saveAll(chatMessageUserList);
 
 		chatMessageUserList.forEach(chatMessageUser -> {
-			AlarmSubscribe alarmSubscribe = new AlarmSubscribe(true, chat.getId(), chatUserList.size(),
-				getYearMonthDay(chatMessage.getCreatedAt()));
+			long userIsHost = travelUserRepository.countTravelWhereUserIsHost(chatMessageUser.getUser().getId());
+			AlarmSubscribe alarmSubscribe = new AlarmSubscribe(
+				chat.getId(),
+				chatUserList.size(),
+				getYearMonthDay(chatMessage.getCreatedAt()), MESSAGE,
+				ParticipantsInfoResponse.of(chatMessageUser.getUser(), userIsHost));
 			messagingTemplate.convertAndSend("/sub/alarm/" + chatMessageUser.getUser().getId(), alarmSubscribe);
 		});
 
@@ -169,9 +174,14 @@ public class ChatService {
 			.orElseGet(() -> new ChatMessage(chatUser.getChat(), null, ""));
 		chatUserRepository.findAllChatUserByChatID(chatId)
 			.forEach(joinedChatUser -> {
-					AlarmSubscribe alarmSubscribe = new AlarmSubscribe(false, chat.getId(), chat.getCurrentMemberCount(),
-						latestChatMessage.getCreatedAt() == null ? getYearMonthDayTime(Instant.now()) :
-							getYearMonthDayTime(latestChatMessage.getCreatedAt()));
+					long userIsHost = travelUserRepository.countTravelWhereUserIsHost(chatUser.getId());
+					AlarmSubscribe alarmSubscribe = new AlarmSubscribe(
+						chat.getId(),
+						chat.getCurrentMemberCount(),
+						getYearMonthDayTime(Instant.now()),
+						JOIN,
+						ParticipantsInfoResponse.of(joinedChatUser.getUser(), userIsHost)
+					);
 					messagingTemplate.convertAndSend("/sub/alarm/" + joinedChatUser.getUser().getId(), alarmSubscribe);
 				}
 			);
@@ -205,15 +215,13 @@ public class ChatService {
 					return null;
 				}
 
-				long unreadMessages = chatMessageUserRepository.countByUserIdAndChatId(chat.getHost().getId(),
-					chat.getId());
 				ChatMessage chatMessage = chatMessageRepository.findLatestMessageByChatId(chat.getId())
 					.orElseGet(() -> new ChatMessage(chat, null, ""));
 
 				return ChatSummaryResponse.of(
 					chat,
 					false,
-					unreadMessages,
+					0,
 					chatMessage.getCreatedAt() == null ? getYearMonthDayTime(Instant.now()) :
 						getYearMonthDayTime(chatMessage.getCreatedAt())
 				);
@@ -344,9 +352,23 @@ public class ChatService {
 
 	@Transactional
 	public void leaveChat(Long userId, Long chatId) {
-		ChatUser chatUser = chatUserRepository.findByChatIdAndUserId(chatId, userId).orElseThrow(
+		ChatUser deleteRequestUser = chatUserRepository.findByChatIdAndUserId(chatId, userId).orElseThrow(
 			() -> new WeGoException(CHAT_NOT_FOUND)
 		);
-		chatUserRepository.delete(chatUser);
+		chatUserRepository.delete(deleteRequestUser);
+
+		long userIsHost = travelUserRepository.countTravelWhereUserIsHost(deleteRequestUser.getId());
+		AlarmSubscribe alarmSubscribe = new AlarmSubscribe(
+			deleteRequestUser.getChat().getId(),
+			deleteRequestUser.getChat().getCurrentMemberCount(),
+			getYearMonthDayTime(Instant.now()),
+			LEAVE,
+			ParticipantsInfoResponse.of(deleteRequestUser.getUser(), userIsHost)
+		);
+
+		chatUserRepository.findAllChatUserByChatID(chatId)
+			.stream().filter(chatUser -> !chatUser.getId().equals(deleteRequestUser.getId()))
+			.forEach(joinedChatUser ->
+				messagingTemplate.convertAndSend("/sub/alarm/" + joinedChatUser.getUser().getId(), alarmSubscribe));
 	}
 }
