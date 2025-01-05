@@ -191,7 +191,7 @@ public class TravelService {
 				return TravelSummaryResponse.from(travel, currentTravelMateCount, isBookmark);
 			})
 			.toList();
-		return new TravelListResponse(travelSummaryResponses, travels.getTotalPages() + 1 > page, page);
+		return new TravelListResponse(travelSummaryResponses, travels.hasNext(), page + 1);
 	}
 
 	private Pageable createPageable(int page, int size, TravelSortType sortOrder) {
