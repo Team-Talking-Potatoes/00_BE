@@ -54,7 +54,7 @@ public class TravelController {
 	public ResponseEntity<CommonResponse<TravelListResponse>> getTravelList(
 		@RequestParam(required = false, defaultValue = "1") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
-		@RequestParam(required = false) boolean isDomestic,
+		@RequestParam(required = false) Boolean isDomestic,
 		@RequestParam(required = false) String startAt,
 		@RequestParam(required = false) String endAt,
 		@RequestParam(required = false, defaultValue = "recent") TravelSortType sortOrder,
