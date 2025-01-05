@@ -239,7 +239,6 @@ public class ChatService {
 					chatMessageRepository.countAll()
 			).reversed());
 		} else {
-			log.info(result.getFirst().lastMessageTime());
 			result.sort(comparing(msg -> parseYearMonthDayTime(msg.lastMessageTime()), reverseOrder()));
 		}
 		return result;
