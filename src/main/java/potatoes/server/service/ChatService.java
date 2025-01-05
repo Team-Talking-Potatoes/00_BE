@@ -205,15 +205,13 @@ public class ChatService {
 					return null;
 				}
 
-				long unreadMessages = chatMessageUserRepository.countByUserIdAndChatId(chat.getHost().getId(),
-					chat.getId());
 				ChatMessage chatMessage = chatMessageRepository.findLatestMessageByChatId(chat.getId())
 					.orElseGet(() -> new ChatMessage(chat, null, ""));
 
 				return ChatSummaryResponse.of(
 					chat,
 					false,
-					unreadMessages,
+					0,
 					chatMessage.getCreatedAt() == null ? getYearMonthDayTime(Instant.now()) :
 						getYearMonthDayTime(chatMessage.getCreatedAt())
 				);
