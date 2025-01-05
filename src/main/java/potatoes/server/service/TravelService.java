@@ -212,8 +212,9 @@ public class TravelService {
 		};
 	}
 
-	public List<SimpleTravelResponse> getPopularTravels(Optional<Long> userId) {
-		return travelRepository.findTop4ByOrderByIdDesc().stream()
+	public List<SimpleTravelResponse> getPopularTravels(int page, int size, Optional<Long> userId) {
+		Pageable pageable = PageRequest.of(page - 1, size);
+		return travelRepository.findAllByOrderByIdDesc(pageable).stream()
 			.map(travel -> {
 				int currentTravelMate = (int)travelUserRepository.countByTravel(travel);
 

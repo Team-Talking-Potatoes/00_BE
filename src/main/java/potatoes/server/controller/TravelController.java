@@ -79,10 +79,12 @@ public class TravelController {
 	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
 	@GetMapping("/popular")
 	public ResponseEntity<CommonResponse<List<SimpleTravelResponse>>> getPopularTravels(
+		@RequestParam(required = false, defaultValue = "1") int page,
+		@RequestParam(required = false, defaultValue = "8") int size,
 		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
 	) {
 		// TODO - 조회수 카운트 방법 논의 필요
-		return ResponseEntity.ok(CommonResponse.from(travelService.getPopularTravels(userId)));
+		return ResponseEntity.ok(CommonResponse.from(travelService.getPopularTravels(page, size, userId)));
 	}
 
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")
