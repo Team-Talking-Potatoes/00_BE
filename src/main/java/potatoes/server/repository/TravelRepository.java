@@ -1,7 +1,6 @@
 package potatoes.server.repository;
 
 import java.time.Instant;
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,5 +26,5 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 		@Param("query") String query,
 		Pageable pageable);
 
-	List<Travel> findTop4ByOrderByIdDesc();
+	Page<Travel> findAllByOrderByIdDesc(Pageable pageable);
 }
