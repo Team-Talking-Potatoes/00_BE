@@ -20,7 +20,7 @@ public class WebSocketEventListener {
 
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-		log.info("새로운 웹소켓 연결 감지, {}", event.toString());
+		log.info("새로운 웹소켓 연결 감지, {}", event);
 	}
 
 	@EventListener
@@ -38,7 +38,7 @@ public class WebSocketEventListener {
 	@EventListener
 	public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
 		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-		log.info("연결이 종료되었습니다, event = {}, headerAccessor = {}", event, headerAccessor);
+		log.info("웹소켓 연결 종료 감지, {}", event);
 	}
 
 }
