@@ -144,5 +144,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	@Query("SELECT r FROM Review r JOIN FETCH r.commenter ORDER BY r.createdAt DESC")
 	List<Review> findRecentReviews(Pageable pageable);
 
+	@Query("SELECT r FROM Review r " +
+		"JOIN TravelUser tu ON r.travel.id = tu.travel.id " +
+		"WHERE tu.user.id = :userId " +
+		"AND tu.role = 'ORGANIZER' " +
+		"AND EXISTS (SELECT 1 FROM TravelUser tu2 WHERE tu2.travel = r.travel AND tu2.user.id = r.commenter.id) " +
+		"ORDER BY r.createdAt DESC")
+	List<Review> findTop3ReviewsByOrganizerIdOrderByCreatedAtDesc(@Param("userId") Long userId);
+
 	long countByTravelId(Long travelId);
 }
