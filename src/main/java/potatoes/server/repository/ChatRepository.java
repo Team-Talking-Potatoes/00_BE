@@ -25,4 +25,11 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 		WHERE c.id = :chatId
 		""")
 	Optional<Chat> findChatFetchJoinTravel(@Param("chatId") Long chatId);
+
+	@Query("""
+		SELECT c FROM Chat c
+		JOIN FETCH c.travel
+		WHERE c.travel.id = :travelId
+		""")
+	Optional<Chat> findByIdFetchJoinTravel(@Param("travelId") Long travelId);
 }
