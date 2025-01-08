@@ -9,7 +9,7 @@ import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import potatoes.server.service.ChatService;
+import potatoes.server.chat.service.ChatService;
 
 @Slf4j
 @RequiredArgsConstructor

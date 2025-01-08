@@ -1,4 +1,4 @@
-package potatoes.server.entity;
+package potatoes.server.chat.entity;
 
 import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
@@ -18,6 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import potatoes.server.config.BaseTimeEntity;
+import potatoes.server.entity.User;
 
 @Getter
 @NoArgsConstructor(access = PROTECTED)

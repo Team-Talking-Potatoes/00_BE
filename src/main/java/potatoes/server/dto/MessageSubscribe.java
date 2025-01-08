@@ -2,7 +2,7 @@ package potatoes.server.dto;
 
 import java.util.List;
 
-import potatoes.server.entity.ChatMessage;
+import potatoes.server.chat.entity.ChatMessage;
 import potatoes.server.entity.User;
 import potatoes.server.utils.time.DateTimeUtils;
 

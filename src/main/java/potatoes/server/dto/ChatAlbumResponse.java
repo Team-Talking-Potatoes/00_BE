@@ -4,8 +4,8 @@ import static potatoes.server.utils.time.DateTimeUtils.*;
 
 import java.util.List;
 
-import potatoes.server.entity.ChatImage;
-import potatoes.server.entity.ChatMessage;
+import potatoes.server.chat.entity.ChatImage;
+import potatoes.server.chat.entity.ChatMessage;
 
 public record ChatAlbumResponse(
 	List<String> images,

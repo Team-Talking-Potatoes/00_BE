@@ -1,6 +1,6 @@
 package potatoes.server.dto;
 
-import potatoes.server.entity.Chat;
+import potatoes.server.chat.entity.Chat;
 
 public record ChatSummaryResponse(
 	Long chatId,

@@ -1,4 +1,4 @@
-package potatoes.server.repository;
+package potatoes.server.chat.repository;
 
 import java.util.Optional;
 
@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import potatoes.server.entity.Chat;
+import potatoes.server.chat.entity.Chat;
 import potatoes.server.entity.Travel;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {

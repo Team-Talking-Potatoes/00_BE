@@ -1,4 +1,4 @@
-package potatoes.server.entity;
+package potatoes.server.chat.entity;
 
 import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
@@ -12,11 +12,12 @@ import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import potatoes.server.entity.User;
 
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Entity
-public class ChatMessageUser {
+public class ChatUser {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -27,23 +28,12 @@ public class ChatMessageUser {
 	private Chat chat;
 
 	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "chat_message_id")
-	private ChatMessage chatMessage;
-
-	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	private boolean hasRead;
-
 	@Builder
-	public ChatMessageUser(Chat chat, ChatMessage chatMessage, User user) {
+	public ChatUser(Chat chat, User user) {
 		this.chat = chat;
-		this.chatMessage = chatMessage;
 		this.user = user;
-	}
-
-	public void markAsRead() {
-		hasRead = true;
 	}
 }
