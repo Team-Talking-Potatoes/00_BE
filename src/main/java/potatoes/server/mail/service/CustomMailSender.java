@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.SendMailRequest;
+import potatoes.server.mail.dto.SendMailRequest;
 import potatoes.server.utils.error.exception.WeGoException;
 
 @RequiredArgsConstructor

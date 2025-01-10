@@ -13,16 +13,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.CreateReviewRequest;
-import potatoes.server.dto.GetDetailsReview;
-import potatoes.server.dto.GetMyReviewResponse;
-import potatoes.server.dto.GetReviewResponse;
-import potatoes.server.dto.PageResponse;
-import potatoes.server.dto.ReviewPageResponse;
-import potatoes.server.dto.SimpleReviewResponse;
-import potatoes.server.dto.TotalCountReviews;
-import potatoes.server.dto.TotalRatingResponse;
 import potatoes.server.infra.s3.S3UtilsProvider;
+import potatoes.server.review.dto.CreateReviewRequest;
+import potatoes.server.review.dto.GetDetailsReview;
+import potatoes.server.review.dto.GetMyReviewResponse;
+import potatoes.server.review.dto.GetReviewResponse;
+import potatoes.server.review.dto.ReviewPageResponse;
+import potatoes.server.review.dto.SimpleReviewResponse;
+import potatoes.server.review.dto.TotalCountReviews;
+import potatoes.server.review.dto.TotalRatingResponse;
 import potatoes.server.review.entity.Review;
 import potatoes.server.review.entity.ReviewImage;
 import potatoes.server.review.entity.ReviewLike;
@@ -34,6 +33,7 @@ import potatoes.server.user.entity.User;
 import potatoes.server.user.repository.UserRepository;
 import potatoes.server.utils.constant.SortByType;
 import potatoes.server.utils.error.exception.WeGoException;
+import potatoes.server.utils.pagination.dto.PageResponse;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

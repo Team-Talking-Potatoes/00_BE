@@ -16,11 +16,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import potatoes.server.auth.dto.SignInRequest;
+import potatoes.server.auth.dto.SignUpRequest;
+import potatoes.server.auth.dto.UnauthorizedPasswordResetRequest;
 import potatoes.server.auth.service.AuthService;
-import potatoes.server.dto.CommonResponse;
-import potatoes.server.dto.SignInRequest;
-import potatoes.server.dto.SignUpRequest;
-import potatoes.server.dto.UnauthorizedPasswordResetRequest;
+import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 
 @Tag(name = "Auth", description = "Auth API")

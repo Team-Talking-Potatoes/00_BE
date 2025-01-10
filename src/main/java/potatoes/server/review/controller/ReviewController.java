@@ -18,18 +18,18 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.CommonResponse;
-import potatoes.server.dto.CreateReviewRequest;
-import potatoes.server.dto.GetDetailsReview;
-import potatoes.server.dto.GetReviewResponse;
-import potatoes.server.dto.PageResponse;
-import potatoes.server.dto.ReviewPageResponse;
-import potatoes.server.dto.SimpleReviewResponse;
-import potatoes.server.dto.TotalRatingResponse;
+import potatoes.server.review.dto.CreateReviewRequest;
+import potatoes.server.review.dto.GetDetailsReview;
+import potatoes.server.review.dto.GetReviewResponse;
+import potatoes.server.review.dto.ReviewPageResponse;
+import potatoes.server.review.dto.SimpleReviewResponse;
+import potatoes.server.review.dto.TotalRatingResponse;
 import potatoes.server.review.service.ReviewService;
+import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.annotation.NonLoginAuthorization;
 import potatoes.server.utils.constant.SortByType;
+import potatoes.server.utils.pagination.dto.PageResponse;
 
 @Tag(name = "Review", description = "Review API")
 @RequestMapping("/reviews")

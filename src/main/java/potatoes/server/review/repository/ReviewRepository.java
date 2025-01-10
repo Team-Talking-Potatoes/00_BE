@@ -8,15 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import potatoes.server.dto.GetMyReviewResponse;
-import potatoes.server.dto.GetReviewResponse;
-import potatoes.server.dto.TotalCountReviews;
+import potatoes.server.review.dto.GetMyReviewResponse;
+import potatoes.server.review.dto.GetReviewResponse;
+import potatoes.server.review.dto.TotalCountReviews;
 import potatoes.server.review.entity.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
 	@Query("""
-		SELECT new potatoes.server.dto.GetReviewResponse(
+		SELECT new potatoes.server.review.dto.GetReviewResponse(
 		    r.id,
 		    r.title,
 		    r.comment,
@@ -35,7 +35,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	Page<GetReviewResponse> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
 	@Query("""
-		SELECT new potatoes.server.dto.GetReviewResponse(
+		SELECT new potatoes.server.review.dto.GetReviewResponse(
 		    r.id,
 		    r.title,
 		    r.comment,
@@ -54,7 +54,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	Page<GetReviewResponse> findAllByOrderByLikesCountDesc(Pageable pageable);
 
 	@Query("""
-		SELECT new potatoes.server.dto.GetReviewResponse(
+		SELECT new potatoes.server.review.dto.GetReviewResponse(
 		    r.id,
 		    r.title,
 		    r.comment,		    
@@ -77,7 +77,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	Page<GetReviewResponse> findAllByOrderByCreatedAtDesc(Pageable pageable, @Param("userId") Long userId);
 
 	@Query("""
-		SELECT new potatoes.server.dto.GetReviewResponse(
+		SELECT new potatoes.server.review.dto.GetReviewResponse(
 		    r.id,
 		    r.title,
 		    r.comment,    
@@ -100,7 +100,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	Page<GetReviewResponse> findAllByOrderByLikesCountDesc(Pageable pageable, @Param("userId") Long userId);
 
 	@Query("""
-		SELECT new potatoes.server.dto.GetMyReviewResponse(
+		SELECT new potatoes.server.review.dto.GetMyReviewResponse(
 		    r.id,
 		    r.title,
 		    r.comment,
@@ -128,7 +128,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	Review findReviewWithImagesAndCommenter(Long reviewId);
 
 	@Query("""
-		    SELECT NEW potatoes.server.dto.TotalCountReviews(
+		    SELECT NEW potatoes.server.review.dto.TotalCountReviews(
 		        CAST((SELECT COUNT(r2) FROM Review r2 WHERE r2.travel.id = :travelId AND r2.starRating = 1.0) AS int),
 		        CAST((SELECT COUNT(r2) FROM Review r2 WHERE r2.travel.id = :travelId AND r2.starRating = 2.0) AS int),
 		        CAST((SELECT COUNT(r2) FROM Review r2 WHERE r2.travel.id = :travelId AND r2.starRating = 3.0) AS int),

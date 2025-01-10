@@ -12,11 +12,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.CommonResponse;
-import potatoes.server.dto.EmailVerifyRequest;
-import potatoes.server.dto.SendMailRequest;
-import potatoes.server.dto.VerifyResponse;
+import potatoes.server.mail.dto.EmailVerifyRequest;
+import potatoes.server.mail.dto.SendMailRequest;
+import potatoes.server.mail.dto.VerifyResponse;
 import potatoes.server.mail.service.MailVerificationService;
+import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 
 @Tag(name = "Mail", description = "Mail API")

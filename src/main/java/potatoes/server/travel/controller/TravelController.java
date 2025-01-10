@@ -19,18 +19,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.CommonResponse;
-import potatoes.server.dto.CreateTravelRequest;
-import potatoes.server.dto.GetMyTravelResponse;
-import potatoes.server.dto.PageResponse;
-import potatoes.server.dto.SimpleTravelResponse;
-import potatoes.server.dto.TravelDetailResponse;
-import potatoes.server.dto.TravelListResponse;
+import potatoes.server.travel.dto.CreateTravelRequest;
+import potatoes.server.travel.dto.GetMyTravelResponse;
+import potatoes.server.travel.dto.SimpleTravelResponse;
+import potatoes.server.travel.dto.TravelDetailResponse;
+import potatoes.server.travel.dto.TravelListResponse;
 import potatoes.server.travel.service.TravelService;
+import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.annotation.NonLoginAuthorization;
 import potatoes.server.utils.constant.TravelSortType;
 import potatoes.server.utils.constant.TravelStatus;
+import potatoes.server.utils.pagination.dto.PageResponse;
 
 @RequiredArgsConstructor
 @RequestMapping("/travels")

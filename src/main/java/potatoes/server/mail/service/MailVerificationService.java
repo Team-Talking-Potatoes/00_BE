@@ -11,9 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import potatoes.server.auth.service.AuthService;
-import potatoes.server.dto.SendMailRequest;
-import potatoes.server.dto.VerifyResponse;
 import potatoes.server.infra.redis.RedisStore;
+import potatoes.server.mail.dto.SendMailRequest;
+import potatoes.server.mail.dto.VerifyResponse;
 import potatoes.server.utils.GenerateRandomNumber;
 import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.jwt.JwtTokenUtil;

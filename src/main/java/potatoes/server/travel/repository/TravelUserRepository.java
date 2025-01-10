@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import potatoes.server.dto.GetMyTravelResponse;
+import potatoes.server.travel.dto.GetMyTravelResponse;
 import potatoes.server.travel.entity.Travel;
 import potatoes.server.travel.entity.TravelUser;
 
@@ -20,7 +20,7 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 	List<TravelUser> findAllByTravel(@Param("travel") Travel travel);
 
 	@Query("""
-		    SELECT new potatoes.server.dto.GetMyTravelResponse(
+		    SELECT new potatoes.server.travel.dto.GetMyTravelResponse(
 		        t.id,
 		        t.name,
 		        t.maxTravelMateCount,
@@ -40,7 +40,7 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 	Page<GetMyTravelResponse> findMyTravels(Pageable pageable, Long userId);
 
 	@Query("""
-		SELECT new potatoes.server.dto.GetMyTravelResponse(
+		SELECT new potatoes.server.travel.dto.GetMyTravelResponse(
 		    t.id,
 		    t.name,
 		    t.maxTravelMateCount,
@@ -60,7 +60,7 @@ public interface TravelUserRepository extends JpaRepository<TravelUser, Long> {
 	Page<GetMyTravelResponse> findReviewableTravels(Pageable pageable, Long userId);
 
 	@Query("""
-		    SELECT new potatoes.server.dto.GetMyTravelResponse(
+		    SELECT new potatoes.server.travel.dto.GetMyTravelResponse(
 		        t.id,
 		        t.name,
 		        t.maxTravelMateCount,

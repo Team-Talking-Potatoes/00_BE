@@ -18,13 +18,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.CommonResponse;
-import potatoes.server.dto.DeleteUserRequest;
-import potatoes.server.dto.GetUserProfileResponse;
-import potatoes.server.dto.PasswordCertification;
-import potatoes.server.dto.PopularUserResponse;
-import potatoes.server.dto.ResetPasswordRequest;
+import potatoes.server.user.dto.DeleteUserRequest;
+import potatoes.server.user.dto.GetUserProfileResponse;
+import potatoes.server.user.dto.PasswordCertification;
+import potatoes.server.user.dto.PopularUserResponse;
+import potatoes.server.user.dto.ResetPasswordRequest;
 import potatoes.server.user.service.UserService;
+import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 
 @Tag(name = "User", description = "User API")

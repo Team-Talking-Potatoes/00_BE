@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import potatoes.server.dto.SignInRequest;
-import potatoes.server.dto.SignUpRequest;
-import potatoes.server.dto.UnauthorizedPasswordResetRequest;
+import potatoes.server.auth.dto.SignInRequest;
+import potatoes.server.auth.dto.SignUpRequest;
+import potatoes.server.auth.dto.UnauthorizedPasswordResetRequest;
 import potatoes.server.user.entity.User;
 import potatoes.server.user.repository.UserRepository;
 import potatoes.server.utils.crypto.CookieProvider;

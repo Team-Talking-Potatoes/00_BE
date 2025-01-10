@@ -20,18 +20,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.chat.entity.Chat;
 import potatoes.server.chat.repository.ChatRepository;
-import potatoes.server.dto.CreateTravelRequest;
-import potatoes.server.dto.GetMyTravelResponse;
-import potatoes.server.dto.PageResponse;
-import potatoes.server.dto.ParticipantResponse;
-import potatoes.server.dto.SimpleTravelResponse;
-import potatoes.server.dto.TravelDetailResponse;
-import potatoes.server.dto.TravelListResponse;
-import potatoes.server.dto.TravelPlanResponse;
-import potatoes.server.dto.TravelSummaryResponse;
 import potatoes.server.infra.s3.S3UtilsProvider;
 import potatoes.server.travel.bookmark.entity.Bookmark;
 import potatoes.server.travel.bookmark.repository.BookmarkRepository;
+import potatoes.server.travel.dto.CreateTravelRequest;
+import potatoes.server.travel.dto.GetMyTravelResponse;
+import potatoes.server.travel.dto.ParticipantResponse;
+import potatoes.server.travel.dto.SimpleTravelResponse;
+import potatoes.server.travel.dto.TravelDetailResponse;
+import potatoes.server.travel.dto.TravelListResponse;
+import potatoes.server.travel.dto.TravelPlanResponse;
+import potatoes.server.travel.dto.TravelSummaryResponse;
 import potatoes.server.travel.entity.Travel;
 import potatoes.server.travel.entity.TravelPlan;
 import potatoes.server.travel.entity.TravelUser;
@@ -44,6 +43,7 @@ import potatoes.server.utils.constant.ParticipantRole;
 import potatoes.server.utils.constant.TravelSortType;
 import potatoes.server.utils.constant.TravelStatus;
 import potatoes.server.utils.error.exception.WeGoException;
+import potatoes.server.utils.pagination.dto.PageResponse;
 
 @Slf4j
 @RequiredArgsConstructor
