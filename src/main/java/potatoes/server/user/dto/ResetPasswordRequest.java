@@ -1,0 +1,21 @@
+package potatoes.server.user.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
+public record ResetPasswordRequest(
+	@NotBlank(message = "현재 비밀번호는 필수입니다")
+	@Pattern(
+		regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$",
+		message = "비밀번호는 8~20자리이며, 영문/숫자/특수문자를 모두 포함해야 합니다."
+	)
+	String currentPassword,
+
+	@NotBlank(message = "새로운 비밀번호는 필수입니다")
+	@Pattern(
+		regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$",
+		message = "비밀번호는 8~20자리이며, 영문/숫자/특수문자를 모두 포함해야 합니다."
+	)
+	String newPassword
+) {
+}

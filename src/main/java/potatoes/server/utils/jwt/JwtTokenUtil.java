@@ -1,6 +1,6 @@
 package potatoes.server.utils.jwt;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import java.security.Key;
 import java.util.Date;
@@ -13,7 +13,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import potatoes.server.error.exception.WeGoException;
+import potatoes.server.utils.error.exception.WeGoException;
 
 @Component
 public class JwtTokenUtil {
