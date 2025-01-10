@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import potatoes.server.chat.entity.ChatUser;
 import potatoes.server.chat.repository.ChatRepository;
 import potatoes.server.chat.repository.ChatUserRepository;
-import potatoes.server.entity.User;
 import potatoes.server.error.exception.WeGoException;
+import potatoes.server.user.entity.User;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 
 @Slf4j

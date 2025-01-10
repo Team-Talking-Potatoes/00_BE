@@ -1,4 +1,4 @@
-package potatoes.server.controller;
+package potatoes.server.user.controller;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import potatoes.server.dto.GetUserProfileResponse;
 import potatoes.server.dto.PasswordCertification;
 import potatoes.server.dto.PopularUserResponse;
 import potatoes.server.dto.ResetPasswordRequest;
-import potatoes.server.service.UserService;
+import potatoes.server.user.service.UserService;
 import potatoes.server.utils.annotation.Authorization;
 
 @Tag(name = "User", description = "User API")

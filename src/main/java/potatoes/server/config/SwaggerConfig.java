@@ -15,12 +15,12 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import potatoes.server.auth.controller.AuthController;
 import potatoes.server.chat.controller.ChatController;
-import potatoes.server.controller.AuthController;
 import potatoes.server.controller.MailController;
-import potatoes.server.controller.ReviewController;
 import potatoes.server.controller.TravelController;
-import potatoes.server.controller.UserController;
+import potatoes.server.review.controller.ReviewController;
+import potatoes.server.user.controller.UserController;
 
 @Configuration
 public class SwaggerConfig implements WebMvcConfigurer {

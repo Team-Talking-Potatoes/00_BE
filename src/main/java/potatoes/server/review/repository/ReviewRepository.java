@@ -1,4 +1,4 @@
-package potatoes.server.repository;
+package potatoes.server.review.repository;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import potatoes.server.dto.GetMyReviewResponse;
 import potatoes.server.dto.GetReviewResponse;
 import potatoes.server.dto.TotalCountReviews;
-import potatoes.server.entity.Review;
+import potatoes.server.review.entity.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 

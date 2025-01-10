@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import potatoes.server.config.BaseTimeEntity;
 import potatoes.server.constant.ParticipantRole;
+import potatoes.server.user.entity.User;
 
 @Getter
 @NoArgsConstructor(access = PROTECTED)

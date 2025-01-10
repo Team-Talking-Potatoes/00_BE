@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import potatoes.server.entity.Review;
-import potatoes.server.entity.ReviewImage;
+import potatoes.server.review.entity.Review;
+import potatoes.server.review.entity.ReviewImage;
 
 public record GetDetailsReview(
 

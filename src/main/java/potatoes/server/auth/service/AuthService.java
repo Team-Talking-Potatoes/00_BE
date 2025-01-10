@@ -1,4 +1,4 @@
-package potatoes.server.service;
+package potatoes.server.auth.service;
 
 import static potatoes.server.error.ErrorCode.*;
 
@@ -10,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SignInRequest;
 import potatoes.server.dto.SignUpRequest;
 import potatoes.server.dto.UnauthorizedPasswordResetRequest;
-import potatoes.server.entity.User;
 import potatoes.server.error.exception.WeGoException;
-import potatoes.server.repository.UserRepository;
+import potatoes.server.user.entity.User;
+import potatoes.server.user.repository.UserRepository;
 import potatoes.server.utils.crypto.CookieProvider;
 import potatoes.server.utils.crypto.PasswordEncoder;
 import potatoes.server.utils.jwt.JwtTokenUtil;

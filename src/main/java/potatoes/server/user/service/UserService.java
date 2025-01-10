@@ -1,4 +1,4 @@
-package potatoes.server.service;
+package potatoes.server.user.service;
 
 import static potatoes.server.error.ErrorCode.*;
 
@@ -20,13 +20,13 @@ import potatoes.server.dto.GetUserProfileResponse;
 import potatoes.server.dto.PasswordCertification;
 import potatoes.server.dto.PopularUserResponse;
 import potatoes.server.dto.ResetPasswordRequest;
-import potatoes.server.entity.Review;
 import potatoes.server.entity.TravelUser;
-import potatoes.server.entity.User;
 import potatoes.server.error.exception.WeGoException;
-import potatoes.server.repository.ReviewRepository;
 import potatoes.server.repository.TravelUserRepository;
-import potatoes.server.repository.UserRepository;
+import potatoes.server.review.entity.Review;
+import potatoes.server.review.repository.ReviewRepository;
+import potatoes.server.user.entity.User;
+import potatoes.server.user.repository.UserRepository;
 import potatoes.server.utils.crypto.PasswordEncoder;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 import potatoes.server.utils.redis.RedisStore;

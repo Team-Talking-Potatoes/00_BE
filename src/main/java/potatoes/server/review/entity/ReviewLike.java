@@ -1,4 +1,4 @@
-package potatoes.server.entity;
+package potatoes.server.review.entity;
 
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import potatoes.server.user.entity.User;
 
 @Getter
 @NoArgsConstructor(access = PROTECTED)

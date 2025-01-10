@@ -1,10 +1,10 @@
-package potatoes.server.repository;
+package potatoes.server.review.repository;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import potatoes.server.entity.ReviewLike;
+import potatoes.server.review.entity.ReviewLike;
 
 public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
 	default Boolean existsByUserIdAndReviewIdWithNull(Optional<Long> userId, Long reviewId) {

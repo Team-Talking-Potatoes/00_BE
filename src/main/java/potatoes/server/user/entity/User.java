@@ -1,4 +1,4 @@
-package potatoes.server.entity;
+package potatoes.server.user.entity;
 
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;

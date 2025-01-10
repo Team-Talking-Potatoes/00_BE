@@ -42,9 +42,9 @@ import potatoes.server.dto.MessageSubscribe;
 import potatoes.server.dto.ParticipantsInfoResponse;
 import potatoes.server.dto.RecentChatResponse;
 import potatoes.server.entity.TravelUser;
-import potatoes.server.entity.User;
 import potatoes.server.error.exception.WeGoException;
 import potatoes.server.repository.TravelUserRepository;
+import potatoes.server.user.entity.User;
 import potatoes.server.utils.s3.S3UtilsProvider;
 import potatoes.server.utils.stomp.StompUserPrincipal;
 

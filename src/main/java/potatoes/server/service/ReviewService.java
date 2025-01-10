@@ -23,16 +23,16 @@ import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.dto.SimpleReviewResponse;
 import potatoes.server.dto.TotalCountReviews;
 import potatoes.server.dto.TotalRatingResponse;
-import potatoes.server.entity.Review;
-import potatoes.server.entity.ReviewImage;
-import potatoes.server.entity.ReviewLike;
 import potatoes.server.entity.Travel;
-import potatoes.server.entity.User;
 import potatoes.server.error.exception.WeGoException;
-import potatoes.server.repository.ReviewLikeRepository;
-import potatoes.server.repository.ReviewRepository;
 import potatoes.server.repository.TravelRepository;
-import potatoes.server.repository.UserRepository;
+import potatoes.server.review.entity.Review;
+import potatoes.server.review.entity.ReviewImage;
+import potatoes.server.review.entity.ReviewLike;
+import potatoes.server.review.repository.ReviewLikeRepository;
+import potatoes.server.review.repository.ReviewRepository;
+import potatoes.server.user.entity.User;
+import potatoes.server.user.repository.UserRepository;
 import potatoes.server.utils.s3.S3UtilsProvider;
 
 @RequiredArgsConstructor

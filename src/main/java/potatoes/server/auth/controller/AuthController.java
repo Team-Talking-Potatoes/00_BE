@@ -1,4 +1,4 @@
-package potatoes.server.controller;
+package potatoes.server.auth.controller;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -16,11 +16,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import potatoes.server.auth.service.AuthService;
 import potatoes.server.dto.CommonResponse;
 import potatoes.server.dto.SignInRequest;
 import potatoes.server.dto.SignUpRequest;
 import potatoes.server.dto.UnauthorizedPasswordResetRequest;
-import potatoes.server.service.AuthService;
 import potatoes.server.utils.annotation.Authorization;
 
 @Tag(name = "Auth", description = "Auth API")

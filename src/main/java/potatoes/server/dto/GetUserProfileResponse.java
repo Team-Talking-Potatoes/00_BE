@@ -1,6 +1,6 @@
 package potatoes.server.dto;
 
-import potatoes.server.entity.User;
+import potatoes.server.user.entity.User;
 
 public record GetUserProfileResponse(
 	Long userId,

@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import potatoes.server.dto.GetMyTravelResponse;
 import potatoes.server.entity.Bookmark;
 import potatoes.server.entity.Travel;
-import potatoes.server.entity.User;
+import potatoes.server.user.entity.User;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 

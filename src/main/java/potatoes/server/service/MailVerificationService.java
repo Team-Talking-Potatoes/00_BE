@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import potatoes.server.auth.service.AuthService;
 import potatoes.server.dto.SendMailRequest;
 import potatoes.server.dto.VerifyResponse;
 import potatoes.server.error.exception.WeGoException;

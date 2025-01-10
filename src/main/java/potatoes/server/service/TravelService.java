@@ -36,13 +36,13 @@ import potatoes.server.entity.Bookmark;
 import potatoes.server.entity.Travel;
 import potatoes.server.entity.TravelPlan;
 import potatoes.server.entity.TravelUser;
-import potatoes.server.entity.User;
 import potatoes.server.error.exception.WeGoException;
 import potatoes.server.repository.BookmarkRepository;
 import potatoes.server.repository.TravelPlanRepository;
 import potatoes.server.repository.TravelRepository;
 import potatoes.server.repository.TravelUserRepository;
-import potatoes.server.repository.UserRepository;
+import potatoes.server.user.entity.User;
+import potatoes.server.user.repository.UserRepository;
 import potatoes.server.utils.s3.S3UtilsProvider;
 
 @Slf4j
