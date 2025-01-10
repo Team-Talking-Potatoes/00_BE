@@ -1,7 +1,7 @@
 package potatoes.server.chat.service;
 
 import static java.util.Comparator.*;
-import static potatoes.server.constant.AlarmStatus.*;
+import static potatoes.server.utils.constant.AlarmStatus.*;
 import static potatoes.server.utils.error.ErrorCode.*;
 import static potatoes.server.utils.time.DateTimeUtils.*;
 
@@ -31,7 +31,7 @@ import potatoes.server.chat.repository.ChatMessageRepository;
 import potatoes.server.chat.repository.ChatMessageUserRepository;
 import potatoes.server.chat.repository.ChatRepository;
 import potatoes.server.chat.repository.ChatUserRepository;
-import potatoes.server.constant.ChatSortType;
+import potatoes.server.chat.stomp.StompUserPrincipal;
 import potatoes.server.dto.AlarmSubscribe;
 import potatoes.server.dto.ChatAlbumResponse;
 import potatoes.server.dto.ChatOverviewResponse;
@@ -41,12 +41,12 @@ import potatoes.server.dto.MessagePublish;
 import potatoes.server.dto.MessageSubscribe;
 import potatoes.server.dto.ParticipantsInfoResponse;
 import potatoes.server.dto.RecentChatResponse;
+import potatoes.server.infra.s3.S3UtilsProvider;
 import potatoes.server.travel.entity.TravelUser;
 import potatoes.server.travel.repository.TravelUserRepository;
 import potatoes.server.user.entity.User;
+import potatoes.server.utils.constant.ChatSortType;
 import potatoes.server.utils.error.exception.WeGoException;
-import potatoes.server.utils.s3.S3UtilsProvider;
-import potatoes.server.utils.stomp.StompUserPrincipal;
 
 @Slf4j
 @RequiredArgsConstructor

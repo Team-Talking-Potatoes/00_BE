@@ -1,4 +1,4 @@
-package potatoes.server.utils.s3;
+package potatoes.server.infra.s3;
 
 import static potatoes.server.utils.error.ErrorCode.*;
 

@@ -1,7 +1,7 @@
 package potatoes.server.dto;
 
-import potatoes.server.constant.ParticipantRole;
 import potatoes.server.travel.entity.TravelUser;
+import potatoes.server.utils.constant.ParticipantRole;
 
 public record ParticipantResponse(
 	Long id,

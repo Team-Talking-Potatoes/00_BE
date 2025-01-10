@@ -1,6 +1,6 @@
 package potatoes.server.dto;
 
-import potatoes.server.constant.AlarmStatus;
+import potatoes.server.utils.constant.AlarmStatus;
 
 public record AlarmSubscribe(
 	Long chatId,

@@ -18,8 +18,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import potatoes.server.utils.stomp.ChatEventHandler;
-import potatoes.server.utils.stomp.CustomHandshakeInterceptor;
+import potatoes.server.chat.stomp.ChatEventHandler;
+import potatoes.server.chat.stomp.CustomHandshakeInterceptor;
 
 @Slf4j
 @RequiredArgsConstructor

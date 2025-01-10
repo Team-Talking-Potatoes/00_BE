@@ -1,4 +1,4 @@
-package potatoes.server.utils.stomp;
+package potatoes.server.chat.stomp;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;

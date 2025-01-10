@@ -20,9 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.chat.entity.Chat;
 import potatoes.server.chat.repository.ChatRepository;
-import potatoes.server.constant.ParticipantRole;
-import potatoes.server.constant.TravelSortType;
-import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CreateTravelRequest;
 import potatoes.server.dto.GetMyTravelResponse;
 import potatoes.server.dto.PageResponse;
@@ -32,6 +29,7 @@ import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.dto.TravelListResponse;
 import potatoes.server.dto.TravelPlanResponse;
 import potatoes.server.dto.TravelSummaryResponse;
+import potatoes.server.infra.s3.S3UtilsProvider;
 import potatoes.server.travel.bookmark.entity.Bookmark;
 import potatoes.server.travel.bookmark.repository.BookmarkRepository;
 import potatoes.server.travel.entity.Travel;
@@ -42,8 +40,10 @@ import potatoes.server.travel.repository.TravelRepository;
 import potatoes.server.travel.repository.TravelUserRepository;
 import potatoes.server.user.entity.User;
 import potatoes.server.user.repository.UserRepository;
+import potatoes.server.utils.constant.ParticipantRole;
+import potatoes.server.utils.constant.TravelSortType;
+import potatoes.server.utils.constant.TravelStatus;
 import potatoes.server.utils.error.exception.WeGoException;
-import potatoes.server.utils.s3.S3UtilsProvider;
 
 @Slf4j
 @RequiredArgsConstructor

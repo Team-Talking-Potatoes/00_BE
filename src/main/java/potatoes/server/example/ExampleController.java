@@ -17,9 +17,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import potatoes.server.infra.s3.S3UtilsProvider;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.jwt.JwtTokenUtil;
-import potatoes.server.utils.s3.S3UtilsProvider;
 
 @Tag(name = "예제용 보일러플레이트")
 @RequiredArgsConstructor

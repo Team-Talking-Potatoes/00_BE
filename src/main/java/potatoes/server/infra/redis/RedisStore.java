@@ -1,4 +1,4 @@
-package potatoes.server.utils.redis;
+package potatoes.server.infra.redis;
 
 import java.time.Duration;
 

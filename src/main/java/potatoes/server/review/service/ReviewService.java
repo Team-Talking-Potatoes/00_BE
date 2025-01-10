@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import potatoes.server.constant.SortByType;
 import potatoes.server.dto.CreateReviewRequest;
 import potatoes.server.dto.GetDetailsReview;
 import potatoes.server.dto.GetMyReviewResponse;
@@ -23,6 +22,7 @@ import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.dto.SimpleReviewResponse;
 import potatoes.server.dto.TotalCountReviews;
 import potatoes.server.dto.TotalRatingResponse;
+import potatoes.server.infra.s3.S3UtilsProvider;
 import potatoes.server.review.entity.Review;
 import potatoes.server.review.entity.ReviewImage;
 import potatoes.server.review.entity.ReviewLike;
@@ -32,8 +32,8 @@ import potatoes.server.travel.entity.Travel;
 import potatoes.server.travel.repository.TravelRepository;
 import potatoes.server.user.entity.User;
 import potatoes.server.user.repository.UserRepository;
+import potatoes.server.utils.constant.SortByType;
 import potatoes.server.utils.error.exception.WeGoException;
-import potatoes.server.utils.s3.S3UtilsProvider;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

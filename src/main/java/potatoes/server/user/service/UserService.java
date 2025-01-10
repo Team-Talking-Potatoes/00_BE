@@ -20,6 +20,8 @@ import potatoes.server.dto.GetUserProfileResponse;
 import potatoes.server.dto.PasswordCertification;
 import potatoes.server.dto.PopularUserResponse;
 import potatoes.server.dto.ResetPasswordRequest;
+import potatoes.server.infra.redis.RedisStore;
+import potatoes.server.infra.s3.S3UtilsProvider;
 import potatoes.server.review.entity.Review;
 import potatoes.server.review.repository.ReviewRepository;
 import potatoes.server.travel.entity.TravelUser;
@@ -29,8 +31,6 @@ import potatoes.server.user.repository.UserRepository;
 import potatoes.server.utils.crypto.PasswordEncoder;
 import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.jwt.JwtTokenUtil;
-import potatoes.server.utils.redis.RedisStore;
-import potatoes.server.utils.s3.S3UtilsProvider;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

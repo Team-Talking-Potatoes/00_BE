@@ -1,4 +1,4 @@
-package potatoes.server.utils.stomp;
+package potatoes.server.chat.stomp;
 
 import static potatoes.server.utils.error.ErrorCode.*;
 

@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.constant.SortByType;
 import potatoes.server.dto.CommonResponse;
 import potatoes.server.dto.CreateReviewRequest;
 import potatoes.server.dto.GetDetailsReview;
@@ -30,6 +29,7 @@ import potatoes.server.dto.TotalRatingResponse;
 import potatoes.server.review.service.ReviewService;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.annotation.NonLoginAuthorization;
+import potatoes.server.utils.constant.SortByType;
 
 @Tag(name = "Review", description = "Review API")
 @RequestMapping("/reviews")

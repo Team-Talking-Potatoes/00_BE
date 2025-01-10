@@ -19,8 +19,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.constant.TravelSortType;
-import potatoes.server.constant.TravelStatus;
 import potatoes.server.dto.CommonResponse;
 import potatoes.server.dto.CreateTravelRequest;
 import potatoes.server.dto.GetMyTravelResponse;
@@ -31,6 +29,8 @@ import potatoes.server.dto.TravelListResponse;
 import potatoes.server.travel.service.TravelService;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.annotation.NonLoginAuthorization;
+import potatoes.server.utils.constant.TravelSortType;
+import potatoes.server.utils.constant.TravelStatus;
 
 @RequiredArgsConstructor
 @RequestMapping("/travels")

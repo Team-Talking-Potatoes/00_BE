@@ -1,4 +1,4 @@
-package potatoes.server.config;
+package potatoes.server.infra.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

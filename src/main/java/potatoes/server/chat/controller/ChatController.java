@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.chat.service.ChatService;
-import potatoes.server.constant.ChatSortType;
+import potatoes.server.chat.stomp.StompUserPrincipal;
 import potatoes.server.dto.ChatOverviewResponse;
 import potatoes.server.dto.ChatSummaryResponse;
 import potatoes.server.dto.CommonResponse;
@@ -29,7 +29,7 @@ import potatoes.server.dto.MarkAsReadPublish;
 import potatoes.server.dto.MessagePublish;
 import potatoes.server.dto.RecentChatResponse;
 import potatoes.server.utils.annotation.Authorization;
-import potatoes.server.utils.stomp.StompUserPrincipal;
+import potatoes.server.utils.constant.ChatSortType;
 
 @Slf4j
 @RequiredArgsConstructor

@@ -13,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 import potatoes.server.auth.service.AuthService;
 import potatoes.server.dto.SendMailRequest;
 import potatoes.server.dto.VerifyResponse;
+import potatoes.server.infra.redis.RedisStore;
 import potatoes.server.utils.GenerateRandomNumber;
 import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.jwt.JwtTokenUtil;
-import potatoes.server.utils.redis.RedisStore;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

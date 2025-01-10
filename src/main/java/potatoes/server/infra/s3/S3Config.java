@@ -1,4 +1,4 @@
-package potatoes.server.utils.s3;
+package potatoes.server.infra.s3;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
