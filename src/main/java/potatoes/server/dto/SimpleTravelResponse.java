@@ -1,6 +1,6 @@
 package potatoes.server.dto;
 
-import potatoes.server.entity.Travel;
+import potatoes.server.travel.entity.Travel;
 import potatoes.server.utils.time.DateTimeUtils;
 
 public record SimpleTravelResponse(

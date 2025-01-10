@@ -1,7 +1,7 @@
-package potatoes.server.error.exception;
+package potatoes.server.utils.error.exception;
 
 import lombok.Getter;
-import potatoes.server.error.ErrorCode;
+import potatoes.server.utils.error.ErrorCode;
 
 @Getter
 public class WeGoException extends RuntimeException {

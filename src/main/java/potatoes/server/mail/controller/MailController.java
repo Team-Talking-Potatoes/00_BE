@@ -1,4 +1,4 @@
-package potatoes.server.controller;
+package potatoes.server.mail.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,7 +16,7 @@ import potatoes.server.dto.CommonResponse;
 import potatoes.server.dto.EmailVerifyRequest;
 import potatoes.server.dto.SendMailRequest;
 import potatoes.server.dto.VerifyResponse;
-import potatoes.server.service.MailVerificationService;
+import potatoes.server.mail.service.MailVerificationService;
 import potatoes.server.utils.annotation.Authorization;
 
 @Tag(name = "Mail", description = "Mail API")

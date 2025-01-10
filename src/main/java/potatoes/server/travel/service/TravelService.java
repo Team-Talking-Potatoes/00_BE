@@ -1,6 +1,6 @@
-package potatoes.server.service;
+package potatoes.server.travel.service;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 import static potatoes.server.utils.time.DateTimeUtils.*;
 
 import java.time.Duration;
@@ -32,17 +32,17 @@ import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.dto.TravelListResponse;
 import potatoes.server.dto.TravelPlanResponse;
 import potatoes.server.dto.TravelSummaryResponse;
-import potatoes.server.entity.Bookmark;
-import potatoes.server.entity.Travel;
-import potatoes.server.entity.TravelPlan;
-import potatoes.server.entity.TravelUser;
-import potatoes.server.error.exception.WeGoException;
-import potatoes.server.repository.BookmarkRepository;
-import potatoes.server.repository.TravelPlanRepository;
-import potatoes.server.repository.TravelRepository;
-import potatoes.server.repository.TravelUserRepository;
+import potatoes.server.travel.bookmark.entity.Bookmark;
+import potatoes.server.travel.bookmark.repository.BookmarkRepository;
+import potatoes.server.travel.entity.Travel;
+import potatoes.server.travel.entity.TravelPlan;
+import potatoes.server.travel.entity.TravelUser;
+import potatoes.server.travel.repository.TravelPlanRepository;
+import potatoes.server.travel.repository.TravelRepository;
+import potatoes.server.travel.repository.TravelUserRepository;
 import potatoes.server.user.entity.User;
 import potatoes.server.user.repository.UserRepository;
+import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.s3.S3UtilsProvider;
 
 @Slf4j

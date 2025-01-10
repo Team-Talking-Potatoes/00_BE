@@ -1,6 +1,6 @@
 package potatoes.server.utils.s3;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +19,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import potatoes.server.error.exception.WeGoException;
+import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.time.DateTimeUtils;
 
 @RequiredArgsConstructor

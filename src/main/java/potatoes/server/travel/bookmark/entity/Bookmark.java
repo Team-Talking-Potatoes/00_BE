@@ -1,4 +1,4 @@
-package potatoes.server.entity;
+package potatoes.server.travel.bookmark.entity;
 
 import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import potatoes.server.travel.entity.Travel;
 import potatoes.server.user.entity.User;
 
 @Getter

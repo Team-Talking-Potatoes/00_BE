@@ -1,6 +1,6 @@
 package potatoes.server.auth.service;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
@@ -10,11 +10,11 @@ import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SignInRequest;
 import potatoes.server.dto.SignUpRequest;
 import potatoes.server.dto.UnauthorizedPasswordResetRequest;
-import potatoes.server.error.exception.WeGoException;
 import potatoes.server.user.entity.User;
 import potatoes.server.user.repository.UserRepository;
 import potatoes.server.utils.crypto.CookieProvider;
 import potatoes.server.utils.crypto.PasswordEncoder;
+import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 
 @RequiredArgsConstructor

@@ -1,6 +1,6 @@
-package potatoes.server.service;
+package potatoes.server.review.service;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,16 +23,16 @@ import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.dto.SimpleReviewResponse;
 import potatoes.server.dto.TotalCountReviews;
 import potatoes.server.dto.TotalRatingResponse;
-import potatoes.server.entity.Travel;
-import potatoes.server.error.exception.WeGoException;
-import potatoes.server.repository.TravelRepository;
 import potatoes.server.review.entity.Review;
 import potatoes.server.review.entity.ReviewImage;
 import potatoes.server.review.entity.ReviewLike;
 import potatoes.server.review.repository.ReviewLikeRepository;
 import potatoes.server.review.repository.ReviewRepository;
+import potatoes.server.travel.entity.Travel;
+import potatoes.server.travel.repository.TravelRepository;
 import potatoes.server.user.entity.User;
 import potatoes.server.user.repository.UserRepository;
+import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.s3.S3UtilsProvider;
 
 @RequiredArgsConstructor

@@ -1,6 +1,6 @@
 package potatoes.server.dto;
 
-import potatoes.server.entity.TravelPlan;
+import potatoes.server.travel.entity.TravelPlan;
 
 public record TravelPlanResponse(
 	int tripDay,

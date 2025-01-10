@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import potatoes.server.chat.entity.Chat;
-import potatoes.server.entity.Travel;
+import potatoes.server.travel.entity.Travel;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
 

@@ -1,6 +1,6 @@
 package potatoes.server.user.service;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -20,14 +20,14 @@ import potatoes.server.dto.GetUserProfileResponse;
 import potatoes.server.dto.PasswordCertification;
 import potatoes.server.dto.PopularUserResponse;
 import potatoes.server.dto.ResetPasswordRequest;
-import potatoes.server.entity.TravelUser;
-import potatoes.server.error.exception.WeGoException;
-import potatoes.server.repository.TravelUserRepository;
 import potatoes.server.review.entity.Review;
 import potatoes.server.review.repository.ReviewRepository;
+import potatoes.server.travel.entity.TravelUser;
+import potatoes.server.travel.repository.TravelUserRepository;
 import potatoes.server.user.entity.User;
 import potatoes.server.user.repository.UserRepository;
 import potatoes.server.utils.crypto.PasswordEncoder;
+import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 import potatoes.server.utils.redis.RedisStore;
 import potatoes.server.utils.s3.S3UtilsProvider;

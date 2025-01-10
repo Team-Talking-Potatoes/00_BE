@@ -1,6 +1,6 @@
 package potatoes.server.utils.stomp;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import java.util.Map;
 
@@ -13,7 +13,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import potatoes.server.error.exception.WeGoException;
+import potatoes.server.utils.error.exception.WeGoException;
 
 @Slf4j
 public class CustomHandshakeInterceptor implements HandshakeInterceptor {

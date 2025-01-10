@@ -2,7 +2,7 @@ package potatoes.server.dto;
 
 import java.util.List;
 
-import potatoes.server.entity.Travel;
+import potatoes.server.travel.entity.Travel;
 import potatoes.server.utils.time.DateTimeUtils;
 
 public record TravelDetailResponse(

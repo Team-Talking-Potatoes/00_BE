@@ -1,6 +1,6 @@
-package potatoes.server.error;
+package potatoes.server.utils.error;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,7 +10,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import lombok.extern.slf4j.Slf4j;
-import potatoes.server.error.exception.WeGoException;
+import potatoes.server.utils.error.exception.WeGoException;
 
 @Slf4j
 @ControllerAdvice

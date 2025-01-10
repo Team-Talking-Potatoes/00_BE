@@ -1,4 +1,4 @@
-package potatoes.server.error;
+package potatoes.server.utils.error;
 
 import lombok.Getter;
 

@@ -1,4 +1,4 @@
-package potatoes.server.entity;
+package potatoes.server.travel.entity;
 
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;

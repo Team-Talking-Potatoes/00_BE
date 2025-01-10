@@ -1,4 +1,4 @@
-package potatoes.server.controller;
+package potatoes.server.travel.controller;
 
 import static org.springframework.http.MediaType.*;
 
@@ -28,7 +28,7 @@ import potatoes.server.dto.PageResponse;
 import potatoes.server.dto.SimpleTravelResponse;
 import potatoes.server.dto.TravelDetailResponse;
 import potatoes.server.dto.TravelListResponse;
-import potatoes.server.service.TravelService;
+import potatoes.server.travel.service.TravelService;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.annotation.NonLoginAuthorization;
 

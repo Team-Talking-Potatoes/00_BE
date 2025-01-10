@@ -1,6 +1,6 @@
-package potatoes.server.service;
+package potatoes.server.mail.service;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,7 +12,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.dto.SendMailRequest;
-import potatoes.server.error.exception.WeGoException;
+import potatoes.server.utils.error.exception.WeGoException;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

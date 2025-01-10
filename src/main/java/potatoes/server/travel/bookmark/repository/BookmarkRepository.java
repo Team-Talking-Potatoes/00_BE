@@ -1,4 +1,4 @@
-package potatoes.server.repository;
+package potatoes.server.travel.bookmark.repository;
 
 import java.util.Optional;
 
@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import potatoes.server.dto.GetMyTravelResponse;
-import potatoes.server.entity.Bookmark;
-import potatoes.server.entity.Travel;
+import potatoes.server.travel.bookmark.entity.Bookmark;
+import potatoes.server.travel.entity.Travel;
 import potatoes.server.user.entity.User;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {

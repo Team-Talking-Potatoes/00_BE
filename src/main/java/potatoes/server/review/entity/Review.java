@@ -18,7 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import potatoes.server.config.BaseTimeEntity;
-import potatoes.server.entity.Travel;
+import potatoes.server.travel.entity.Travel;
 import potatoes.server.user.entity.User;
 
 @Getter

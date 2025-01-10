@@ -1,6 +1,6 @@
 package potatoes.server.utils.stomp;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import java.util.List;
 import java.util.Map;
@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import potatoes.server.chat.entity.ChatUser;
 import potatoes.server.chat.repository.ChatRepository;
 import potatoes.server.chat.repository.ChatUserRepository;
-import potatoes.server.error.exception.WeGoException;
 import potatoes.server.user.entity.User;
+import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 
 @Slf4j

@@ -2,7 +2,7 @@ package potatoes.server.chat.service;
 
 import static java.util.Comparator.*;
 import static potatoes.server.constant.AlarmStatus.*;
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 import static potatoes.server.utils.time.DateTimeUtils.*;
 
 import java.time.Instant;
@@ -41,10 +41,10 @@ import potatoes.server.dto.MessagePublish;
 import potatoes.server.dto.MessageSubscribe;
 import potatoes.server.dto.ParticipantsInfoResponse;
 import potatoes.server.dto.RecentChatResponse;
-import potatoes.server.entity.TravelUser;
-import potatoes.server.error.exception.WeGoException;
-import potatoes.server.repository.TravelUserRepository;
+import potatoes.server.travel.entity.TravelUser;
+import potatoes.server.travel.repository.TravelUserRepository;
 import potatoes.server.user.entity.User;
+import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.s3.S3UtilsProvider;
 import potatoes.server.utils.stomp.StompUserPrincipal;
 

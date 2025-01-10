@@ -1,4 +1,4 @@
-package potatoes.server.config;
+package potatoes.server.chat.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;

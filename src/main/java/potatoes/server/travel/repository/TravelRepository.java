@@ -1,4 +1,4 @@
-package potatoes.server.repository;
+package potatoes.server.travel.repository;
 
 import java.time.Instant;
 
@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import potatoes.server.entity.Travel;
+import potatoes.server.travel.entity.Travel;
 
 public interface TravelRepository extends JpaRepository<Travel, Long> {
 

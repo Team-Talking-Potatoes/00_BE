@@ -1,6 +1,6 @@
-package potatoes.server.service;
+package potatoes.server.mail.service;
 
-import static potatoes.server.error.ErrorCode.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -13,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 import potatoes.server.auth.service.AuthService;
 import potatoes.server.dto.SendMailRequest;
 import potatoes.server.dto.VerifyResponse;
-import potatoes.server.error.exception.WeGoException;
 import potatoes.server.utils.GenerateRandomNumber;
+import potatoes.server.utils.error.exception.WeGoException;
 import potatoes.server.utils.jwt.JwtTokenUtil;
 import potatoes.server.utils.redis.RedisStore;
 

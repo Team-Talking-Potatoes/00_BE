@@ -27,7 +27,7 @@ import potatoes.server.dto.PageResponse;
 import potatoes.server.dto.ReviewPageResponse;
 import potatoes.server.dto.SimpleReviewResponse;
 import potatoes.server.dto.TotalRatingResponse;
-import potatoes.server.service.ReviewService;
+import potatoes.server.review.service.ReviewService;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.annotation.NonLoginAuthorization;
 
