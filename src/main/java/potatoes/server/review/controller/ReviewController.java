@@ -19,8 +19,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.review.dto.CreateReviewRequest;
 import potatoes.server.review.dto.GetDetailsReview;
+import potatoes.server.review.dto.GetMyReviewResponse;
 import potatoes.server.review.dto.GetReviewResponse;
-import potatoes.server.review.dto.ReviewPageResponse;
 import potatoes.server.review.dto.SimpleReviewResponse;
 import potatoes.server.review.dto.TotalRatingResponse;
 import potatoes.server.review.service.ReviewService;
@@ -79,7 +79,7 @@ public class ReviewController {
 
 	@Operation(summary = "내가 작성한 리뷰 조회", description = "내가 작성한 리뷰를 조회합니다.")
 	@GetMapping("/published")
-	public ResponseEntity<CommonResponse<ReviewPageResponse>> getMyReview(
+	public ResponseEntity<CommonResponse<PageResponse<GetMyReviewResponse>>> getMyReview(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId

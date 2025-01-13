@@ -18,7 +18,6 @@ import potatoes.server.review.dto.CreateReviewRequest;
 import potatoes.server.review.dto.GetDetailsReview;
 import potatoes.server.review.dto.GetMyReviewResponse;
 import potatoes.server.review.dto.GetReviewResponse;
-import potatoes.server.review.dto.ReviewPageResponse;
 import potatoes.server.review.dto.SimpleReviewResponse;
 import potatoes.server.review.dto.TotalCountReviews;
 import potatoes.server.review.dto.TotalRatingResponse;
@@ -142,10 +141,10 @@ public class ReviewService {
 		return PageResponse.from(findReviews);
 	}
 
-	public ReviewPageResponse getMyReviews(int page, int size, Long userId) {
+	public PageResponse<GetMyReviewResponse> getMyReviews(int page, int size, Long userId) {
 		PageRequest request = PageRequest.of(page, size);
 		Page<GetMyReviewResponse> findReviews = reviewRepository.findMyReviews(request, userId);
-		return ReviewPageResponse.from(findReviews);
+		return PageResponse.from(findReviews);
 	}
 
 	public TotalRatingResponse getTotalReviewsRatings(Long travelId) {
