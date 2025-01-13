@@ -23,7 +23,7 @@ import potatoes.server.travel.dto.CreateTravelRequest;
 import potatoes.server.travel.dto.GetMyTravelResponse;
 import potatoes.server.travel.dto.SimpleTravelResponse;
 import potatoes.server.travel.dto.TravelDetailResponse;
-import potatoes.server.travel.dto.TravelListResponse;
+import potatoes.server.travel.dto.TravelSummaryResponse;
 import potatoes.server.travel.service.TravelService;
 import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
@@ -51,8 +51,8 @@ public class TravelController {
 
 	@Operation(summary = "여행 리스트 조회", description = "조건에 맞는 여행 리스트 조회합니다.")
 	@GetMapping()
-	public ResponseEntity<CommonResponse<TravelListResponse>> getTravelList(
-		@RequestParam(required = false, defaultValue = "1") int page,
+	public ResponseEntity<CommonResponse<PageResponse<TravelSummaryResponse>>> getTravelList(
+		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@RequestParam(required = false) Boolean isDomestic,
 		@RequestParam(required = false) String startAt,
@@ -63,7 +63,7 @@ public class TravelController {
 	) {
 		return ResponseEntity.ok(
 			CommonResponse.from(
-				travelService.getTravelList(page - 1, size, isDomestic, startAt, endAt, sortOrder, query, userId)));
+				travelService.getTravelList(page, size, isDomestic, startAt, endAt, sortOrder, query, userId)));
 	}
 
 
