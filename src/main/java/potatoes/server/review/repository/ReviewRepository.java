@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import potatoes.server.review.dto.GetMyReviewResponse;
 import potatoes.server.review.dto.GetReviewResponse;
+import potatoes.server.review.dto.SimpleReviewResponse;
 import potatoes.server.review.dto.TotalCountReviews;
 import potatoes.server.review.entity.Review;
 
@@ -141,8 +142,19 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		""")
 	TotalCountReviews countReviewsByRating(@Param("travelId") Long travelId);
 
-	@Query("SELECT r FROM Review r JOIN FETCH r.commenter ORDER BY r.createdAt DESC")
-	List<Review> findRecentReviews(Pageable pageable);
+	@Query("""
+		SELECT NEW potatoes.server.review.dto.SimpleReviewResponse(
+			r.id,
+			u.nickname,
+			MIN(ri.imageUrl)
+		)
+		FROM Review r
+		JOIN r.commenter u
+		LEFT JOIN r.reviewImages ri
+		GROUP BY r.id, u.nickname
+		ORDER BY r.createdAt DESC
+		""")
+	Page<SimpleReviewResponse> findRecentReviews(Pageable pageable);
 
 	@Query("SELECT r FROM Review r " +
 		"JOIN TravelUser tu ON r.travel.id = tu.travel.id " +

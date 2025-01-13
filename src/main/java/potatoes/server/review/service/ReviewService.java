@@ -136,12 +136,10 @@ public class ReviewService {
 		reviewLikeRepository.delete(reviewLike);
 	}
 
-	public List<SimpleReviewResponse> getSimpleReviews() {
-		Pageable topFive = PageRequest.of(0, 5);
-		return reviewRepository.findRecentReviews(topFive).stream()
-			.map(review -> new SimpleReviewResponse(review.getId(), review.getCommenter().getNickname(),
-				review.getReviewImages().getFirst().getImageUrl()))
-			.toList();
+	public PageResponse<SimpleReviewResponse> getSimpleReviews(int page, int size) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<SimpleReviewResponse> findReviews = reviewRepository.findRecentReviews(request);
+		return PageResponse.from(findReviews);
 	}
 
 	public ReviewPageResponse getMyReviews(int page, int size, Long userId) {

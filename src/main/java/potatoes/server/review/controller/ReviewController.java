@@ -1,6 +1,5 @@
 package potatoes.server.review.controller;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
@@ -71,8 +70,11 @@ public class ReviewController {
 
 	@Operation(summary = "리뷰 리스트 조회", description = "최근에 추가된 리뷰를 조회합니다.")
 	@GetMapping("/popular")
-	public ResponseEntity<CommonResponse<List<SimpleReviewResponse>>> getSimpleReviewList() {
-		return ResponseEntity.ok(CommonResponse.from(reviewService.getSimpleReviews()));
+	public ResponseEntity<CommonResponse<PageResponse<SimpleReviewResponse>>> getSimpleReviewList(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "5") int size
+	) {
+		return ResponseEntity.ok(CommonResponse.from(reviewService.getSimpleReviews(page, size)));
 	}
 
 	@Operation(summary = "내가 작성한 리뷰 조회", description = "내가 작성한 리뷰를 조회합니다.")
