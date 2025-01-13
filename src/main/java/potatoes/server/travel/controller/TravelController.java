@@ -2,7 +2,6 @@ package potatoes.server.travel.controller;
 
 import static org.springframework.http.MediaType.*;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
@@ -78,8 +77,8 @@ public class TravelController {
 
 	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
 	@GetMapping("/popular")
-	public ResponseEntity<CommonResponse<List<SimpleTravelResponse>>> getPopularTravels(
-		@RequestParam(required = false, defaultValue = "1") int page,
+	public ResponseEntity<CommonResponse<PageResponse<SimpleTravelResponse>>> getPopularTravels(
+		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "8") int size,
 		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
 	) {

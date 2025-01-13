@@ -208,9 +208,9 @@ public class TravelService {
 		};
 	}
 
-	public List<SimpleTravelResponse> getPopularTravels(int page, int size, Optional<Long> userId) {
-		Pageable pageable = PageRequest.of(page - 1, size);
-		return travelRepository.findAllByOrderByIdDesc(pageable).stream()
+	public PageResponse<SimpleTravelResponse> getPopularTravels(int page, int size, Optional<Long> userId) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<SimpleTravelResponse> travels = travelRepository.findAllByOrderByIdDesc(pageable)
 			.map(travel -> {
 				int currentTravelMate = (int)travelUserRepository.countByTravel(travel);
 
@@ -219,8 +219,9 @@ public class TravelService {
 					.orElse(null);
 
 				return SimpleTravelResponse.from(travel, currentTravelMate, isBookmark);
-			})
-			.toList();
+			});
+
+		return PageResponse.from(travels);
 	}
 
 	@Transactional

@@ -4,7 +4,7 @@ import potatoes.server.travel.entity.TravelUser;
 import potatoes.server.utils.constant.ParticipantRole;
 
 public record ParticipantResponse(
-	Long id,
+	Long userId,
 	String nickname,
 	ParticipantRole role,
 	String profileImage
