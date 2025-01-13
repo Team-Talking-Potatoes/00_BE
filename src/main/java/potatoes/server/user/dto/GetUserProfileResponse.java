@@ -6,7 +6,7 @@ public record GetUserProfileResponse(
 	Long userId,
 	String email,
 	String nickname,
-	String image,
+	String profileImage,
 	String description
 ) {
 	public static GetUserProfileResponse from(User user) {
