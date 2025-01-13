@@ -58,7 +58,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		SELECT new potatoes.server.review.dto.GetReviewResponse(
 		    r.id,
 		    r.title,
-		    r.comment,		    
+		    r.comment,   
 		    r.starRating,
 		    COALESCE((SELECT ri.imageUrl FROM ReviewImage ri WHERE ri.review = r ORDER BY ri.id ASC LIMIT 1), ''),
 		    r.commenter.nickname,
