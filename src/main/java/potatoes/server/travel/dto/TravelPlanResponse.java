@@ -7,7 +7,7 @@ public record TravelPlanResponse(
 	int tripOrderNumber,
 	String destination,
 	String description,
-	String image
+	String travelPlanImage
 ) {
 
 	public static TravelPlanResponse from(TravelPlan travelPlan) {

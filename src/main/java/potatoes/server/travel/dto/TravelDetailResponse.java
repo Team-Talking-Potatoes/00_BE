@@ -9,7 +9,7 @@ public record TravelDetailResponse(
 	Long travelId,
 	String travelName,
 	String description,
-	String image,
+	String travelImage,
 	int expectedTripCost,
 	int currentTravelMateCount,
 	int minTravelMateCount,

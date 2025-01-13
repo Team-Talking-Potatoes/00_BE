@@ -12,7 +12,7 @@ public record GetDetailsReview(
 	Long reviewId,
 	Long travelId,
 	String travelTitle,
-	String userProfileImage,
+	String profileImage,
 	String title,
 	String comment,
 	float starRating,

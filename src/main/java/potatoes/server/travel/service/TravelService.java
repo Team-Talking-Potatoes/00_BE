@@ -28,7 +28,6 @@ import potatoes.server.travel.dto.GetMyTravelResponse;
 import potatoes.server.travel.dto.ParticipantResponse;
 import potatoes.server.travel.dto.SimpleTravelResponse;
 import potatoes.server.travel.dto.TravelDetailResponse;
-import potatoes.server.travel.dto.TravelListResponse;
 import potatoes.server.travel.dto.TravelPlanResponse;
 import potatoes.server.travel.dto.TravelSummaryResponse;
 import potatoes.server.travel.entity.Travel;
@@ -163,7 +162,7 @@ public class TravelService {
 			bookmarkFlag);
 	}
 
-	public TravelListResponse getTravelList(
+	public PageResponse<TravelSummaryResponse> getTravelList(
 		int page, int size, Boolean isDomestic, String startAt, String endAt,
 		TravelSortType sortOrder, String query, Optional<Long> userId
 	) {
@@ -180,18 +179,15 @@ public class TravelService {
 			pageable
 		);
 
-		List<TravelSummaryResponse> travelSummaryResponses = travels.getContent().stream()
-			.map(travel -> {
-				int currentTravelMateCount = (int)travelUserRepository.countByTravel(travel);
+		Page<TravelSummaryResponse> responsePage = travels.map(travel -> {
+			int currentTravelMateCount = (int)travelUserRepository.countByTravel(travel);
+			Boolean isBookmark = userId
+				.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travel.getId()))
+				.orElse(null);
+			return TravelSummaryResponse.from(travel, currentTravelMateCount, isBookmark);
+		});
 
-				Boolean isBookmark = userId
-					.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travel.getId()))
-					.orElse(null);
-
-				return TravelSummaryResponse.from(travel, currentTravelMateCount, isBookmark);
-			})
-			.toList();
-		return new TravelListResponse(travelSummaryResponses, travels.hasNext(), page + 1);
+		return PageResponse.from(responsePage);
 	}
 
 	private Pageable createPageable(int page, int size, TravelSortType sortOrder) {
@@ -212,9 +208,9 @@ public class TravelService {
 		};
 	}
 
-	public List<SimpleTravelResponse> getPopularTravels(int page, int size, Optional<Long> userId) {
-		Pageable pageable = PageRequest.of(page - 1, size);
-		return travelRepository.findAllByOrderByIdDesc(pageable).stream()
+	public PageResponse<SimpleTravelResponse> getPopularTravels(int page, int size, Optional<Long> userId) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<SimpleTravelResponse> travels = travelRepository.findAllByOrderByIdDesc(pageable)
 			.map(travel -> {
 				int currentTravelMate = (int)travelUserRepository.countByTravel(travel);
 
@@ -223,8 +219,9 @@ public class TravelService {
 					.orElse(null);
 
 				return SimpleTravelResponse.from(travel, currentTravelMate, isBookmark);
-			})
-			.toList();
+			});
+
+		return PageResponse.from(travels);
 	}
 
 	@Transactional

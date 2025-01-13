@@ -23,7 +23,7 @@ import potatoes.server.auth.service.AuthService;
 import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 
-@Tag(name = "Auth", description = "Auth API")
+@Tag(name = "인증", description = "인증 관련 API")
 @RequestMapping("/auth")
 @Validated
 @RequiredArgsConstructor
@@ -71,7 +71,7 @@ public class AuthController {
 	}
 
 	@Operation(summary = "토큰 유효성 검사", description = "토큰의 유효성을 검사합니다. 조작된 토큰이면 예외를 터트립니다. 헤더에 토큰을 담아주세요")
-	@GetMapping("/token/verify")
+	@GetMapping("/token/verification")
 	public ResponseEntity<CommonResponse<?>> validateToken(@Authorization @Parameter(hidden = true) Long token) {
 		return ResponseEntity.ok().body(CommonResponse.create());
 	}

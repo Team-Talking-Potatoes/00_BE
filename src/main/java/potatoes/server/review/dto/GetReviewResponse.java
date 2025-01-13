@@ -5,7 +5,7 @@ import java.time.Instant;
 import potatoes.server.utils.pagination.PagePolymorphic;
 
 public record GetReviewResponse(
-	Long id,
+	Long reviewId,
 	String title,
 	String content,
 	float starRating,
