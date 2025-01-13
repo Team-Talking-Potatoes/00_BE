@@ -35,13 +35,6 @@ public class MailController {
 		return ResponseEntity.ok().body(CommonResponse.create());
 	}
 
-	/***
-	 *
-	 * TODO 개선점으로 인가를 진행할때 유저의 id를 필요로 하지 않는 경우에 대한 메서드 상단 위치에 올수있는 인가 어노테이션을 추가하고 반환을 받지 않는 방식을
-	 *  구현해보면 어떨가 생각합니다. 지금처럼 인터셉터나 혹은 AOP를 사용해봐도 재밌을것 같습니다.
-	 *
-	 */
-
 	@Operation(summary = "메일 전송(비밀번호찾기)", description = "비밀번호용 메일 전송, 이메일이 존재하지 않으면 예외터트림")
 	@PostMapping("/password/emails")
 	public ResponseEntity<CommonResponse<?>> validateEmailExistsForPasswordReset(
