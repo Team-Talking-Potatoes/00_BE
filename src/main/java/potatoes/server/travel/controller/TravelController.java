@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.travel.dto.CreateTravelRequest;
@@ -31,6 +32,7 @@ import potatoes.server.utils.constant.TravelSortType;
 import potatoes.server.utils.constant.TravelStatus;
 import potatoes.server.utils.pagination.dto.PageResponse;
 
+@Tag(name = "여행", description = "여행 관련 API")
 @RequiredArgsConstructor
 @RequestMapping("/travels")
 @RestController
@@ -113,44 +115,14 @@ public class TravelController {
 	// 현재 예정 여행 다녀온 여행 api가 통합 되어있지만, 이는 다녀온 여행의 조건이 시간만 가지고 체크하는건 아니라고 생각이들어
 	// 일단은 같은 api돌려쓰고 기획이 좀더 다져지면 그때 분리하는게 좋을것 같습니다.
 
-	@Operation(summary = "사용자 북마크 여행 조회")
-	@GetMapping("/checked")
-	public ResponseEntity<CommonResponse<PageResponse<GetMyTravelResponse>>> getMyTravelsByBookmark(
-		@RequestParam(required = false, defaultValue = "0") int page,
-		@RequestParam(required = false, defaultValue = "4") int size,
-		@Authorization @Parameter(hidden = true) Long userId
-	) {
-		return ResponseEntity.ok(CommonResponse.from(travelService.getMyTravelsByBookmark(page, size, userId)));
-	}
-
 	@Operation(summary = "리뷰작성이 가능한 여행조회", description = "")
-	@GetMapping("/reviews/pending")
+	@GetMapping("/reviews/available")
 	public ResponseEntity<CommonResponse<PageResponse<GetMyTravelResponse>>> getReviewableMyTravels(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(travelService.getReviewableMyTravels(page, size, userId)));
-	}
-
-	@Operation(summary = "북마크 등록", description = "Travel ID를 받고 북마크로 등록합니다.")
-	@PostMapping("/bookmark")
-	public ResponseEntity<CommonResponse<?>> addBookMark(
-		@Authorization @Parameter(hidden = true) Long userId,
-		@RequestParam(name = "travelId") Long travelId
-	) {
-		travelService.addBookmark(userId, travelId);
-		return ResponseEntity.ok(CommonResponse.create());
-	}
-
-	@Operation(summary = "북마크 삭제", description = "Travel ID를 받고 등록된 북마크를 삭제합니다.")
-	@DeleteMapping("/bookmark")
-	public ResponseEntity<CommonResponse<?>> deleteBookmark(
-		@Authorization @Parameter(hidden = true) Long userId,
-		@RequestParam(name = "travelId") Long travelId
-	) {
-		travelService.deleteBookmark(userId, travelId);
-		return ResponseEntity.ok(CommonResponse.create());
 	}
 
 	@Operation(summary = "여행 취소(관리자)", description = "여행을 취소합니다. 관리자만 취소할 수 있습니다")

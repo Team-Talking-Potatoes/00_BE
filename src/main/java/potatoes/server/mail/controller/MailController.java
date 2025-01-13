@@ -19,7 +19,7 @@ import potatoes.server.mail.service.MailVerificationService;
 import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 
-@Tag(name = "Mail", description = "Mail API")
+@Tag(name = "메일", description = "메일 관련 API")
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Validated

@@ -30,7 +30,7 @@ import potatoes.server.utils.annotation.NonLoginAuthorization;
 import potatoes.server.utils.constant.SortByType;
 import potatoes.server.utils.pagination.dto.PageResponse;
 
-@Tag(name = "Review", description = "Review API")
+@Tag(name = "리뷰", description = "리뷰 관련 API")
 @RequestMapping("/reviews")
 @RequiredArgsConstructor
 @RestController

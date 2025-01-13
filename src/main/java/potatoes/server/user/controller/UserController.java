@@ -27,7 +27,7 @@ import potatoes.server.user.service.UserService;
 import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 
-@Tag(name = "User", description = "User API")
+@Tag(name = "유저", description = "유저 관련 API")
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @RestController

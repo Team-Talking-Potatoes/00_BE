@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.chat.dto.ChatOverviewResponse;
@@ -31,6 +32,7 @@ import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.constant.ChatSortType;
 
+@Tag(name = "채팅", description = "채팅 관련 API")
 @Slf4j
 @RequiredArgsConstructor
 @RestController

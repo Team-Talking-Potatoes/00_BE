@@ -23,7 +23,7 @@ import potatoes.server.auth.service.AuthService;
 import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 
-@Tag(name = "Auth", description = "Auth API")
+@Tag(name = "인증", description = "인증 관련 API")
 @RequestMapping("/auth")
 @Validated
 @RequiredArgsConstructor
