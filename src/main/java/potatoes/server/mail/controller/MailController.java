@@ -46,7 +46,7 @@ public class MailController {
 	}
 
 	@Operation(summary = "인증번호 확인", description = "인증번호 유효시간은 5분, 반환에 인증토큰 바디로 날라옴")
-	@PostMapping("emails/verify")
+	@PostMapping("/emails/verify")
 	public ResponseEntity<CommonResponse<VerifyResponse>> verifyNumber(
 		@RequestBody @Valid EmailVerifyRequest request
 	) {
