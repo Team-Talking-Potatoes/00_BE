@@ -24,7 +24,7 @@ import potatoes.server.utils.pagination.dto.PageResponse;
 @RestController
 public class BookmarkController {
 
-	private TravelService travelService;
+	private final TravelService travelService;
 
 	@Operation(summary = "사용자 북마크 여행 조회")
 	@GetMapping("")
