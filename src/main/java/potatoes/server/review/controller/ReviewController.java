@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,16 +18,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.review.dto.CreateReviewRequest;
 import potatoes.server.review.dto.GetDetailsReview;
-import potatoes.server.review.dto.GetMyReviewResponse;
-import potatoes.server.review.dto.GetReviewResponse;
-import potatoes.server.review.dto.SimpleReviewResponse;
 import potatoes.server.review.dto.TotalRatingResponse;
 import potatoes.server.review.service.ReviewService;
 import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.annotation.NonLoginAuthorization;
-import potatoes.server.utils.constant.SortByType;
-import potatoes.server.utils.pagination.dto.PageResponse;
 
 @Tag(name = "리뷰", description = "리뷰 관련 API")
 @RequestMapping("/reviews")
@@ -48,17 +42,6 @@ public class ReviewController {
 		return ResponseEntity.ok(CommonResponse.create());
 	}
 
-	@Operation(summary = "리뷰 목록 조회", description = "최신순 인기순 조건이있습니다. 디폴트값(page = 0, size = 10)")
-	@GetMapping("")
-	public ResponseEntity<CommonResponse<PageResponse<GetReviewResponse>>> getReviews(
-		@RequestParam(defaultValue = "LATEST") SortByType sortByType,
-		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size,
-		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
-	) {
-		return ResponseEntity.ok(CommonResponse.from(reviewService.getReviews(sortByType, page, size, userId)));
-	}
-
 	@Operation(summary = "리뷰 상세 조회", description = "")
 	@GetMapping("/{reviewId}")
 	public ResponseEntity<CommonResponse<GetDetailsReview>> getDetailsReview(
@@ -66,25 +49,6 @@ public class ReviewController {
 		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(reviewService.getDetailsReview(reviewId, userId)));
-	}
-
-	@Operation(summary = "리뷰 리스트 조회", description = "최근에 추가된 리뷰를 조회합니다.")
-	@GetMapping("/popular")
-	public ResponseEntity<CommonResponse<PageResponse<SimpleReviewResponse>>> getSimpleReviewList(
-		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "5") int size
-	) {
-		return ResponseEntity.ok(CommonResponse.from(reviewService.getSimpleReviews(page, size)));
-	}
-
-	@Operation(summary = "내가 작성한 리뷰 조회", description = "내가 작성한 리뷰를 조회합니다.")
-	@GetMapping("/published")
-	public ResponseEntity<CommonResponse<PageResponse<GetMyReviewResponse>>> getMyReview(
-		@RequestParam(required = false, defaultValue = "0") int page,
-		@RequestParam(required = false, defaultValue = "4") int size,
-		@Authorization @Parameter(hidden = true) Long userId
-	) {
-		return ResponseEntity.ok(CommonResponse.from(reviewService.getMyReviews(page, size, userId)));
 	}
 
 	@Operation(summary = "리뷰 평점 종합 조회")

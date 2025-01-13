@@ -59,7 +59,7 @@ public class TravelPaginationController {
 	}
 
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")
-	@GetMapping("/created")
+	@GetMapping("/mine")
 	public ResponseEntity<CommonResponse<PageResponse<GetMyTravelResponse>>> getMyTravels(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
