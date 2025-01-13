@@ -9,7 +9,7 @@ public record TotalCountReviews(
 	int total
 ) {
 	public float calculateAverageRating() {
-		float sumOfRatings = (oneStarReviews * 1) +
+		float sumOfRatings = (oneStarReviews) +
 			(twoStarReviews * 2) +
 			(threeStarReviews * 3) +
 			(fourStarReviews * 4) +
