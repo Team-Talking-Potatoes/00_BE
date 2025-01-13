@@ -105,7 +105,8 @@ public class TravelController {
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(
-			CommonResponse.from(travelService.getTravelsByStatus(page, size, userId, travelStatus)));
+			CommonResponse.from(travelService.getTravelsByStatus(page, size, userId, travelStatus))
+		);
 	}
 
 	//FIXME
@@ -124,12 +125,12 @@ public class TravelController {
 
 	@Operation(summary = "리뷰작성이 가능한 여행조회", description = "")
 	@GetMapping("/reviews/pending")
-	public ResponseEntity<PageResponse<GetMyTravelResponse>> getReviewableMyTravels(
+	public ResponseEntity<CommonResponse<PageResponse<GetMyTravelResponse>>> getReviewableMyTravels(
 		@RequestParam(required = false, defaultValue = "0") int page,
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
-		return ResponseEntity.ok(travelService.getReviewableMyTravels(page, size, userId));
+		return ResponseEntity.ok(CommonResponse.from(travelService.getReviewableMyTravels(page, size, userId)));
 	}
 
 	@Operation(summary = "북마크 등록", description = "Travel ID를 받고 북마크로 등록합니다.")

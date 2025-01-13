@@ -8,8 +8,8 @@ public record GetMyTravelResponse(
 	int maxTravelMateCount,
 	int currentTravelMateCount,
 	boolean isDomestic,
-	String location,
-	String image,
+	String travelLocation,
+	String travelImage,
 	String startAt,
 	String endAt
 ) implements PagePolymorphic {
