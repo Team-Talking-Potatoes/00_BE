@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "develop"
+      - "perfomance/cicd"
   workflow_dispatch:
 
 permissions: write-all
