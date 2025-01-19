@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - "develop"
-  workflow_dispatch:  # 수동 실행 옵션 추가
+  workflow_dispatch:
+    branches:
+      - "perfomance/cicd"
 
 permissions: write-all
 
