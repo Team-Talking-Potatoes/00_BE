@@ -86,3 +86,21 @@ tasks.register('copySecret', Copy) {
     }
     into('src/main/resources')
 }
+
+def dockerUser = System.getenv('DOCKER_USERNAME')
+def dockerImage = System.getenv('DOCKER_DEV_REPO')
+def containerPort = System.getenv('CONTAINER_PORT_DEV')
+
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre-alpine'
+    }
+    to {
+        image = "${dockerUser}/${dockerImage}"
+        tags = ['latest']
+    }
+    container {
+        jvmFlags = ['-Dspring.profiles.active=dev', '-Dfile.encoding=UTF-8']
+        ports = [containerPort]
+    }
+}
