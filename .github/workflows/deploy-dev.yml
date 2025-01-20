@@ -38,12 +38,9 @@ jobs:
       - name: gradlew 파일에 실행 권한을 부여합니다
         run: chmod +x gradlew
 
-      - name: Gradle 데몬 시작
-        run: ./gradlew --daemon
-
       - name: Jib를 사용하여 도커 이미지 빌드 및 푸시
         run: |
-          ./gradlew jib --console=plain -Dorg.gradle.daemon=true
+          ./gradlew jib --no-daemon --console=plain
 
   deploy:
     needs: build-and-push
