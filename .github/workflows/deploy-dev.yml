@@ -4,96 +4,64 @@ on:
   push:
     branches:
       - "develop"
-  workflow_dispatch:
 
 permissions: write-all
 
 jobs:
-  build:
-    name: Deploy
+  build-and-push:
     runs-on: ubuntu-latest
-
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_DEV_REPO: ${{ secrets.DOCKER_DEV_REPO }}
+      CONTAINER_PORT_DEV: ${{ secrets.CONTAINER_PORT_DEV }}
     steps:
-      - name: Start Timing
-        run: |
-          echo "WORKFLOW_START=$(date +%s)" >> $GITHUB_ENV
-
       - name: 리포지토리를 가져옵니다
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
           token: ${{ secrets.SUBMODULE_TOKEN }}
-
-      - name: Record Checkout Time
-        run: |
-          echo "CHECKOUT_END=$(date +%s)" >> $GITHUB_ENV
 
       - name: JDK 21을 설치합니다
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-
-      - name: Record JDK Setup Time
-        run: |
-          echo "JDK_SETUP_END=$(date +%s)" >> $GITHUB_ENV
-
-      - name: Gradle 캐싱
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Record Cache Time
-        run: |
-          echo "CACHE_END=$(date +%s)" >> $GITHUB_ENV
-
-      - name: gradlew 파일에 실행 권한을 부여합니다
-        run: chmod +x gradlew
-
-      - name: 빌드를 수행합니다
-        run: |
-          echo "BUILD_START=$(date +%s)" >> $GITHUB_ENV
-          ./gradlew bootJar --stacktrace
-          echo "BUILD_END=$(date +%s)" >> $GITHUB_ENV
+          cache: gradle
 
       - name: 도커 로그인
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: 도커 빌드
-        run: |
-          echo "DOCKER_BUILD_START=$(date +%s)" >> $GITHUB_ENV
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }} .
-          echo "DOCKER_BUILD_END=$(date +%s)" >> $GITHUB_ENV
+      - name: gradlew 파일에 실행 권한을 부여합니다
+        run: chmod +x gradlew
 
-      - name: 도커 푸시
+      - name: Jib를 사용하여 도커 이미지 빌드 및 푸시
         run: |
-          echo "DOCKER_PUSH_START=$(date +%s)" >> $GITHUB_ENV
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
-          echo "DOCKER_PUSH_END=$(date +%s)" >> $GITHUB_ENV
+          ./gradlew jib --no-daemon --console=plain
 
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_DEV_REPO: ${{ secrets.DOCKER_DEV_REPO }}
+    steps:
       - name: AWS Credentials 설정
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ap-northeast-2
 
       - name: 개발 서버 배포
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEV_AWS_EC2_PUBLIC_IP }}
           username: ec2-user
           key: ${{ secrets.AWS_EC2_PEM_KEY }}
           script: |
-            echo "DEPLOY_START=$(date +%s)" >> $GITHUB_ENV
             cd /home/ec2-user/potatoes/dev
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker stop develop-server
@@ -102,59 +70,3 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}:latest
             docker-compose up -d
             docker image prune -f
-            echo "DEPLOY_END=$(date +%s)" >> $GITHUB_ENV
-
-      - name: Generate Performance Report
-        run: |
-          echo "WORKFLOW_END=$(date +%s)" >> $GITHUB_ENV
-          
-          # Calculate times
-          echo "# CI/CD Performance Report" > performance_report.md
-          echo "## Execution Times" >> performance_report.md
-          echo "" >> performance_report.md
-          
-          # Checkout time
-          checkout_time=$((CHECKOUT_END - WORKFLOW_START))
-          echo "* Checkout Time: ${checkout_time}s" >> performance_report.md
-          
-          # JDK setup time
-          jdk_time=$((JDK_SETUP_END - CHECKOUT_END))
-          echo "* JDK Setup Time: ${jdk_time}s" >> performance_report.md
-          
-          # Cache time
-          cache_time=$((CACHE_END - JDK_SETUP_END))
-          echo "* Cache Setup Time: ${cache_time}s" >> performance_report.md
-          
-          # Build time
-          build_time=$((BUILD_END - BUILD_START))
-          echo "* Gradle Build Time: ${build_time}s" >> performance_report.md
-          
-          # Docker build time
-          docker_build_time=$((DOCKER_BUILD_END - DOCKER_BUILD_START))
-          echo "* Docker Build Time: ${docker_build_time}s" >> performance_report.md
-          
-          # Docker push time
-          docker_push_time=$((DOCKER_PUSH_END - DOCKER_PUSH_START))
-          echo "* Docker Push Time: ${docker_push_time}s" >> performance_report.md
-          
-          # Total time
-          total_time=$((WORKFLOW_END - WORKFLOW_START))
-          echo "* Total Workflow Time: ${total_time}s" >> performance_report.md
-          
-          echo "" >> performance_report.md
-          echo "## Build Information" >> performance_report.md
-          echo "* Commit: ${{ github.sha }}" >> performance_report.md
-          echo "* Branch: ${{ github.ref }}" >> performance_report.md
-          echo "* Trigger: ${{ github.event_name }}" >> performance_report.md
-          
-          # Add changed files information
-          echo "" >> performance_report.md
-          echo "## Change Information" >> performance_report.md
-          echo "* Files changed: $(git diff --name-only HEAD HEAD~1 | wc -l)" >> performance_report.md
-          echo "* Changes summary: $(git diff --shortstat HEAD HEAD~1)" >> performance_report.md
-
-      - name: Upload Performance Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: performance-report
-          path: performance_report.md

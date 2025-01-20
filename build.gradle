@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'com.google.cloud.tools.jib' version '3.4.4'
 }
 
 group = 'Potatoes'
@@ -60,6 +61,16 @@ dependencies {
 
     //Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    //Query Dsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    //MapStruct
+    implementation 'org.mapstruct:mapstruct:1.5.3.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 }
 
 tasks.named('test') {
@@ -74,4 +85,22 @@ tasks.register('copySecret', Copy) {
         include('*.sql')
     }
     into('src/main/resources')
+}
+
+def dockerUser = System.getenv('DOCKER_USERNAME')
+def dockerImage = System.getenv('DOCKER_DEV_REPO')
+def containerPort = System.getenv('CONTAINER_PORT_DEV')
+
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre-alpine'
+    }
+    to {
+        image = "${dockerUser}/${dockerImage}"
+        tags = ['latest']
+    }
+    container {
+        jvmFlags = ['-Dspring.profiles.active=dev', '-Dfile.encoding=UTF-8']
+        ports = [containerPort]
+    }
 }
