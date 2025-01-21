@@ -64,8 +64,8 @@ jobs:
           script: |
             cd /home/ec2-user/potatoes/test
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker stop develop-server
-            docker rm develop-server
+            docker stop test-server
+            docker rm test-server
             docker rmi ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_TEST_REPO }}:latest
             docker-compose up -d
