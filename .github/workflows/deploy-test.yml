@@ -14,6 +14,7 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_DEV_REPO: ${{ secrets.DOCKER_TEST_REPO }}
       CONTAINER_PORT_DEV: ${{ secrets.CONTAINER_PORT_DEV }}
+      ACTIVE_PROFILE: 'test'
     steps:
       - name: 리포지토리를 가져옵니다
         uses: actions/checkout@v4
