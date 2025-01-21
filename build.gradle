@@ -93,8 +93,8 @@ tasks.register('copySecret', Copy) {
 
 project.ext {
     dockerUser = System.getenv('DOCKER_USERNAME')
-    activeProfile = System.getenv('ACTIVE_PROFILE') ?: 'dev'
     containerPort = System.getenv('CONTAINER_PORT') ?: '8081'
+    activeProfile = System.getProperty('spring.profiles.active') ?: System.getenv('ACTIVE_PROFILE') ?: 'dev'
 }
 
 

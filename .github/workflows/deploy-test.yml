@@ -14,7 +14,6 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_DEV_REPO: ${{ secrets.DOCKER_TEST_REPO }}
       CONTAINER_PORT_DEV: ${{ secrets.CONTAINER_PORT_DEV }}
-      ACTIVE_PROFILE: 'test'
     steps:
       - name: 리포지토리를 가져옵니다
         uses: actions/checkout@v4
@@ -40,7 +39,7 @@ jobs:
 
       - name: Jib를 사용하여 도커 이미지 빌드 및 푸시
         run: |
-          ./gradlew jib --no-daemon --console=plain
+          ./gradlew jib -Dspring.profiles.active=test --no-daemon --console=plain
 
   deploy:
     needs: build-and-push
