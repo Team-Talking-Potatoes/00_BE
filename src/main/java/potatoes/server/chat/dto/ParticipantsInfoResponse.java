@@ -3,7 +3,7 @@ package potatoes.server.chat.dto;
 import potatoes.server.user.entity.User;
 
 public record ParticipantsInfoResponse(
-	String user,
+	String nickname,
 	String email,
 	String description,
 	long travelCount,
