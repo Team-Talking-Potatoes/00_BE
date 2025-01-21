@@ -10,7 +10,7 @@ public record SimpleTravelResponse(
 	int maxTravelMateCount,
 	int currentTravelMateCount,
 	boolean isDomestic,
-	Boolean isBookmark,
+	Boolean bookmarkFlag,
 	String travelLocation,
 	String travelImage,
 	String startAt,
