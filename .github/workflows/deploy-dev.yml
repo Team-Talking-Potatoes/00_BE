@@ -13,7 +13,7 @@ jobs:
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_DEV_REPO: ${{ secrets.DOCKER_DEV_REPO }}
-      CONTAINER_PORT_DEV: ${{ secrets.CONTAINER_PORT_DEV }}
+      CONTAINER_PORT: ${{ secrets.CONTAINER_PORT_DEV }}
     steps:
       - name: 리포지토리를 가져옵니다
         uses: actions/checkout@v4

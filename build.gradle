@@ -91,34 +91,18 @@ tasks.register('copySecret', Copy) {
     into('src/main/resources')
 }
 
-project.ext {
-    dockerUser = System.getenv('DOCKER_USERNAME')
-    containerPort = System.getenv('CONTAINER_PORT') ?: '8081'
-    activeProfile = System.getProperty('spring.profiles.active') ?: System.getenv('ACTIVE_PROFILE') ?: 'dev'
-}
-
-
-def getDockerImage() {
-    switch (activeProfile) {
-        case 'dev':
-            return System.getenv('DOCKER_DEV_REPO')
-        case 'test':
-            return System.getenv('DOCKER_TEST_REPO')
-        default:
-            return System.getenv('DOCKER_DEV_REPO')
-    }
-}
+def isTestEnvironment = System.getenv('DOCKER_TEST_REPO') != null
 
 jib {
     from {
         image = 'eclipse-temurin:21-jre-alpine'
     }
     to {
-        image = "${dockerUser}/${getDockerImage()}"
-        tags = ["latest"]
+        image = System.getenv('DOCKER_USERNAME') + '/' + (isTestEnvironment ? System.getenv('DOCKER_TEST_REPO') : System.getenv('DOCKER_DEV_REPO'))
+        tags = ['latest']
     }
     container {
-        jvmFlags = ["-Dspring.profiles.active=${activeProfile}", '-Dfile.encoding=UTF-8']
-        ports = [containerPort]
+        jvmFlags = ["-Dspring.profiles.active=${isTestEnvironment ? 'test' : 'dev'}", '-Dfile.encoding=UTF-8']
+        ports = ['8081']
     }
 }
