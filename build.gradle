@@ -95,7 +95,7 @@ def isTestEnvironment = System.getenv('DOCKER_TEST_REPO') != null
 
 jib {
     from {
-        image = 'eclipse-temurin:21-jre-alpine'
+        image = 'eclipse-temurin:21-jdk-alpine'
     }
     to {
         image = System.getenv('DOCKER_USERNAME') + '/' + (isTestEnvironment ? System.getenv('DOCKER_TEST_REPO') : System.getenv('DOCKER_DEV_REPO'))
