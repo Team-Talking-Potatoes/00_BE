@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -208,9 +209,9 @@ public class TravelService {
 		};
 	}
 
-	public PageResponse<SimpleTravelResponse> getPopularTravels(int page, int size, Optional<Long> userId) {
-		Pageable pageable = PageRequest.of(page, size);
-		Page<SimpleTravelResponse> travels = travelRepository.findAllByOrderByIdDesc(pageable)
+	public List<SimpleTravelResponse> getPopularTravels(Optional<Long> userId) {
+		return travelRepository.findTop8ByOrderByIdDesc()
+			.stream()
 			.map(travel -> {
 				int currentTravelMate = (int)travelUserRepository.countByTravel(travel);
 
@@ -219,9 +220,8 @@ public class TravelService {
 					.orElse(null);
 
 				return SimpleTravelResponse.from(travel, currentTravelMate, isBookmark);
-			});
-
-		return PageResponse.from(travels);
+			})
+			.collect(Collectors.toList());
 	}
 
 	@Transactional

@@ -2,6 +2,7 @@ package potatoes.server.travel.controller;
 
 import static org.springframework.http.MediaType.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.travel.dto.CreateTravelRequest;
+import potatoes.server.travel.dto.SimpleTravelResponse;
 import potatoes.server.travel.dto.TravelDetailResponse;
 import potatoes.server.travel.service.TravelService;
 import potatoes.server.utils.CommonResponse;
@@ -64,6 +66,15 @@ public class TravelController {
 	) {
 		travelService.deleteTravelByOrganizer(travelId, userId);
 		return ResponseEntity.ok(CommonResponse.create());
+	}
+
+	@Operation(summary = "이번 주 인기 여행 조회", description = "이번 주 인기가 많은 여행 모임 반환")
+	@GetMapping("/popular")
+	public ResponseEntity<CommonResponse<List<SimpleTravelResponse>>> getPopularTravels(
+		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
+	) {
+		// TODO - 조회수 카운트 방법 논의 필요
+		return ResponseEntity.ok(CommonResponse.from(travelService.getPopularTravels(userId)));
 	}
 
 	@Operation(summary = "동행 (참여자)", description = "여행을 동행합니다.")
