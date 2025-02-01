@@ -47,6 +47,19 @@ public class S3UtilsProvider {
 		return new FileUrlGenerator().generate(fileName);
 	}
 
+	public String uploadAndGetUrl(MultipartFile file) {
+		if (file == null)
+			return null;
+		String fileName = uploadFile(file);
+		return getFileUrl(fileName);
+	}
+
+	public List<String> uploadAndGetUrls(List<MultipartFile> files) {
+		return files.stream()
+			.map(this::uploadAndGetUrl)
+			.toList();
+	}
+
 	private class FileUploader {
 		List<String> uploadMultipartFiles(List<MultipartFile> multipartFiles) {
 			List<String> fileNameList = new ArrayList<>();
