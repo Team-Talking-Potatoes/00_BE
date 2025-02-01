@@ -50,47 +50,29 @@ public class TravelService {
 
 	@Transactional
 	public void createTravel(Long userId, CreateTravelRequest request) {
-
-		if (request.getMinTravelMateCount() > request.getMaxTravelMateCount()) {
-			throw new WeGoException(INVALID_TRAVEL_MATE_COUNT);
-		}
-
-		if (request.getHashTags().split("#").length > 5) {
-			throw new WeGoException(INVALID_TRAVEL_HASHTAGS_VALUE);
-		}
-
-		Duration duration = Duration.between(request.getStartAt(), request.getEndAt());
-		long tripDuration = duration.toDays() + 1;
-		if (tripDuration < 0 || request.getStartAt().isAfter(request.getEndAt())) {
-			throw new WeGoException(INVALID_TRAVEL_DATE);
-		}
-
-		for (CreateTravelRequest.DetailTravelRequest detailTravelRequest : request.getDetailTravel()) {
-			if (detailTravelRequest.getTripDay() > tripDuration) {
-				throw new WeGoException(INVALID_TRAVEL_DETAIL_INFO);
-			}
-		}
-
 		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
 
-		String travelFileName = s3.uploadFile(request.getTravelImage());
+		String travelFileName = s3.uploadFile(request.travelImage());
 		String travelFileUrl = s3.getFileUrl(travelFileName);
 
+		Duration duration = Duration.between(request.startAt(), request.endAt());
+		int tripDuration = (int)(duration.toDays() + 1);
+
 		Travel travel = Travel.builder()
-			.name(request.getTravelName())
-			.description(request.getTravelDescription())
+			.name(request.travelName())
+			.description(request.travelDescription())
 			.image(travelFileUrl)
-			.expectedTripCost(request.getExpectedTripCost())
-			.minTravelMateCount(request.getMinTravelMateCount())
-			.maxTravelMateCount(request.getMaxTravelMateCount())
-			.hashTags(request.getHashTags())
-			.isDomestic(request.getIsDomestic())
-			.travelLocation(request.getTravelLocation())
-			.departureLocation(request.getDepartureLocation())
-			.startAt(request.getStartAt().toInstant(ZoneOffset.UTC))
-			.endAt(request.getEndAt().toInstant(ZoneOffset.UTC))
-			.registrationEnd(request.getRegistrationEnd().toInstant(ZoneOffset.UTC))
-			.tripDuration((int)tripDuration)
+			.expectedTripCost(request.expectedTripCost())
+			.minTravelMateCount(request.minTravelMateCount())
+			.maxTravelMateCount(request.maxTravelMateCount())
+			.hashTags(request.hashTags())
+			.isDomestic(request.isDomestic())
+			.travelLocation(request.travelLocation())
+			.departureLocation(request.departureLocation())
+			.startAt(request.startAt().toInstant(ZoneOffset.UTC))
+			.endAt(request.endAt().toInstant(ZoneOffset.UTC))
+			.registrationEnd(request.registrationEnd().toInstant(ZoneOffset.UTC))
+			.tripDuration(tripDuration)
 			.build();
 		travelRepository.save(travel);
 
