@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import potatoes.server.travel.dto.DetailTravelRequest;
 
 @Getter
 @NoArgsConstructor(access = PROTECTED)
@@ -51,5 +52,16 @@ public class TravelPlan {
 		this.destination = destination;
 		this.image = image;
 		this.description = description;
+	}
+
+	public static TravelPlan create(DetailTravelRequest details, Travel travel, String imageUrl) {
+		return TravelPlan.builder()
+			.travel(travel)
+			.image(imageUrl)
+			.tripDay(details.tripDay())
+			.tripOrderNumber(details.tripOrderNumber())
+			.destination(details.destination())
+			.description(details.description())
+			.build();
 	}
 }

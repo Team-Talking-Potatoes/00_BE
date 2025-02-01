@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import potatoes.server.travel.dto.CreateTravelRequest;
 import potatoes.server.travel.dto.SimpleTravelResponse;
 import potatoes.server.travel.dto.TravelDetailResponse;
 import potatoes.server.travel.service.TravelService;

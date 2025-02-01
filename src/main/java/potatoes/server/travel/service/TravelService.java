@@ -2,8 +2,6 @@ package potatoes.server.travel.service;
 
 import static potatoes.server.utils.error.ErrorCode.*;
 
-import java.time.Duration;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +24,7 @@ import potatoes.server.travel.dto.TravelPlanResponse;
 import potatoes.server.travel.entity.Travel;
 import potatoes.server.travel.entity.TravelPlan;
 import potatoes.server.travel.entity.TravelUser;
+import potatoes.server.travel.mapper.CreateTravelRequestMapper;
 import potatoes.server.travel.repository.TravelPlanRepository;
 import potatoes.server.travel.repository.TravelRepository;
 import potatoes.server.travel.repository.TravelUserRepository;
@@ -47,54 +46,30 @@ public class TravelService {
 	private final BookmarkRepository bookmarkRepository;
 	private final ChatRepository chatRepository;
 	private final S3UtilsProvider s3;
+	private final CreateTravelRequestMapper createTravelRequestMapper;
 
 	@Transactional
 	public void createTravel(Long userId, CreateTravelRequest request) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
+		User user = findUser(userId);
+		Travel travel = createTravelWithImage(request);
+		saveTravelPlans(request, travel);
+		saveTravelParticipantAndChat(user, travel);
+	}
 
-		String travelFileName = s3.uploadFile(request.travelImage());
-		String travelFileUrl = s3.getFileUrl(travelFileName);
+	private Travel createTravelWithImage(CreateTravelRequest request) {
+		String fileUrl = s3.uploadAndGetUrl(request.travelImage());
+		Travel travel = createTravelRequestMapper.toEntity(request, fileUrl);
+		return travelRepository.save(travel);
+	}
 
-		Duration duration = Duration.between(request.startAt(), request.endAt());
-		int tripDuration = (int)(duration.toDays() + 1);
-
-		Travel travel = Travel.builder()
-			.name(request.travelName())
-			.description(request.travelDescription())
-			.image(travelFileUrl)
-			.expectedTripCost(request.expectedTripCost())
-			.minTravelMateCount(request.minTravelMateCount())
-			.maxTravelMateCount(request.maxTravelMateCount())
-			.hashTags(request.hashTags())
-			.isDomestic(request.isDomestic())
-			.travelLocation(request.travelLocation())
-			.departureLocation(request.departureLocation())
-			.startAt(request.startAt().toInstant(ZoneOffset.UTC))
-			.endAt(request.endAt().toInstant(ZoneOffset.UTC))
-			.registrationEnd(request.registrationEnd().toInstant(ZoneOffset.UTC))
-			.tripDuration(tripDuration)
-			.build();
-		travelRepository.save(travel);
-
-		List<TravelPlan> travelPlanList = request.getDetailTravel().stream()
-			.map(details -> {
-				String destinationFileUrl = null;
-				if (details.getDestinationImage() != null) {
-					String destinationFileName = s3.uploadFile(details.getDestinationImage());
-					destinationFileUrl = s3.getFileUrl(destinationFileName);
-				}
-				return TravelPlan.builder()
-					.travel(travel)
-					.image(destinationFileUrl)
-					.tripDay(details.getTripDay())
-					.tripOrderNumber(details.getTripOrderNumber())
-					.destination(details.getDestination())
-					.description(details.getDescription())
-					.build();
-			})
+	private void saveTravelPlans(CreateTravelRequest request, Travel travel) {
+		List<TravelPlan> travelPlans = request.detailTravel().stream()
+			.map(details -> TravelPlan.create(details, travel, s3.uploadAndGetUrl(details.destinationImage())))
 			.toList();
-		travelPlanRepository.saveAll(travelPlanList);
+		travelPlanRepository.saveAll(travelPlans);
+	}
 
+	private void saveTravelParticipantAndChat(User user, Travel travel) {
 		TravelUser travelUser = TravelUser.builder()
 			.role(ParticipantRole.ORGANIZER)
 			.travel(travel)
@@ -108,8 +83,8 @@ public class TravelService {
 			.currentMemberCount(1)
 			.maxMemberCount(travel.getMaxTravelMateCount())
 			.build();
-		chatRepository.save(chat);
 
+		chatRepository.save(chat);
 		travelUserRepository.save(travelUser);
 	}
 
@@ -151,9 +126,8 @@ public class TravelService {
 
 	@Transactional
 	public void participateInTravel(Long travelId, Long userId) {
-		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
-
-		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
+		User user = findUser(userId);
+		Travel travel = findTravel(travelId);
 
 		boolean existsCheckFlag = travelUserRepository.existsByTravelIdAndUserId(travelId, userId);
 
@@ -172,8 +146,7 @@ public class TravelService {
 
 	@Transactional
 	public void deleteTravelByOrganizer(Long travelId, Long userId) {
-		TravelUser travelUser = travelUserRepository.findByTravelIdAndUserId(travelId, userId)
-			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+		TravelUser travelUser = findTravel(travelId, userId);
 
 		if (travelUser.getRole() != ParticipantRole.ORGANIZER) {
 			throw new WeGoException(INSUFFICIENT_TRAVEL_PERMISSION);
@@ -185,8 +158,7 @@ public class TravelService {
 
 	@Transactional
 	public void deleteTravelByAttendee(Long travelId, Long userId) {
-		TravelUser travelUser = travelUserRepository.findByTravelIdAndUserId(travelId, userId)
-			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+		TravelUser travelUser = findTravel(travelId, userId);
 
 		if (travelUser.getRole() != ParticipantRole.ATTENDEE) {
 			throw new WeGoException(NOT_PARTICIPATED_TRAVEL);
@@ -197,8 +169,9 @@ public class TravelService {
 
 	@Transactional
 	public void addBookmark(Long userId, Long travelId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
-		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+		User user = findUser(userId);
+		Travel travel = findTravel(travelId);
+
 		if (bookmarkRepository.existsByUserAndTravel(user, travel)) {
 			return;
 		}
@@ -212,11 +185,26 @@ public class TravelService {
 
 	@Transactional
 	public void deleteBookmark(Long userId, Long travelId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
-		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+		User user = findUser(userId);
+		Travel travel = findTravel(travelId);
 
 		Bookmark bookmark = bookmarkRepository.findByUserAndTravel(user, travel)
 			.orElseThrow(() -> new WeGoException(BOOKMARK_NOT_FOUND));
 		bookmarkRepository.delete(bookmark);
+	}
+
+	private User findUser(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
+	}
+
+	private Travel findTravel(Long travelId) {
+		return travelRepository.findById(travelId)
+			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+	}
+
+	private TravelUser findTravel(Long travelId, Long userId) {
+		return travelUserRepository.findByTravelIdAndUserId(travelId, userId)
+			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
 	}
 }

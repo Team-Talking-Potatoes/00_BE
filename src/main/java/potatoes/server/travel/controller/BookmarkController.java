@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.travel.dto.GetMyTravelResponse;
+import potatoes.server.travel.service.TravelPaginationService;
 import potatoes.server.travel.service.TravelService;
 import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
@@ -25,6 +26,7 @@ import potatoes.server.utils.pagination.dto.PageResponse;
 public class BookmarkController {
 
 	private final TravelService travelService;
+	private final TravelPaginationService travelPaginationService;
 
 	@Operation(summary = "사용자 북마크 여행 조회")
 	@GetMapping("")
@@ -33,7 +35,7 @@ public class BookmarkController {
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
-		return ResponseEntity.ok(CommonResponse.from(travelService.getMyTravelsByBookmark(page, size, userId)));
+		return ResponseEntity.ok(CommonResponse.from(travelPaginationService.getMyTravelsByBookmark(page, size, userId)));
 	}
 
 	@Operation(summary = "북마크 등록", description = "Travel ID를 받고 북마크로 등록합니다.")
