@@ -1,5 +1,6 @@
 package potatoes.server.review.entity;
 
+import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
@@ -21,11 +22,11 @@ public class ReviewLike {
 	@GeneratedValue(strategy = IDENTITY)
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToOne
+	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "review_id")
 	private Review review;
 
