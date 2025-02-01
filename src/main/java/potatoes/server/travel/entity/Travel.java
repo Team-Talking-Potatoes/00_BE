@@ -3,7 +3,10 @@ package potatoes.server.travel.entity;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import potatoes.server.config.BaseTimeEntity;
+import potatoes.server.travel.dto.CreateTravelRequest;
 
 @Getter
 @NoArgsConstructor(access = PROTECTED)
@@ -83,5 +87,28 @@ public class Travel extends BaseTimeEntity {
 		this.endAt = endAt;
 		this.registrationEnd = registrationEnd;
 		this.tripDuration = tripDuration;
+	}
+
+	public static Travel create(CreateTravelRequest request, String imageUrl) {
+		return Travel.builder()
+			.name(request.travelName())
+			.description(request.travelDescription())
+			.image(imageUrl)
+			.expectedTripCost(request.expectedTripCost())
+			.minTravelMateCount(request.minTravelMateCount())
+			.maxTravelMateCount(request.maxTravelMateCount())
+			.hashTags(request.hashTags())
+			.isDomestic(request.isDomestic())
+			.travelLocation(request.travelLocation())
+			.departureLocation(request.departureLocation())
+			.startAt(request.startAt().toInstant(ZoneOffset.UTC))
+			.endAt(request.endAt().toInstant(ZoneOffset.UTC))
+			.registrationEnd(request.registrationEnd().toInstant(ZoneOffset.UTC))
+			.tripDuration(calculateTripDuration(request.startAt(), request.endAt()))
+			.build();
+	}
+
+	private static int calculateTripDuration(LocalDateTime startAt, LocalDateTime endAt) {
+		return (int)(Duration.between(startAt, endAt).toDays() + 1);
 	}
 }

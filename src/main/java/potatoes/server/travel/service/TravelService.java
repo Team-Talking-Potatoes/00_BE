@@ -24,7 +24,7 @@ import potatoes.server.travel.dto.TravelPlanResponse;
 import potatoes.server.travel.entity.Travel;
 import potatoes.server.travel.entity.TravelPlan;
 import potatoes.server.travel.entity.TravelUser;
-import potatoes.server.travel.mapper.CreateTravelRequestMapper;
+import potatoes.server.travel.factory.TravelFactory;
 import potatoes.server.travel.repository.TravelPlanRepository;
 import potatoes.server.travel.repository.TravelRepository;
 import potatoes.server.travel.repository.TravelUserRepository;
@@ -46,50 +46,28 @@ public class TravelService {
 	private final BookmarkRepository bookmarkRepository;
 	private final ChatRepository chatRepository;
 	private final S3UtilsProvider s3;
-	private final CreateTravelRequestMapper createTravelRequestMapper;
+
+	private final TravelFactory travelFactory;
 
 	@Transactional
 	public void createTravel(Long userId, CreateTravelRequest request) {
 		User user = findUser(userId);
-		Travel travel = createTravelWithImage(request);
-		saveTravelPlans(request, travel);
-		saveTravelParticipantAndChat(user, travel);
-	}
 
-	private Travel createTravelWithImage(CreateTravelRequest request) {
-		String fileUrl = s3.uploadAndGetUrl(request.travelImage());
-		Travel travel = createTravelRequestMapper.toEntity(request, fileUrl);
-		return travelRepository.save(travel);
-	}
+		Travel travel = travelFactory.createTravel(request);
+		travelRepository.save(travel);
 
-	private void saveTravelPlans(CreateTravelRequest request, Travel travel) {
-		List<TravelPlan> travelPlans = request.detailTravel().stream()
-			.map(details -> TravelPlan.create(details, travel, s3.uploadAndGetUrl(details.destinationImage())))
-			.toList();
-		travelPlanRepository.saveAll(travelPlans);
-	}
+		List<TravelPlan> plans = travelFactory.createTravelPlans(request, travel);
+		travelPlanRepository.saveAll(plans);
 
-	private void saveTravelParticipantAndChat(User user, Travel travel) {
-		TravelUser travelUser = TravelUser.builder()
-			.role(ParticipantRole.ORGANIZER)
-			.travel(travel)
-			.user(user)
-			.build();
+		TravelUser organizer = travelFactory.createParticipant(user, travel);
+		Chat chat = travelFactory.createChat(travel, user);
 
-		Chat chat = Chat.builder()
-			.name(travel.getName())
-			.host(user)
-			.travel(travel)
-			.currentMemberCount(1)
-			.maxMemberCount(travel.getMaxTravelMateCount())
-			.build();
-
+		travelUserRepository.save(organizer);
 		chatRepository.save(chat);
-		travelUserRepository.save(travelUser);
 	}
 
 	public TravelDetailResponse getDetails(Long travelId, Optional<Long> userId) {
-		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+		Travel travel = findTravel(travelId);
 
 		Boolean participationFlag = userId
 			.map(uid -> travelUserRepository.existsByTravelIdAndUserId(travelId, uid))
