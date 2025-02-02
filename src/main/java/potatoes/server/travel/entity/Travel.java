@@ -2,11 +2,10 @@ package potatoes.server.travel.entity;
 
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
+import static potatoes.server.utils.error.ErrorCode.*;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +15,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import potatoes.server.config.BaseTimeEntity;
-import potatoes.server.travel.dto.CreateTravelRequest;
+import potatoes.server.travel.model.TravelModel;
+import potatoes.server.utils.error.exception.WeGoException;
 
 @Getter
 @NoArgsConstructor(access = PROTECTED)
@@ -70,9 +70,11 @@ public class Travel extends BaseTimeEntity {
 	private int tripDuration;
 
 	@Builder
-	public Travel(String name, String description, String image, int expectedTripCost, int minTravelMateCount,
-		int maxTravelMateCount, String hashTags, boolean isDomestic, String travelLocation, String departureLocation,
-		Instant startAt, Instant endAt, Instant registrationEnd, int tripDuration) {
+	private Travel(String name, String description, String image,
+		int expectedTripCost, int minTravelMateCount, int maxTravelMateCount,
+		String hashTags, boolean isDomestic, String travelLocation,
+		String departureLocation, Instant startAt, Instant endAt,
+		Instant registrationEnd, int tripDuration) {
 		this.name = name;
 		this.description = description;
 		this.image = image;
@@ -89,26 +91,53 @@ public class Travel extends BaseTimeEntity {
 		this.tripDuration = tripDuration;
 	}
 
-	public static Travel create(CreateTravelRequest request, String imageUrl) {
+	public static Travel from(TravelModel model, String imageUrl) {
+		validateAll(model);
+
 		return Travel.builder()
-			.name(request.travelName())
-			.description(request.travelDescription())
+			.name(model.name())
+			.description(model.description())
 			.image(imageUrl)
-			.expectedTripCost(request.expectedTripCost())
-			.minTravelMateCount(request.minTravelMateCount())
-			.maxTravelMateCount(request.maxTravelMateCount())
-			.hashTags(request.hashTags())
-			.isDomestic(request.isDomestic())
-			.travelLocation(request.travelLocation())
-			.departureLocation(request.departureLocation())
-			.startAt(request.startAt().toInstant(ZoneOffset.UTC))
-			.endAt(request.endAt().toInstant(ZoneOffset.UTC))
-			.registrationEnd(request.registrationEnd().toInstant(ZoneOffset.UTC))
-			.tripDuration(calculateTripDuration(request.startAt(), request.endAt()))
+			.expectedTripCost(model.expectedTripCost())
+			.minTravelMateCount(model.minTravelMateCount())
+			.maxTravelMateCount(model.maxTravelMateCount())
+			.hashTags(model.hashTags())
+			.isDomestic(model.isDomestic())
+			.travelLocation(model.travelLocation())
+			.departureLocation(model.departureLocation())
+			.startAt(model.startAt())
+			.endAt(model.endAt())
+			.registrationEnd(model.registrationEnd())
+			.tripDuration(model.tripDuration())
 			.build();
 	}
 
-	private static int calculateTripDuration(LocalDateTime startAt, LocalDateTime endAt) {
-		return (int)(Duration.between(startAt, endAt).toDays() + 1);
+	private static void validateAll(TravelModel model) {
+		validateTravelMateCount(model.minTravelMateCount(), model.maxTravelMateCount());
+		validateTravelPeriod(model.startAt(), model.endAt());
+		validateHashTags(model.hashTags());
+	}
+
+	private static void validateTravelMateCount(int minCount, int maxCount) {
+		if (minCount > maxCount) {
+			throw new WeGoException(INVALID_TRAVEL_MATE_COUNT);
+		}
+	}
+
+	private static void validateTravelPeriod(Instant startAt, Instant endAt) {
+		if (startAt.isAfter(endAt)) {
+			throw new WeGoException(INVALID_TRAVEL_DATE);
+		}
+
+		long tripDuration = Duration.between(startAt, endAt).toDays() + 1;
+		if (tripDuration < 0) {
+			throw new WeGoException(INVALID_TRAVEL_DATE);
+		}
+	}
+
+	private static void validateHashTags(String hashTags) {
+		if (hashTags != null && hashTags.split("#").length > 5) {
+			throw new WeGoException(INVALID_TRAVEL_HASHTAGS_VALUE);
+		}
 	}
 }

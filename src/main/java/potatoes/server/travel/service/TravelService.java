@@ -11,20 +11,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import potatoes.server.chat.entity.Chat;
-import potatoes.server.chat.repository.ChatRepository;
-import potatoes.server.infra.s3.S3UtilsProvider;
 import potatoes.server.travel.bookmark.entity.Bookmark;
 import potatoes.server.travel.bookmark.repository.BookmarkRepository;
 import potatoes.server.travel.dto.CreateTravelRequest;
+import potatoes.server.travel.dto.DetailTravelRequest;
 import potatoes.server.travel.dto.ParticipantResponse;
 import potatoes.server.travel.dto.SimpleTravelResponse;
 import potatoes.server.travel.dto.TravelDetailResponse;
 import potatoes.server.travel.dto.TravelPlanResponse;
 import potatoes.server.travel.entity.Travel;
-import potatoes.server.travel.entity.TravelPlan;
 import potatoes.server.travel.entity.TravelUser;
 import potatoes.server.travel.factory.TravelFactory;
+import potatoes.server.travel.model.TravelModel;
+import potatoes.server.travel.model.TravelPlanModel;
 import potatoes.server.travel.repository.TravelPlanRepository;
 import potatoes.server.travel.repository.TravelRepository;
 import potatoes.server.travel.repository.TravelUserRepository;
@@ -44,26 +43,19 @@ public class TravelService {
 	private final TravelPlanRepository travelPlanRepository;
 	private final TravelUserRepository travelUserRepository;
 	private final BookmarkRepository bookmarkRepository;
-	private final ChatRepository chatRepository;
-	private final S3UtilsProvider s3;
-
 	private final TravelFactory travelFactory;
 
 	@Transactional
 	public void createTravel(Long userId, CreateTravelRequest request) {
 		User user = findUser(userId);
 
-		Travel travel = travelFactory.createTravel(request);
-		travelRepository.save(travel);
+		TravelModel travelModel = CreateTravelRequest.toModel(request);
+		Travel travel = travelFactory.createTravel(travelModel, request.travelImage());
 
-		List<TravelPlan> plans = travelFactory.createTravelPlans(request, travel);
-		travelPlanRepository.saveAll(plans);
-
-		TravelUser organizer = travelFactory.createParticipant(user, travel);
-		Chat chat = travelFactory.createChat(travel, user);
-
-		travelUserRepository.save(organizer);
-		chatRepository.save(chat);
+		List<TravelPlanModel> travelPlan = DetailTravelRequest.toModels(request.detailTravel(), travel);
+		travelFactory.createTravelPlans(travelPlan);
+		travelFactory.createChat(travel, user);
+		travelFactory.createOrganizer(travel, user);
 	}
 
 	public TravelDetailResponse getDetails(Long travelId, Optional<Long> userId) {
@@ -124,7 +116,7 @@ public class TravelService {
 
 	@Transactional
 	public void deleteTravelByOrganizer(Long travelId, Long userId) {
-		TravelUser travelUser = findTravel(travelId, userId);
+		TravelUser travelUser = findTravelUser(travelId, userId);
 
 		if (travelUser.getRole() != ParticipantRole.ORGANIZER) {
 			throw new WeGoException(INSUFFICIENT_TRAVEL_PERMISSION);
@@ -136,7 +128,7 @@ public class TravelService {
 
 	@Transactional
 	public void deleteTravelByAttendee(Long travelId, Long userId) {
-		TravelUser travelUser = findTravel(travelId, userId);
+		TravelUser travelUser = findTravelUser(travelId, userId);
 
 		if (travelUser.getRole() != ParticipantRole.ATTENDEE) {
 			throw new WeGoException(NOT_PARTICIPATED_TRAVEL);
@@ -181,7 +173,7 @@ public class TravelService {
 			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
 	}
 
-	private TravelUser findTravel(Long travelId, Long userId) {
+	private TravelUser findTravelUser(Long travelId, Long userId) {
 		return travelUserRepository.findByTravelIdAndUserId(travelId, userId)
 			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
 	}

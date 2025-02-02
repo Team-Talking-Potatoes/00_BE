@@ -1,9 +1,8 @@
 package potatoes.server.travel.dto;
 
-import static potatoes.server.utils.error.ErrorCode.*;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,7 +13,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import potatoes.server.utils.error.exception.WeGoException;
+import potatoes.server.travel.model.TravelModel;
 
 public record CreateTravelRequest(
 	@NotBlank(message = "여행 이름를 입력해주세요.")
@@ -67,30 +66,28 @@ public record CreateTravelRequest(
 	@Valid
 	List<DetailTravelRequest> detailTravel
 ) {
+	public static TravelModel toModel(CreateTravelRequest request) {
+		return new TravelModel(
+			request.travelName(),
+			request.travelDescription(),
+			null,
+			request.expectedTripCost(),
+			request.minTravelMateCount(),
+			request.maxTravelMateCount(),
+			request.hashTags(),
+			request.isDomestic(),
+			request.travelLocation(),
+			request.departureLocation(),
+			request.startAt().toInstant(ZoneOffset.UTC),
+			request.endAt().toInstant(ZoneOffset.UTC),
+			request.registrationEnd().toInstant(ZoneOffset.UTC),
+			calculateTripDuration(request.startAt, request.endAt)
+		);
+	}
 
-	public CreateTravelRequest {
-		if (minTravelMateCount > maxTravelMateCount) {
-			throw new WeGoException(INVALID_TRAVEL_MATE_COUNT);
-		}
-
-		if (hashTags != null && hashTags.split("#").length > 5) {
-			throw new WeGoException(INVALID_TRAVEL_HASHTAGS_VALUE);
-		}
-
-		if (startAt != null && endAt != null) {
-			Duration duration = Duration.between(startAt, endAt);
-			long tripDuration = duration.toDays() + 1;
-			if (tripDuration < 0 || startAt.isAfter(endAt)) {
-				throw new WeGoException(INVALID_TRAVEL_DATE);
-			}
-
-			if (detailTravel != null) {
-				for (DetailTravelRequest detail : detailTravel) {
-					if (detail.tripDay() > tripDuration) {
-						throw new WeGoException(INVALID_TRAVEL_DETAIL_INFO);
-					}
-				}
-			}
-		}
+	private static int calculateTripDuration(LocalDateTime startAt, LocalDateTime endAt) {
+		Duration duration = Duration.between(startAt, endAt);
+		return (int)duration.toDays();
 	}
 }
+

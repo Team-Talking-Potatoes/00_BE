@@ -47,7 +47,7 @@ public class TravelUser extends BaseTimeEntity {
 		this.travel = travel;
 	}
 
-	public static TravelUser createOrganizer(User user, Travel travel) {
+	public static TravelUser createOrganizer(Travel travel, User user) {
 		return TravelUser.builder()
 			.role(ParticipantRole.ORGANIZER)
 			.travel(travel)
