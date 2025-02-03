@@ -11,8 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import potatoes.server.chat.domain.command.ChatCommander;
 import potatoes.server.travel.bookmark.entity.Bookmark;
 import potatoes.server.travel.bookmark.factory.BookmarkFactory;
+import potatoes.server.travel.domain.command.TravelCommander;
+import potatoes.server.travel.domain.command.TravelUserCommander;
+import potatoes.server.travel.domain.query.TravelQuery;
+import potatoes.server.travel.domain.query.TravelUserQuery;
 import potatoes.server.travel.dto.CreateTravelRequest;
 import potatoes.server.travel.dto.DetailTravelRequest;
 import potatoes.server.travel.dto.ParticipantResponse;
@@ -21,8 +26,6 @@ import potatoes.server.travel.dto.TravelDetailResponse;
 import potatoes.server.travel.dto.TravelPlanResponse;
 import potatoes.server.travel.entity.Travel;
 import potatoes.server.travel.entity.TravelUser;
-import potatoes.server.travel.factory.TravelFactory;
-import potatoes.server.travel.factory.TravelUserFactory;
 import potatoes.server.travel.model.TravelModel;
 import potatoes.server.travel.model.TravelPlanModel;
 import potatoes.server.user.entity.User;
@@ -36,8 +39,11 @@ import potatoes.server.utils.error.exception.WeGoException;
 @Service
 public class TravelService {
 
-	private final TravelFactory travelFactory;
-	private final TravelUserFactory travelUserFactory;
+	private final TravelCommander travelCommander;
+	private final TravelUserCommander travelUserCommander;
+	private final ChatCommander chatCommander;
+	private final TravelQuery travelQuery;
+	private final TravelUserQuery travelUserQuery;
 	private final UserFactory userFactory;
 	private final BookmarkFactory bookmarkFactory;
 
@@ -46,22 +52,22 @@ public class TravelService {
 		User user = userFactory.findUser(userId);
 
 		TravelModel travelModel = CreateTravelRequest.toModel(request);
-		Travel travel = travelFactory.createTravel(travelModel, request.travelImage());
+		Travel travel = travelCommander.createTravel(travelModel, request.travelImage());
 
 		List<TravelPlanModel> travelPlan = DetailTravelRequest.toModels(request.detailTravel(), travel);
-		travelFactory.createTravelPlans(travelPlan);
-		travelFactory.createChat(travel, user);
-		travelUserFactory.createOrganizer(travel, user);
+		travelCommander.createTravelPlans(travelPlan);
+		chatCommander.createChat(travel, user);
+		travelUserCommander.createOrganizer(travel, user);
 	}
 
 	public TravelDetailResponse getDetails(Long travelId, Optional<Long> userId) {
-		Travel travel = travelFactory.findTravel(travelId);
+		Travel travel = travelQuery.findTravel(travelId);
 
-		Boolean participationFlag = travelUserFactory.isUserParticipating(travelId, userId);
+		Boolean participationFlag = travelUserQuery.isUserParticipating(travelId, userId);
 		Boolean bookmarkFlag = bookmarkFactory.isUserParticipating(userId, travelId);
 
-		List<TravelPlanResponse> travelPlanResponses = travelFactory.findAllTravelPlans(travel);
-		List<ParticipantResponse> participantResponses = travelUserFactory.findAllParticipants(travel);
+		List<TravelPlanResponse> travelPlanResponses = travelQuery.findAllTravelPlans(travel);
+		List<ParticipantResponse> participantResponses = travelUserQuery.findAllParticipants(travel);
 
 		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses, participationFlag,
 			bookmarkFlag);
@@ -69,10 +75,10 @@ public class TravelService {
 
 	public List<SimpleTravelResponse> getPopularTravels(Optional<Long> userId) {
 
-		return travelFactory.findTop8ByOrderByIdDesc()
+		return travelQuery.findTop8ByOrderByIdDesc()
 			.stream()
 			.map(travel -> {
-				int currentTravelMate = (int)travelUserFactory.countByTravel(travel);
+				int currentTravelMate = (int)travelUserQuery.countParticipants(travel);
 				Boolean isBookmark = bookmarkFactory.isUserParticipating(userId, travel.getId());
 
 				return SimpleTravelResponse.from(travel, currentTravelMate, isBookmark);
@@ -82,45 +88,45 @@ public class TravelService {
 
 	@Transactional
 	public void participateInTravel(Long travelId, Long userId) {
-		Boolean existsCheckFlag = travelUserFactory.isUserParticipating(travelId, userId);
+		Boolean existsCheckFlag = travelUserQuery.isUserParticipating(travelId, userId);
 
 		if (existsCheckFlag) {
 			throw new WeGoException(ALREADY_PARTICIPATED_TRAVEL);
 		}
 
 		User user = userFactory.findUser(userId);
-		Travel travel = travelFactory.findTravel(travelId);
+		Travel travel = travelQuery.findTravel(travelId);
 
-		travelUserFactory.createAttendee(travel, user);
+		travelUserCommander.createAttendee(travel, user);
 	}
 
 	@Transactional
 	public void deleteTravelByOrganizer(Long travelId, Long userId) {
-		TravelUser travelUser = travelUserFactory.findTravelUser(travelId, userId);
+		TravelUser travelUser = travelUserQuery.findTravelUser(travelId, userId);
 
 		if (travelUser.getRole() != ParticipantRole.ORGANIZER) {
 			throw new WeGoException(INSUFFICIENT_TRAVEL_PERMISSION);
 		}
 
-		travelUserFactory.deleteTravelUser(travelUser);
-		travelFactory.deleteTravel(travelUser.getTravel());
+		travelUserCommander.deleteTravelUser(travelUser);
+		travelCommander.deleteTravel(travelUser.getTravel());
 	}
 
 	@Transactional
 	public void deleteTravelByAttendee(Long travelId, Long userId) {
-		TravelUser travelUser = travelUserFactory.findTravelUser(travelId, userId);
+		TravelUser travelUser = travelUserQuery.findTravelUser(travelId, userId);
 
 		if (travelUser.getRole() != ParticipantRole.ATTENDEE) {
 			throw new WeGoException(NOT_PARTICIPATED_TRAVEL);
 		}
 
-		travelUserFactory.deleteTravelUser(travelUser);
+		travelUserCommander.deleteTravelUser(travelUser);
 	}
 
 	@Transactional
 	public void addBookmark(Long userId, Long travelId) {
 		User user = userFactory.findUser(userId);
-		Travel travel = travelFactory.findTravel(travelId);
+		Travel travel = travelQuery.findTravel(travelId);
 
 		Boolean existsCheckFlag = bookmarkFactory.isUserParticipating(user.getId(), travel.getId());
 
@@ -134,7 +140,7 @@ public class TravelService {
 	@Transactional
 	public void deleteBookmark(Long userId, Long travelId) {
 		User user = userFactory.findUser(userId);
-		Travel travel = travelFactory.findTravel(travelId);
+		Travel travel = travelQuery.findTravel(travelId);
 
 		Boolean existsCheckFlag = bookmarkFactory.isUserParticipating(user.getId(), travel.getId());
 

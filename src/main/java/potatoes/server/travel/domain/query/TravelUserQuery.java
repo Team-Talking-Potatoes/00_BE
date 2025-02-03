@@ -1,41 +1,35 @@
-package potatoes.server.travel.factory;
+package potatoes.server.travel.domain.query;
 
 import static potatoes.server.utils.error.ErrorCode.*;
 
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import potatoes.server.travel.dto.GetMyTravelResponse;
 import potatoes.server.travel.dto.ParticipantResponse;
 import potatoes.server.travel.entity.Travel;
 import potatoes.server.travel.entity.TravelUser;
 import potatoes.server.travel.repository.TravelUserRepository;
-import potatoes.server.user.entity.User;
+import potatoes.server.utils.constant.TravelStatus;
 import potatoes.server.utils.error.exception.WeGoException;
 
-@Component
 @RequiredArgsConstructor
-public class TravelUserFactory {
+@Component
+public class TravelUserQuery {
+
 	private final TravelUserRepository travelUserRepository;
-
-	public void createOrganizer(Travel travel, User user) {
-		TravelUser travelUser = TravelUser.createOrganizer(travel, user);
-		travelUserRepository.save(travelUser);
-	}
-
-	public void createAttendee(Travel travel, User user) {
-		TravelUser travelUser = TravelUser.createAttendee(travel, user);
-		travelUserRepository.save(travelUser);
-	}
 
 	public TravelUser findTravelUser(Long travelId, Long userId) {
 		return travelUserRepository.findByTravelIdAndUserId(travelId, userId)
 			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
 	}
 
-	public long countByTravel(Travel travel) {
+	public long countParticipants(Travel travel) {
 		return travelUserRepository.countByTravel(travel);
 	}
 
@@ -55,8 +49,15 @@ public class TravelUserFactory {
 			.toList();
 	}
 
-	public void deleteTravelUser(TravelUser travelUser) {
-		travelUserRepository.delete(travelUser);
+	public Page<GetMyTravelResponse> findMyTravels(Pageable pageable, Long userId) {
+		return travelUserRepository.findMyTravels(pageable, userId);
 	}
 
+	public Page<GetMyTravelResponse> findTravelsByStatus(Pageable pageable, Long userId, TravelStatus travelStatus) {
+		return travelUserRepository.findTravelsByStatus(pageable, userId, travelStatus.name());
+	}
+
+	public Page<GetMyTravelResponse> findReviewableTravels(Pageable pageable, Long userId) {
+		return travelUserRepository.findReviewableTravels(pageable, userId);
+	}
 }

@@ -12,11 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import potatoes.server.travel.bookmark.factory.BookmarkFactory;
+import potatoes.server.travel.domain.query.BookmarkQuery;
+import potatoes.server.travel.domain.query.TravelQuery;
+import potatoes.server.travel.domain.query.TravelUserQuery;
 import potatoes.server.travel.dto.GetMyTravelResponse;
 import potatoes.server.travel.dto.TravelSummaryResponse;
 import potatoes.server.travel.entity.Travel;
-import potatoes.server.travel.factory.TravelPaginationFactory;
-import potatoes.server.travel.factory.TravelUserFactory;
 import potatoes.server.utils.constant.TravelSortType;
 import potatoes.server.utils.constant.TravelStatus;
 import potatoes.server.utils.pagination.dto.PageResponse;
@@ -28,8 +29,9 @@ import potatoes.server.utils.time.DateTimeUtils;
 public class TravelPaginationService {
 
 	private final BookmarkFactory bookmarkFactory;
-	private final TravelUserFactory travelUserFactory;
-	private final TravelPaginationFactory travelPaginationFactory;
+	private final BookmarkQuery bookmarkQuery;
+	private final TravelUserQuery travelUserQuery;
+	private final TravelQuery travelQuery;
 
 	public PageResponse<TravelSummaryResponse> getTravelList(
 		int page, int size, Boolean isDomestic, String startAt, String endAt,
@@ -40,11 +42,11 @@ public class TravelPaginationService {
 		Instant parsedStartAt = DateTimeUtils.parseYearMonthDayOrNull(startAt);
 		Instant parsedEndAt = DateTimeUtils.parseYearMonthDayOrNull(endAt);
 
-		Page<Travel> travels = travelPaginationFactory.findTravels(pageable, isDomestic, parsedStartAt, parsedEndAt,
+		Page<Travel> travels = travelQuery.findTravels(pageable, isDomestic, parsedStartAt, parsedEndAt,
 			query);
 
 		Page<TravelSummaryResponse> responsePage = travels.map(travel -> {
-			int currentTravelMateCount = (int)travelUserFactory.countByTravel(travel);
+			int currentTravelMateCount = (int)travelUserQuery.countParticipants(travel);
 
 			Boolean isBookmark = bookmarkFactory.isUserParticipating(userId, travel.getId());
 			return TravelSummaryResponse.from(travel, currentTravelMateCount, isBookmark);
@@ -73,7 +75,7 @@ public class TravelPaginationService {
 
 	public PageResponse<GetMyTravelResponse> getMyTravels(int page, int size, Long userId) {
 		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelPaginationFactory.findMyTravels(request, userId);
+		Page<GetMyTravelResponse> findTravels = travelUserQuery.findMyTravels(request, userId);
 		return PageResponse.from(findTravels);
 	}
 
@@ -81,7 +83,7 @@ public class TravelPaginationService {
 		int page, int size, Long userId, TravelStatus travelStatus
 	) {
 		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelPaginationFactory.findTravelsByStatus(request, userId,
+		Page<GetMyTravelResponse> findTravels = travelUserQuery.findTravelsByStatus(request, userId,
 			travelStatus);
 		return PageResponse.from(findTravels);
 	}
@@ -90,7 +92,7 @@ public class TravelPaginationService {
 		int page, int size, Long userId
 	) {
 		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelPaginationFactory.findTravelsByBookmark(request, userId);
+		Page<GetMyTravelResponse> findTravels = bookmarkQuery.findTravelsByBookmark(request, userId);
 		return PageResponse.from(findTravels);
 	}
 
@@ -98,7 +100,7 @@ public class TravelPaginationService {
 		int page, int size, Long userId
 	) {
 		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelPaginationFactory.findReviewableTravels(request, userId);
+		Page<GetMyTravelResponse> findTravels = travelUserQuery.findReviewableTravels(request, userId);
 		return PageResponse.from(findTravels);
 	}
 }
