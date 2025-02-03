@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import potatoes.server.chat.entity.Chat;
 import potatoes.server.chat.repository.ChatRepository;
 import potatoes.server.infra.s3.S3UtilsProvider;
+import potatoes.server.travel.dto.TravelPlanResponse;
 import potatoes.server.travel.entity.Travel;
 import potatoes.server.travel.entity.TravelPlan;
 import potatoes.server.travel.model.TravelModel;
@@ -55,4 +56,19 @@ public class TravelFactory {
 	public Travel findTravel(Long travelId) {
 		return travelRepository.findById(travelId)
 			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
-	}}
+	}
+
+	public List<Travel> findTop8ByOrderByIdDesc() {
+		return travelRepository.findTop8ByOrderByIdDesc();
+	}
+
+	public List<TravelPlanResponse> findAllTravelPlans(Travel travel) {
+		return travelPlanRepository.findAllByTravel(travel).stream()
+			.map(TravelPlanResponse::from)
+			.toList();
+	}
+
+	public void deleteTravel(Travel travel) {
+		travelRepository.delete(travel);
+	}
+}

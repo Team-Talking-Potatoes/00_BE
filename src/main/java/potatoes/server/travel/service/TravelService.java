@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.travel.bookmark.entity.Bookmark;
-import potatoes.server.travel.bookmark.repository.BookmarkRepository;
+import potatoes.server.travel.bookmark.factory.BookmarkFactory;
 import potatoes.server.travel.dto.CreateTravelRequest;
 import potatoes.server.travel.dto.DetailTravelRequest;
 import potatoes.server.travel.dto.ParticipantResponse;
@@ -25,9 +25,6 @@ import potatoes.server.travel.factory.TravelFactory;
 import potatoes.server.travel.factory.TravelUserFactory;
 import potatoes.server.travel.model.TravelModel;
 import potatoes.server.travel.model.TravelPlanModel;
-import potatoes.server.travel.repository.TravelPlanRepository;
-import potatoes.server.travel.repository.TravelRepository;
-import potatoes.server.travel.repository.TravelUserRepository;
 import potatoes.server.user.entity.User;
 import potatoes.server.user.factory.UserFactory;
 import potatoes.server.utils.constant.ParticipantRole;
@@ -39,13 +36,10 @@ import potatoes.server.utils.error.exception.WeGoException;
 @Service
 public class TravelService {
 
-	private final TravelRepository travelRepository;
-	private final TravelPlanRepository travelPlanRepository;
-	private final TravelUserRepository travelUserRepository;
-	private final BookmarkRepository bookmarkRepository;
 	private final TravelFactory travelFactory;
 	private final TravelUserFactory travelUserFactory;
 	private final UserFactory userFactory;
+	private final BookmarkFactory bookmarkFactory;
 
 	@Transactional
 	public void createTravel(Long userId, CreateTravelRequest request) {
@@ -63,33 +57,23 @@ public class TravelService {
 	public TravelDetailResponse getDetails(Long travelId, Optional<Long> userId) {
 		Travel travel = travelFactory.findTravel(travelId);
 
-		Boolean participationFlag = userId
-			.map(uid -> travelUserRepository.existsByTravelIdAndUserId(travelId, uid))
-			.orElse(null);
+		Boolean participationFlag = travelUserFactory.isUserParticipating(travelId, userId);
+		Boolean bookmarkFlag = bookmarkFactory.isUserParticipating(userId, travelId);
 
-		Boolean bookmarkFlag = userId
-			.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travelId))
-			.orElse(null);
+		List<TravelPlanResponse> travelPlanResponses = travelFactory.findAllTravelPlans(travel);
+		List<ParticipantResponse> participantResponses = travelUserFactory.findAllParticipants(travel);
 
-		List<TravelPlanResponse> travelPlanResponses = travelPlanRepository.findAllByTravel(travel).stream()
-			.map(TravelPlanResponse::from)
-			.toList();
-		List<ParticipantResponse> participantResponses = travelUserRepository.findAllByTravel(travel).stream()
-			.map(ParticipantResponse::from)
-			.toList();
 		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses, participationFlag,
 			bookmarkFlag);
 	}
 
 	public List<SimpleTravelResponse> getPopularTravels(Optional<Long> userId) {
-		return travelRepository.findTop8ByOrderByIdDesc()
+
+		return travelFactory.findTop8ByOrderByIdDesc()
 			.stream()
 			.map(travel -> {
-				int currentTravelMate = (int)travelUserRepository.countByTravel(travel);
-
-				Boolean isBookmark = userId
-					.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travel.getId()))
-					.orElse(null);
+				int currentTravelMate = (int)travelUserFactory.countByTravel(travel);
+				Boolean isBookmark = bookmarkFactory.isUserParticipating(userId, travel.getId());
 
 				return SimpleTravelResponse.from(travel, currentTravelMate, isBookmark);
 			})
@@ -98,22 +82,16 @@ public class TravelService {
 
 	@Transactional
 	public void participateInTravel(Long travelId, Long userId) {
-		User user = userFactory.findUser(userId);
-		Travel travel = travelFactory.findTravel(travelId);
-
-		boolean existsCheckFlag = travelUserRepository.existsByTravelIdAndUserId(travelId, userId);
+		Boolean existsCheckFlag = travelUserFactory.isUserParticipating(travelId, userId);
 
 		if (existsCheckFlag) {
 			throw new WeGoException(ALREADY_PARTICIPATED_TRAVEL);
 		}
 
-		TravelUser travelUser = TravelUser.builder()
-			.role(ParticipantRole.ATTENDEE)
-			.user(user)
-			.travel(travel)
-			.build();
+		User user = userFactory.findUser(userId);
+		Travel travel = travelFactory.findTravel(travelId);
 
-		travelUserRepository.save(travelUser);
+		travelUserFactory.createAttendee(travel, user);
 	}
 
 	@Transactional
@@ -124,8 +102,8 @@ public class TravelService {
 			throw new WeGoException(INSUFFICIENT_TRAVEL_PERMISSION);
 		}
 
-		travelUserRepository.delete(travelUser);
-		travelRepository.delete(travelUser.getTravel());
+		travelUserFactory.deleteTravelUser(travelUser);
+		travelFactory.deleteTravel(travelUser.getTravel());
 	}
 
 	@Transactional
@@ -136,7 +114,7 @@ public class TravelService {
 			throw new WeGoException(NOT_PARTICIPATED_TRAVEL);
 		}
 
-		travelUserRepository.delete(travelUser);
+		travelUserFactory.deleteTravelUser(travelUser);
 	}
 
 	@Transactional
@@ -144,15 +122,13 @@ public class TravelService {
 		User user = userFactory.findUser(userId);
 		Travel travel = travelFactory.findTravel(travelId);
 
-		if (bookmarkRepository.existsByUserAndTravel(user, travel)) {
-			return;
+		Boolean existsCheckFlag = bookmarkFactory.isUserParticipating(user.getId(), travel.getId());
+
+		if (existsCheckFlag) {
+			throw new WeGoException(BOOKMARK_ALREADY_EXIST);
 		}
 
-		Bookmark bookmark = Bookmark.builder()
-			.user(user)
-			.travel(travel)
-			.build();
-		bookmarkRepository.save(bookmark);
+		bookmarkFactory.createBookmark(user, travel);
 	}
 
 	@Transactional
@@ -160,8 +136,13 @@ public class TravelService {
 		User user = userFactory.findUser(userId);
 		Travel travel = travelFactory.findTravel(travelId);
 
-		Bookmark bookmark = bookmarkRepository.findByUserAndTravel(user, travel)
-			.orElseThrow(() -> new WeGoException(BOOKMARK_NOT_FOUND));
-		bookmarkRepository.delete(bookmark);
+		Boolean existsCheckFlag = bookmarkFactory.isUserParticipating(user.getId(), travel.getId());
+
+		if (!existsCheckFlag) {
+			throw new WeGoException(BOOKMARK_NOT_FOUND);
+		}
+
+		Bookmark bookmark = bookmarkFactory.getBookmark(userId, travelId);
+		bookmarkFactory.deleteBookmark(bookmark);
 	}
 }
