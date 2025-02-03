@@ -1,7 +1,5 @@
 package potatoes.server.travel.service;
 
-import static potatoes.server.utils.time.DateTimeUtils.*;
-
 import java.time.Instant;
 import java.util.Optional;
 
@@ -13,24 +11,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import potatoes.server.travel.bookmark.repository.BookmarkRepository;
+import potatoes.server.travel.bookmark.factory.BookmarkFactory;
 import potatoes.server.travel.dto.GetMyTravelResponse;
 import potatoes.server.travel.dto.TravelSummaryResponse;
 import potatoes.server.travel.entity.Travel;
-import potatoes.server.travel.repository.TravelRepository;
-import potatoes.server.travel.repository.TravelUserRepository;
+import potatoes.server.travel.factory.TravelPaginationFactory;
+import potatoes.server.travel.factory.TravelUserFactory;
 import potatoes.server.utils.constant.TravelSortType;
 import potatoes.server.utils.constant.TravelStatus;
 import potatoes.server.utils.pagination.dto.PageResponse;
+import potatoes.server.utils.time.DateTimeUtils;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
 public class TravelPaginationService {
 
-	private final BookmarkRepository bookmarkRepository;
-	private final TravelRepository travelRepository;
-	private final TravelUserRepository travelUserRepository;
+	private final BookmarkFactory bookmarkFactory;
+	private final TravelUserFactory travelUserFactory;
+	private final TravelPaginationFactory travelPaginationFactory;
 
 	public PageResponse<TravelSummaryResponse> getTravelList(
 		int page, int size, Boolean isDomestic, String startAt, String endAt,
@@ -38,22 +37,16 @@ public class TravelPaginationService {
 	) {
 		Pageable pageable = createPageable(page, size, sortOrder);
 
-		Instant parsedStartAt = startAt != null ? parseYearMonthDay(startAt) : null;
-		Instant parsedEndAt = endAt != null ? parseYearMonthDay(endAt) : null;
+		Instant parsedStartAt = DateTimeUtils.parseYearMonthDayOrNull(startAt);
+		Instant parsedEndAt = DateTimeUtils.parseYearMonthDayOrNull(endAt);
 
-		Page<Travel> travels = travelRepository.findTravels(
-			isDomestic,
-			parsedStartAt,
-			parsedEndAt,
-			query,
-			pageable
-		);
+		Page<Travel> travels = travelPaginationFactory.findTravels(pageable, isDomestic, parsedStartAt, parsedEndAt,
+			query);
 
 		Page<TravelSummaryResponse> responsePage = travels.map(travel -> {
-			int currentTravelMateCount = (int)travelUserRepository.countByTravel(travel);
-			Boolean isBookmark = userId
-				.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travel.getId()))
-				.orElse(null);
+			int currentTravelMateCount = (int)travelUserFactory.countByTravel(travel);
+
+			Boolean isBookmark = bookmarkFactory.isUserParticipating(userId, travel.getId());
 			return TravelSummaryResponse.from(travel, currentTravelMateCount, isBookmark);
 		});
 
@@ -80,7 +73,7 @@ public class TravelPaginationService {
 
 	public PageResponse<GetMyTravelResponse> getMyTravels(int page, int size, Long userId) {
 		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelUserRepository.findMyTravels(request, userId);
+		Page<GetMyTravelResponse> findTravels = travelPaginationFactory.findMyTravels(request, userId);
 		return PageResponse.from(findTravels);
 	}
 
@@ -88,8 +81,8 @@ public class TravelPaginationService {
 		int page, int size, Long userId, TravelStatus travelStatus
 	) {
 		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelUserRepository.findTravelsByStatus(request, userId,
-			travelStatus.name());
+		Page<GetMyTravelResponse> findTravels = travelPaginationFactory.findTravelsByStatus(request, userId,
+			travelStatus);
 		return PageResponse.from(findTravels);
 	}
 
@@ -97,7 +90,7 @@ public class TravelPaginationService {
 		int page, int size, Long userId
 	) {
 		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = bookmarkRepository.findMyTravelsByBookmark(request, userId);
+		Page<GetMyTravelResponse> findTravels = travelPaginationFactory.findTravelsByBookmark(request, userId);
 		return PageResponse.from(findTravels);
 	}
 
@@ -105,7 +98,7 @@ public class TravelPaginationService {
 		int page, int size, Long userId
 	) {
 		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelUserRepository.findReviewableTravels(request, userId);
+		Page<GetMyTravelResponse> findTravels = travelPaginationFactory.findReviewableTravels(request, userId);
 		return PageResponse.from(findTravels);
 	}
 }
