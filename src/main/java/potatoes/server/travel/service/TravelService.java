@@ -13,9 +13,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import potatoes.server.chat.domain.command.ChatCommander;
 import potatoes.server.travel.bookmark.entity.Bookmark;
-import potatoes.server.travel.bookmark.factory.BookmarkFactory;
+import potatoes.server.travel.domain.command.BookmarkCommander;
 import potatoes.server.travel.domain.command.TravelCommander;
 import potatoes.server.travel.domain.command.TravelUserCommander;
+import potatoes.server.travel.domain.query.BookmarkQuery;
 import potatoes.server.travel.domain.query.TravelQuery;
 import potatoes.server.travel.domain.query.TravelUserQuery;
 import potatoes.server.travel.dto.CreateTravelRequest;
@@ -42,10 +43,11 @@ public class TravelService {
 	private final TravelCommander travelCommander;
 	private final TravelUserCommander travelUserCommander;
 	private final ChatCommander chatCommander;
+	private final BookmarkCommander bookmarkCommander;
 	private final TravelQuery travelQuery;
 	private final TravelUserQuery travelUserQuery;
+	private final BookmarkQuery bookmarkQuery;
 	private final UserFactory userFactory;
-	private final BookmarkFactory bookmarkFactory;
 
 	@Transactional
 	public void createTravel(Long userId, CreateTravelRequest request) {
@@ -64,7 +66,7 @@ public class TravelService {
 		Travel travel = travelQuery.findTravel(travelId);
 
 		Boolean participationFlag = travelUserQuery.isUserParticipating(travelId, userId);
-		Boolean bookmarkFlag = bookmarkFactory.isUserParticipating(userId, travelId);
+		Boolean bookmarkFlag = bookmarkQuery.isUserParticipating(userId, travelId);
 
 		List<TravelPlanResponse> travelPlanResponses = travelQuery.findAllTravelPlans(travel);
 		List<ParticipantResponse> participantResponses = travelUserQuery.findAllParticipants(travel);
@@ -79,7 +81,7 @@ public class TravelService {
 			.stream()
 			.map(travel -> {
 				int currentTravelMate = (int)travelUserQuery.countParticipants(travel);
-				Boolean isBookmark = bookmarkFactory.isUserParticipating(userId, travel.getId());
+				Boolean isBookmark = bookmarkQuery.isUserParticipating(userId, travel.getId());
 
 				return SimpleTravelResponse.from(travel, currentTravelMate, isBookmark);
 			})
@@ -128,13 +130,13 @@ public class TravelService {
 		User user = userFactory.findUser(userId);
 		Travel travel = travelQuery.findTravel(travelId);
 
-		Boolean existsCheckFlag = bookmarkFactory.isUserParticipating(user.getId(), travel.getId());
+		Boolean existsCheckFlag = bookmarkQuery.isUserParticipating(user.getId(), travel.getId());
 
 		if (existsCheckFlag) {
 			throw new WeGoException(BOOKMARK_ALREADY_EXIST);
 		}
 
-		bookmarkFactory.createBookmark(user, travel);
+		bookmarkCommander.createBookmark(user, travel);
 	}
 
 	@Transactional
@@ -142,13 +144,13 @@ public class TravelService {
 		User user = userFactory.findUser(userId);
 		Travel travel = travelQuery.findTravel(travelId);
 
-		Boolean existsCheckFlag = bookmarkFactory.isUserParticipating(user.getId(), travel.getId());
+		Boolean existsCheckFlag = bookmarkQuery.isUserParticipating(user.getId(), travel.getId());
 
 		if (!existsCheckFlag) {
 			throw new WeGoException(BOOKMARK_NOT_FOUND);
 		}
 
-		Bookmark bookmark = bookmarkFactory.getBookmark(userId, travelId);
-		bookmarkFactory.deleteBookmark(bookmark);
+		Bookmark bookmark = bookmarkQuery.getBookmark(userId, travelId);
+		bookmarkCommander.deleteBookmark(bookmark);
 	}
 }

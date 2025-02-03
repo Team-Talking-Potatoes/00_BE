@@ -1,6 +1,4 @@
-package potatoes.server.travel.bookmark.factory;
-
-import java.util.Optional;
+package potatoes.server.travel.domain.command;
 
 import org.springframework.stereotype.Component;
 
@@ -12,7 +10,7 @@ import potatoes.server.user.entity.User;
 
 @RequiredArgsConstructor
 @Component
-public class BookmarkFactory {
+public class BookmarkCommander {
 
 	private final BookmarkRepository bookmarkRepository;
 
@@ -24,21 +22,8 @@ public class BookmarkFactory {
 		bookmarkRepository.save(bookmark);
 	}
 
-	public Bookmark getBookmark(Long userId, Long travelId){
-		return bookmarkRepository.findByUserIdAndTravelId(userId,travelId);
-	}
-
-	public Boolean isUserParticipating(Optional<Long> userId, Long travelId) {
-		return userId
-			.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travelId))
-			.orElse(null);
-	}
-
-	public Boolean isUserParticipating(Long userId, Long travelId) {
-		return isUserParticipating(Optional.of(userId), travelId);
-	}
-
 	public void deleteBookmark(Bookmark bookmark) {
 		bookmarkRepository.delete(bookmark);
 	}
+
 }

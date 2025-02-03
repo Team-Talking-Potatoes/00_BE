@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import potatoes.server.travel.bookmark.factory.BookmarkFactory;
 import potatoes.server.travel.domain.query.BookmarkQuery;
 import potatoes.server.travel.domain.query.TravelQuery;
 import potatoes.server.travel.domain.query.TravelUserQuery;
@@ -28,7 +27,6 @@ import potatoes.server.utils.time.DateTimeUtils;
 @Service
 public class TravelPaginationService {
 
-	private final BookmarkFactory bookmarkFactory;
 	private final BookmarkQuery bookmarkQuery;
 	private final TravelUserQuery travelUserQuery;
 	private final TravelQuery travelQuery;
@@ -48,7 +46,7 @@ public class TravelPaginationService {
 		Page<TravelSummaryResponse> responsePage = travels.map(travel -> {
 			int currentTravelMateCount = (int)travelUserQuery.countParticipants(travel);
 
-			Boolean isBookmark = bookmarkFactory.isUserParticipating(userId, travel.getId());
+			Boolean isBookmark = bookmarkQuery.isUserParticipating(userId, travel.getId());
 			return TravelSummaryResponse.from(travel, currentTravelMateCount, isBookmark);
 		});
 
