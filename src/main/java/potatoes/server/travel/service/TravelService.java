@@ -144,13 +144,9 @@ public class TravelService {
 		User user = userFactory.findUser(userId);
 		Travel travel = travelQuery.findTravel(travelId);
 
-		Boolean existsCheckFlag = bookmarkQuery.isUserParticipating(user.getId(), travel.getId());
+		Bookmark bookmark = bookmarkQuery.findBookmark(user.getId(), travel.getId())
+			.orElseThrow(() -> new WeGoException(BOOKMARK_NOT_FOUND));
 
-		if (!existsCheckFlag) {
-			throw new WeGoException(BOOKMARK_NOT_FOUND);
-		}
-
-		Bookmark bookmark = bookmarkQuery.getBookmark(userId, travelId);
 		bookmarkCommander.deleteBookmark(bookmark);
 	}
 }

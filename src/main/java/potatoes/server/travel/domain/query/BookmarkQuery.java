@@ -17,7 +17,7 @@ public class BookmarkQuery {
 
 	private final BookmarkRepository bookmarkRepository;
 
-	public Bookmark getBookmark(Long userId, Long travelId) {
+	public Optional<Bookmark> findBookmark(Long userId, Long travelId) {
 		return bookmarkRepository.findByUserIdAndTravelId(userId, travelId);
 	}
 

@@ -1,5 +1,7 @@
 package potatoes.server.travel.bookmark.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,5 +34,5 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
 	boolean existsByUserIdAndTravelId(Long userId, Long travelId);
 
-	Bookmark findByUserIdAndTravelId(Long userId, Long travelId);
+	Optional<Bookmark> findByUserIdAndTravelId(Long userId, Long travelId);
 }
