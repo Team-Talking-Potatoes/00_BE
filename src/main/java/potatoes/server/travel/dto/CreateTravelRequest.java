@@ -3,6 +3,7 @@ package potatoes.server.travel.dto;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -66,6 +67,11 @@ public record CreateTravelRequest(
 	@Valid
 	List<DetailTravelRequest> detailTravel
 ) {
+	public CreateTravelRequest {
+		if (detailTravel == null) {
+			detailTravel = new ArrayList<>();
+		}
+	}
 	public static TravelModel toModel(CreateTravelRequest request) {
 		return new TravelModel(
 			request.travelName(),
