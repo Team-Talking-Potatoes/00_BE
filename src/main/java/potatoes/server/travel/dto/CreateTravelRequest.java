@@ -14,79 +14,78 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.Getter;
+import lombok.Setter;
 import potatoes.server.travel.model.TravelModel;
 
-public record CreateTravelRequest(
+@Getter
+@Setter
+public class CreateTravelRequest {
 	@NotBlank(message = "여행 이름를 입력해주세요.")
-	String travelName,
+	private String travelName;
 
 	@NotNull(message = "예상 여행 경비를 입력해주세요.")
 	@Positive
-	Integer expectedTripCost,
+	private Integer expectedTripCost;
 
 	@NotNull(message = "최소 인원 입력해주세요.")
 	@Positive
-	Integer minTravelMateCount,
+	private Integer minTravelMateCount;
 
 	@NotNull(message = "최대 인원 입력해주세요.")
 	@Positive(message = "올바른 값을 입력해주세요.")
-	Integer maxTravelMateCount,
+	private Integer maxTravelMateCount;
 
 	@NotBlank(message = "여행 소개를 입력해주세요.")
-	String travelDescription,
+	private String travelDescription;
 
 	@NotNull(message = "여행 사진을 추가해주세요.")
-	MultipartFile travelImage,
+	private MultipartFile travelImage;
 
 	@NotBlank(message = "해시태그를 추가해주세요. (최대 5개)")
-	String hashTags,
+	private String hashTags;
 
 	@NotNull(message = "국내여행/해외여행 여부를 체크해주세요.")
-	Boolean isDomestic,
+	private Boolean isDomestic;
 
 	@NotBlank(message = "여행 진행 장소를 입력해주세요.")
-	String travelLocation,
+	private String travelLocation;
 
-	String departureLocation,
+	private String departureLocation;
 
 	@NotNull(message = "여행 시작 시간 정해주세요.")
 	@Future(message = "선택할 수 없는 날짜입니다.")
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-	LocalDateTime startAt,
+	private LocalDateTime startAt;
 
 	@NotNull(message = "여행 종료 시간 정해주세요.")
 	@Future(message = "선택할 수 없는 날짜입니다.")
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-	LocalDateTime endAt,
+	private LocalDateTime endAt;
 
 	@NotNull(message = "마감 종료 시간 정해주세요.")
 	@Future(message = "선택할 수 없는 날짜입니다.")
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-	LocalDateTime registrationEnd,
+	private LocalDateTime registrationEnd;
 
 	@Valid
-	List<DetailTravelRequest> detailTravel
-) {
-	public CreateTravelRequest {
-		if (detailTravel == null) {
-			detailTravel = new ArrayList<>();
-		}
-	}
+	private List<DetailTravelRequest> detailTravel = new ArrayList<>();
+
 	public static TravelModel toModel(CreateTravelRequest request) {
 		return new TravelModel(
-			request.travelName(),
-			request.travelDescription(),
+			request.travelName,
+			request.travelDescription,
 			null,
-			request.expectedTripCost(),
-			request.minTravelMateCount(),
-			request.maxTravelMateCount(),
-			request.hashTags(),
-			request.isDomestic(),
-			request.travelLocation(),
-			request.departureLocation(),
-			request.startAt().toInstant(ZoneOffset.UTC),
-			request.endAt().toInstant(ZoneOffset.UTC),
-			request.registrationEnd().toInstant(ZoneOffset.UTC),
+			request.expectedTripCost,
+			request.minTravelMateCount,
+			request.maxTravelMateCount,
+			request.hashTags,
+			request.isDomestic,
+			request.travelLocation,
+			request.departureLocation,
+			request.startAt.toInstant(ZoneOffset.UTC),
+			request.endAt.toInstant(ZoneOffset.UTC),
+			request.registrationEnd.toInstant(ZoneOffset.UTC),
 			calculateTripDuration(request.startAt, request.endAt)
 		);
 	}
@@ -96,4 +95,3 @@ public record CreateTravelRequest(
 		return (int)duration.toDays();
 	}
 }
-
