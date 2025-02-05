@@ -43,14 +43,17 @@ public class TravelPaginationService {
 		Page<Travel> travels = travelQuery.findTravels(pageable, isDomestic, parsedStartAt, parsedEndAt,
 			query);
 
-		Page<TravelSummaryResponse> responsePage = travels.map(travel -> {
+		Page<TravelSummaryResponse> responsePage = combineSummaryResponse(travels, userId);
+		return PageResponse.from(responsePage);
+	}
+
+	private Page<TravelSummaryResponse> combineSummaryResponse(Page<Travel> travels, Optional<Long> userId) {
+		return travels.map(travel -> {
 			int currentTravelMateCount = (int)travelUserQuery.countParticipants(travel);
 
 			Boolean isBookmark = bookmarkQuery.isUserParticipating(userId, travel.getId());
 			return TravelSummaryResponse.from(travel, currentTravelMateCount, isBookmark);
 		});
-
-		return PageResponse.from(responsePage);
 	}
 
 	private Pageable createPageable(int page, int size, TravelSortType sortOrder) {
