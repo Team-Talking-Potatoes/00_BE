@@ -1,9 +1,11 @@
 package potatoes.server.review.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +15,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.review.dto.GetMyReviewResponse;
+import potatoes.server.review.dto.GetReviewInTravel;
 import potatoes.server.review.dto.GetReviewResponse;
 import potatoes.server.review.dto.SimpleReviewResponse;
 import potatoes.server.review.service.ReviewService;
@@ -42,9 +45,9 @@ public class ReviewPaginationController {
 
 	@Operation(summary = "리뷰 리스트 조회", description = "최근에 추가된 리뷰를 조회합니다.")
 	@GetMapping("/popular")
-	public ResponseEntity<CommonResponse<PageResponse<SimpleReviewResponse>>> getSimpleReviewList(
+	public ResponseEntity<CommonResponse<List<SimpleReviewResponse>>> getSimpleReviewList(
 		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "5") int size
+		@RequestParam(defaultValue = "6") int size
 	) {
 		return ResponseEntity.ok(CommonResponse.from(reviewService.getSimpleReviews(page, size)));
 	}
@@ -57,5 +60,15 @@ public class ReviewPaginationController {
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(reviewService.getMyReviews(page, size, userId)));
+	}
+
+	@Operation(summary = "여행에 달린 리뷰 조회")
+	@GetMapping("/travels/{travelId}")
+	public ResponseEntity<CommonResponse<PageResponse<GetReviewInTravel>>> getReviewsInTravel(
+		@PathVariable Long travelId,
+		@RequestParam(required = false, defaultValue = "0") int page,
+		@RequestParam(required = false, defaultValue = "4") int size
+	) {
+		return ResponseEntity.ok(CommonResponse.from(reviewService.getReviewsInTravel(travelId, page, size)));
 	}
 }

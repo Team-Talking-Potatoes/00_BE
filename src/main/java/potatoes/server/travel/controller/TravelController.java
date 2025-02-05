@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import potatoes.server.travel.dto.CreateTravelRequest;
 import potatoes.server.travel.dto.SimpleTravelResponse;
 import potatoes.server.travel.dto.TravelDetailResponse;
@@ -27,6 +28,7 @@ import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.annotation.NonLoginAuthorization;
 
+@Slf4j
 @Tag(name = "여행", description = "여행 관련 API")
 @RequiredArgsConstructor
 @RequestMapping("/travels")
@@ -46,9 +48,9 @@ public class TravelController {
 	}
 
 	@Operation(summary = "여행 상세 조회", description = "여행ID를 통해 해당 여행의 상세 내용을 조회합니다.")
-	@GetMapping("/{id}")
+	@GetMapping("/{travelId}")
 	public ResponseEntity<CommonResponse<TravelDetailResponse>> getTravelDetails(
-		@PathVariable(name = "id") Long travelId,
+		@PathVariable(name = "travelId") Long travelId,
 		@NonLoginAuthorization @Parameter(hidden = true) Optional<Long> userId
 	) {
 		return ResponseEntity.ok(CommonResponse.from(travelService.getDetails(travelId, userId)));
@@ -78,7 +80,7 @@ public class TravelController {
 	}
 
 	@Operation(summary = "동행 (참여자)", description = "여행을 동행합니다.")
-	@PostMapping("{travelId}/participation")
+	@PostMapping("/{travelId}/participation")
 	public ResponseEntity<CommonResponse<?>> participateInTravel(
 		@PathVariable Long travelId,
 		@Authorization @Parameter(hidden = true) Long userId
@@ -88,7 +90,7 @@ public class TravelController {
 	}
 
 	@Operation(summary = "동행 취소(참여자)", description = "여행 동행을 취소합니다. 이미 참여중인 여행에만 취소할 수 있습니다")
-	@DeleteMapping("{travelId}/participation")
+	@DeleteMapping("/{travelId}/participation")
 	public ResponseEntity<CommonResponse<?>> deleteTravelByAttendee(
 		@PathVariable Long travelId,
 		@Authorization @Parameter(hidden = true) Long userId

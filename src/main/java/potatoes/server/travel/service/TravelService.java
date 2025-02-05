@@ -54,9 +54,9 @@ public class TravelService {
 		User user = userFactory.findUser(userId);
 
 		TravelModel travelModel = CreateTravelRequest.toModel(request);
-		Travel travel = travelCommander.createTravel(travelModel, request.travelImage());
+		Travel travel = travelCommander.createTravel(travelModel, request.getTravelImage());
 
-		List<TravelPlanModel> travelPlan = DetailTravelRequest.toModels(request.detailTravel(), travel);
+		List<TravelPlanModel> travelPlan = DetailTravelRequest.toModels(request.getDetailTravel(), travel);
 		travelCommander.createTravelPlans(travelPlan);
 		chatCommander.createChat(travel, user);
 		travelUserCommander.createOrganizer(travel, user);

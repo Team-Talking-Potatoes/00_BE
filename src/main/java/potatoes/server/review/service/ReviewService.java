@@ -17,6 +17,7 @@ import potatoes.server.infra.s3.S3UtilsProvider;
 import potatoes.server.review.dto.CreateReviewRequest;
 import potatoes.server.review.dto.GetDetailsReview;
 import potatoes.server.review.dto.GetMyReviewResponse;
+import potatoes.server.review.dto.GetReviewInTravel;
 import potatoes.server.review.dto.GetReviewResponse;
 import potatoes.server.review.dto.SimpleReviewResponse;
 import potatoes.server.review.dto.TotalCountReviews;
@@ -135,10 +136,9 @@ public class ReviewService {
 		reviewLikeRepository.delete(reviewLike);
 	}
 
-	public PageResponse<SimpleReviewResponse> getSimpleReviews(int page, int size) {
+	public List<SimpleReviewResponse> getSimpleReviews(int page, int size) {
 		PageRequest request = PageRequest.of(page, size);
-		Page<SimpleReviewResponse> findReviews = reviewRepository.findRecentReviews(request);
-		return PageResponse.from(findReviews);
+		return reviewRepository.findRecentReviews(request);
 	}
 
 	public PageResponse<GetMyReviewResponse> getMyReviews(int page, int size, Long userId) {
@@ -150,5 +150,11 @@ public class ReviewService {
 	public TotalRatingResponse getTotalReviewsRatings(Long travelId) {
 		TotalCountReviews countedReviews = reviewRepository.countReviewsByRating(travelId);
 		return countedReviews.toResponse();
+	}
+
+	public PageResponse<GetReviewInTravel> getReviewsInTravel(Long travelId, int page, int size) {
+		PageRequest request = PageRequest.of(page, size);
+		Page<GetReviewInTravel> findReviews = reviewRepository.findReviewByTravelId(request, travelId);
+		return PageResponse.from(findReviews);
 	}
 }

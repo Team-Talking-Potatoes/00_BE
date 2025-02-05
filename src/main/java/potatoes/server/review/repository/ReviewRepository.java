@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import potatoes.server.review.dto.GetMyReviewResponse;
+import potatoes.server.review.dto.GetReviewInTravel;
 import potatoes.server.review.dto.GetReviewResponse;
 import potatoes.server.review.dto.SimpleReviewResponse;
 import potatoes.server.review.dto.TotalCountReviews;
@@ -119,6 +120,21 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	Page<GetMyReviewResponse> findMyReviews(Pageable pageable, Long userId);
 
 	@Query("""
+		SELECT new potatoes.server.review.dto.GetReviewInTravel(
+			r.id,
+			r.title,
+			r.comment,
+		    MIN(ri.imageUrl),
+			r.starRating
+		)
+		FROM Review r
+		LEFT JOIN r.reviewImages ri
+		WHERE r.travel.id = :travelId
+		GROUP BY r.id, r.title, r.comment, r.starRating
+		""")
+	Page<GetReviewInTravel> findReviewByTravelId(Pageable pageable, Long travelId);
+
+	@Query("""
 		    SELECT r
 		    FROM Review r
 		    LEFT JOIN FETCH r.reviewImages
@@ -154,7 +170,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		GROUP BY r.id, u.nickname
 		ORDER BY r.createdAt DESC
 		""")
-	Page<SimpleReviewResponse> findRecentReviews(Pageable pageable);
+	List<SimpleReviewResponse> findRecentReviews(Pageable pageable);
 
 	@Query("SELECT r FROM Review r " +
 		"JOIN TravelUser tu ON r.travel.id = tu.travel.id " +

@@ -14,7 +14,7 @@ public record GetDetailsReview(
 	String travelTitle,
 	String profileImage,
 	String title,
-	String comment,
+	String content,
 	float starRating,
 	List<String> reviewImages,
 	String nickname,
