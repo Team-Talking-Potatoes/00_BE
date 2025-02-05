@@ -1,12 +1,12 @@
 package potatoes.server.review.dto;
 
 public record TotalCountReviews(
+	int totalReviews,
 	int oneStarReviews,
 	int twoStarReviews,
 	int threeStarReviews,
 	int fourStarReviews,
-	int fiveStarReviews,
-	int total
+	int fiveStarReviews
 ) {
 	public float calculateAverageRating() {
 		float sumOfRatings = (oneStarReviews) +
@@ -15,7 +15,7 @@ public record TotalCountReviews(
 			(fourStarReviews * 4) +
 			(fiveStarReviews * 5);
 
-		return total > 0 ? sumOfRatings / total : 0;
+		return totalReviews > 0 ? sumOfRatings / totalReviews : 0;
 	}
 
 	public TotalRatingResponse toResponse() {
