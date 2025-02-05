@@ -3,8 +3,6 @@ package potatoes.server.utils.time;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
@@ -35,19 +33,7 @@ public class DateTimeUtils {
 		return localDate.atStartOfDay(TimeZone.getTimeZone(KST_ZONE_ID).toZoneId()).toInstant();
 	}
 
-	public static Instant getStartOfDay(String dateStr) {
-		if (dateStr == null) {
-			return null;
-		}
-		LocalDate date = LocalDate.parse(dateStr);
-		return date.atStartOfDay(ZoneOffset.UTC).toInstant();
-	}
-
-	public static Instant getEndOfDay(String dateStr) {
-		if (dateStr == null) {
-			return null;
-		}
-		LocalDate date = LocalDate.parse(dateStr);
-		return date.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+	public static Instant parseYearMonthDayOrNull(String dateString) {
+		return dateString != null ? parseYearMonthDay(dateString) : null;
 	}
 }

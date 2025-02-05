@@ -1,5 +1,6 @@
 package potatoes.server.review.entity;
 
+import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
@@ -25,7 +26,7 @@ public class ReviewImage extends BaseTimeEntity {
 	@EqualsAndHashCode.Include
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "review_id")
 	private Review review;
 

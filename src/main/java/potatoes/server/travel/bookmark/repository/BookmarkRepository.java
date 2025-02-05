@@ -9,14 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 
 import potatoes.server.travel.bookmark.entity.Bookmark;
 import potatoes.server.travel.dto.GetMyTravelResponse;
-import potatoes.server.travel.entity.Travel;
-import potatoes.server.user.entity.User;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
-
-	Optional<Bookmark> findByUserAndTravel(User user, Travel travel);
-
-	boolean existsByUserAndTravel(User user, Travel travel);
 
 	@Query("""
 		SELECT new potatoes.server.travel.dto.GetMyTravelResponse(
@@ -39,4 +33,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 	Page<GetMyTravelResponse> findMyTravelsByBookmark(Pageable pageable, Long userId);
 
 	boolean existsByUserIdAndTravelId(Long userId, Long travelId);
+
+	Optional<Bookmark> findByUserIdAndTravelId(Long userId, Long travelId);
 }

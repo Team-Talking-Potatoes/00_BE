@@ -52,6 +52,16 @@ public class Chat {
 		this.currentMemberCount = currentMemberCount;
 	}
 
+	public static Chat createTravelChat(Travel travel, User host) {
+		return Chat.builder()
+			.name(travel.getName())
+			.host(host)
+			.travel(travel)
+			.currentMemberCount(1)
+			.maxMemberCount(travel.getMaxTravelMateCount())
+			.build();
+	}
+
 	public void newMemberJoined() {
 		currentMemberCount++;
 	}

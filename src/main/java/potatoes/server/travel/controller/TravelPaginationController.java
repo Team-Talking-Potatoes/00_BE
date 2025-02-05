@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import potatoes.server.travel.dto.GetMyTravelResponse;
 import potatoes.server.travel.dto.TravelSummaryResponse;
-import potatoes.server.travel.service.TravelService;
+import potatoes.server.travel.service.TravelPaginationService;
 import potatoes.server.utils.CommonResponse;
 import potatoes.server.utils.annotation.Authorization;
 import potatoes.server.utils.annotation.NonLoginAuthorization;
@@ -27,7 +27,7 @@ import potatoes.server.utils.pagination.dto.PageResponse;
 @RequestMapping("/travels")
 @RestController
 public class TravelPaginationController {
-	private final TravelService travelService;
+	private final TravelPaginationService TravelPaginationService;
 
 	@Operation(summary = "여행 리스트 조회", description = "조건에 맞는 여행 리스트 조회합니다.")
 	@GetMapping("")
@@ -43,7 +43,8 @@ public class TravelPaginationController {
 	) {
 		return ResponseEntity.ok(
 			CommonResponse.from(
-				travelService.getTravelList(page, size, isDomestic, startAt, endAt, sortOrder, query, userId)));
+				TravelPaginationService.getTravelList(page, size, isDomestic, startAt, endAt, sortOrder, query,
+					userId)));
 	}
 
 	@Operation(summary = "내가 만든 여행", description = "내 프로필에서 사용하는 사용자가 생성한 여행리스트를 조회합니다.")
@@ -53,7 +54,7 @@ public class TravelPaginationController {
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
-		return ResponseEntity.ok(CommonResponse.from(travelService.getMyTravels(page, size, userId)));
+		return ResponseEntity.ok(CommonResponse.from(TravelPaginationService.getMyTravels(page, size, userId)));
 	}
 
 	@Operation(summary = "예정 여행, 다녀온 여행 조회", description = "파라미터의 travelStatus의 값이 upcoming or past에 따라서 예정 여행, 다녀온 여행이 달라진다")
@@ -65,7 +66,7 @@ public class TravelPaginationController {
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
 		return ResponseEntity.ok(
-			CommonResponse.from(travelService.getTravelsByStatus(page, size, userId, travelStatus))
+			CommonResponse.from(TravelPaginationService.getTravelsByStatus(page, size, userId, travelStatus))
 		);
 	}
 
@@ -76,6 +77,7 @@ public class TravelPaginationController {
 		@RequestParam(required = false, defaultValue = "4") int size,
 		@Authorization @Parameter(hidden = true) Long userId
 	) {
-		return ResponseEntity.ok(CommonResponse.from(travelService.getReviewableMyTravels(page, size, userId)));
+		return ResponseEntity.ok(
+			CommonResponse.from(TravelPaginationService.getReviewableMyTravels(page, size, userId)));
 	}
 }

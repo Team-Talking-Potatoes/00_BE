@@ -1,49 +1,38 @@
 package potatoes.server.travel.service;
 
 import static potatoes.server.utils.error.ErrorCode.*;
-import static potatoes.server.utils.time.DateTimeUtils.*;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import potatoes.server.chat.entity.Chat;
-import potatoes.server.chat.repository.ChatRepository;
-import potatoes.server.infra.s3.S3UtilsProvider;
+import potatoes.server.chat.domain.command.ChatCommander;
 import potatoes.server.travel.bookmark.entity.Bookmark;
-import potatoes.server.travel.bookmark.repository.BookmarkRepository;
+import potatoes.server.travel.domain.command.BookmarkCommander;
+import potatoes.server.travel.domain.command.TravelCommander;
+import potatoes.server.travel.domain.command.TravelUserCommander;
+import potatoes.server.travel.domain.query.BookmarkQuery;
+import potatoes.server.travel.domain.query.TravelQuery;
+import potatoes.server.travel.domain.query.TravelUserQuery;
 import potatoes.server.travel.dto.CreateTravelRequest;
-import potatoes.server.travel.dto.GetMyTravelResponse;
+import potatoes.server.travel.dto.DetailTravelRequest;
 import potatoes.server.travel.dto.ParticipantResponse;
 import potatoes.server.travel.dto.SimpleTravelResponse;
 import potatoes.server.travel.dto.TravelDetailResponse;
 import potatoes.server.travel.dto.TravelPlanResponse;
-import potatoes.server.travel.dto.TravelSummaryResponse;
 import potatoes.server.travel.entity.Travel;
-import potatoes.server.travel.entity.TravelPlan;
 import potatoes.server.travel.entity.TravelUser;
-import potatoes.server.travel.repository.TravelPlanRepository;
-import potatoes.server.travel.repository.TravelRepository;
-import potatoes.server.travel.repository.TravelUserRepository;
+import potatoes.server.travel.model.TravelModel;
+import potatoes.server.travel.model.TravelPlanModel;
 import potatoes.server.user.entity.User;
-import potatoes.server.user.repository.UserRepository;
+import potatoes.server.user.factory.UserFactory;
 import potatoes.server.utils.constant.ParticipantRole;
-import potatoes.server.utils.constant.TravelSortType;
-import potatoes.server.utils.constant.TravelStatus;
 import potatoes.server.utils.error.exception.WeGoException;
-import potatoes.server.utils.pagination.dto.PageResponse;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -51,173 +40,48 @@ import potatoes.server.utils.pagination.dto.PageResponse;
 @Service
 public class TravelService {
 
-	private final UserRepository userRepository;
-	private final TravelRepository travelRepository;
-	private final TravelPlanRepository travelPlanRepository;
-	private final TravelUserRepository travelUserRepository;
-	private final BookmarkRepository bookmarkRepository;
-	private final ChatRepository chatRepository;
-	private final S3UtilsProvider s3;
+	private final TravelCommander travelCommander;
+	private final TravelUserCommander travelUserCommander;
+	private final ChatCommander chatCommander;
+	private final BookmarkCommander bookmarkCommander;
+	private final TravelQuery travelQuery;
+	private final TravelUserQuery travelUserQuery;
+	private final BookmarkQuery bookmarkQuery;
+	private final UserFactory userFactory;
 
 	@Transactional
 	public void createTravel(Long userId, CreateTravelRequest request) {
+		User user = userFactory.findUser(userId);
 
-		if (request.getMinTravelMateCount() > request.getMaxTravelMateCount()) {
-			throw new WeGoException(INVALID_TRAVEL_MATE_COUNT);
-		}
+		TravelModel travelModel = CreateTravelRequest.toModel(request);
+		Travel travel = travelCommander.createTravel(travelModel, request.travelImage());
 
-		if (request.getHashTags().split("#").length > 5) {
-			throw new WeGoException(INVALID_TRAVEL_HASHTAGS_VALUE);
-		}
-
-		Duration duration = Duration.between(request.getStartAt(), request.getEndAt());
-		long tripDuration = duration.toDays() + 1;
-		if (tripDuration < 0 || request.getStartAt().isAfter(request.getEndAt())) {
-			throw new WeGoException(INVALID_TRAVEL_DATE);
-		}
-
-		for (CreateTravelRequest.DetailTravelRequest detailTravelRequest : request.getDetailTravel()) {
-			if (detailTravelRequest.getTripDay() > tripDuration) {
-				throw new WeGoException(INVALID_TRAVEL_DETAIL_INFO);
-			}
-		}
-
-		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
-
-		String travelFileName = s3.uploadFile(request.getTravelImage());
-		String travelFileUrl = s3.getFileUrl(travelFileName);
-
-		Travel travel = Travel.builder()
-			.name(request.getTravelName())
-			.description(request.getTravelDescription())
-			.image(travelFileUrl)
-			.expectedTripCost(request.getExpectedTripCost())
-			.minTravelMateCount(request.getMinTravelMateCount())
-			.maxTravelMateCount(request.getMaxTravelMateCount())
-			.hashTags(request.getHashTags())
-			.isDomestic(request.getIsDomestic())
-			.travelLocation(request.getTravelLocation())
-			.departureLocation(request.getDepartureLocation())
-			.startAt(request.getStartAt().toInstant(ZoneOffset.UTC))
-			.endAt(request.getEndAt().toInstant(ZoneOffset.UTC))
-			.registrationEnd(request.getRegistrationEnd().toInstant(ZoneOffset.UTC))
-			.tripDuration((int)tripDuration)
-			.build();
-		travelRepository.save(travel);
-
-		List<TravelPlan> travelPlanList = request.getDetailTravel().stream()
-			.map(details -> {
-				String destinationFileUrl = null;
-				if (details.getDestinationImage() != null) {
-					String destinationFileName = s3.uploadFile(details.getDestinationImage());
-					destinationFileUrl = s3.getFileUrl(destinationFileName);
-				}
-				return TravelPlan.builder()
-					.travel(travel)
-					.image(destinationFileUrl)
-					.tripDay(details.getTripDay())
-					.tripOrderNumber(details.getTripOrderNumber())
-					.destination(details.getDestination())
-					.description(details.getDescription())
-					.build();
-			})
-			.toList();
-		travelPlanRepository.saveAll(travelPlanList);
-
-		TravelUser travelUser = TravelUser.builder()
-			.role(ParticipantRole.ORGANIZER)
-			.travel(travel)
-			.user(user)
-			.build();
-
-		Chat chat = Chat.builder()
-			.name(travel.getName())
-			.host(user)
-			.travel(travel)
-			.currentMemberCount(1)
-			.maxMemberCount(travel.getMaxTravelMateCount())
-			.build();
-		chatRepository.save(chat);
-
-		travelUserRepository.save(travelUser);
+		List<TravelPlanModel> travelPlan = DetailTravelRequest.toModels(request.detailTravel(), travel);
+		travelCommander.createTravelPlans(travelPlan);
+		chatCommander.createChat(travel, user);
+		travelUserCommander.createOrganizer(travel, user);
 	}
 
 	public TravelDetailResponse getDetails(Long travelId, Optional<Long> userId) {
-		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+		Travel travel = travelQuery.findTravel(travelId);
 
-		Boolean participationFlag = userId
-			.map(uid -> travelUserRepository.existsByTravelIdAndUserId(travelId, uid))
-			.orElse(null);
+		Boolean participationFlag = travelUserQuery.isUserParticipating(travelId, userId);
+		Boolean bookmarkFlag = bookmarkQuery.isUserParticipating(userId, travelId);
 
-		Boolean bookmarkFlag = userId
-			.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travelId))
-			.orElse(null);
+		List<TravelPlanResponse> travelPlanResponses = travelQuery.findAllTravelPlans(travel);
+		List<ParticipantResponse> participantResponses = travelUserQuery.findAllParticipants(travel);
 
-		List<TravelPlanResponse> travelPlanResponses = travelPlanRepository.findAllByTravel(travel).stream()
-			.map(TravelPlanResponse::from)
-			.toList();
-		List<ParticipantResponse> participantResponses = travelUserRepository.findAllByTravel(travel).stream()
-			.map(ParticipantResponse::from)
-			.toList();
 		return TravelDetailResponse.from(travel, travelPlanResponses, participantResponses, participationFlag,
 			bookmarkFlag);
 	}
 
-	public PageResponse<TravelSummaryResponse> getTravelList(
-		int page, int size, Boolean isDomestic, String startAt, String endAt,
-		TravelSortType sortOrder, String query, Optional<Long> userId
-	) {
-		Pageable pageable = createPageable(page, size, sortOrder);
-
-		Instant parsedStartAt = startAt != null ? parseYearMonthDay(startAt) : null;
-		Instant parsedEndAt = endAt != null ? parseYearMonthDay(endAt) : null;
-
-		Page<Travel> travels = travelRepository.findTravels(
-			isDomestic,
-			parsedStartAt,
-			parsedEndAt,
-			query,
-			pageable
-		);
-
-		Page<TravelSummaryResponse> responsePage = travels.map(travel -> {
-			int currentTravelMateCount = (int)travelUserRepository.countByTravel(travel);
-			Boolean isBookmark = userId
-				.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travel.getId()))
-				.orElse(null);
-			return TravelSummaryResponse.from(travel, currentTravelMateCount, isBookmark);
-		});
-
-		return PageResponse.from(responsePage);
-	}
-
-	private Pageable createPageable(int page, int size, TravelSortType sortOrder) {
-		Sort sort = Sort.by(
-			sortOrder == TravelSortType.registrationEnd
-				? Sort.Direction.ASC
-				: Sort.Direction.DESC,
-			getSortField(sortOrder)
-		);
-		return PageRequest.of(page, size, sort);
-	}
-
-	private String getSortField(TravelSortType sortOrder) {
-		return switch (sortOrder) {
-			// TODO - 조회수를 저장하는 로직이 없어 popular조건을 추가해야됨
-			case recent, popular -> "createdAt";
-			case registrationEnd -> "registrationEnd";
-		};
-	}
-
 	public List<SimpleTravelResponse> getPopularTravels(Optional<Long> userId) {
-		return travelRepository.findTop8ByOrderByIdDesc()
+
+		return travelQuery.findTop8ByOrderByIdDesc()
 			.stream()
 			.map(travel -> {
-				int currentTravelMate = (int)travelUserRepository.countByTravel(travel);
-
-				Boolean isBookmark = userId
-					.map(uid -> bookmarkRepository.existsByUserIdAndTravelId(uid, travel.getId()))
-					.orElse(null);
+				int currentTravelMate = (int)travelUserQuery.countParticipants(travel);
+				Boolean isBookmark = bookmarkQuery.isUserParticipating(userId, travel.getId());
 
 				return SimpleTravelResponse.from(travel, currentTravelMate, isBookmark);
 			})
@@ -225,105 +89,64 @@ public class TravelService {
 	}
 
 	@Transactional
-	public void addBookmark(Long userId, Long travelId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
-		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
-		if (bookmarkRepository.existsByUserAndTravel(user, travel)) {
-			return;
-		}
-
-		Bookmark bookmark = Bookmark.builder()
-			.user(user)
-			.travel(travel)
-			.build();
-		bookmarkRepository.save(bookmark);
-	}
-
-	@Transactional
-	public void deleteBookmark(Long userId, Long travelId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
-		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
-
-		Bookmark bookmark = bookmarkRepository.findByUserAndTravel(user, travel)
-			.orElseThrow(() -> new WeGoException(BOOKMARK_NOT_FOUND));
-		bookmarkRepository.delete(bookmark);
-	}
-
-	public PageResponse<GetMyTravelResponse> getMyTravels(int page, int size, Long userId) {
-		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelUserRepository.findMyTravels(request, userId);
-		return PageResponse.from(findTravels);
-	}
-
-	public PageResponse<GetMyTravelResponse> getTravelsByStatus(
-		int page, int size, Long userId, TravelStatus travelStatus
-	) {
-		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelUserRepository.findTravelsByStatus(request, userId,
-			travelStatus.name());
-		return PageResponse.from(findTravels);
-	}
-
-	public PageResponse<GetMyTravelResponse> getMyTravelsByBookmark(
-		int page, int size, Long userId
-	) {
-		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = bookmarkRepository.findMyTravelsByBookmark(request, userId);
-		return PageResponse.from(findTravels);
-	}
-
-	public PageResponse<GetMyTravelResponse> getReviewableMyTravels(
-		int page, int size, Long userId
-	) {
-		PageRequest request = PageRequest.of(page, size);
-		Page<GetMyTravelResponse> findTravels = travelUserRepository.findReviewableTravels(request, userId);
-		return PageResponse.from(findTravels);
-	}
-
-	@Transactional
 	public void participateInTravel(Long travelId, Long userId) {
-		Travel travel = travelRepository.findById(travelId).orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
-
-		User user = userRepository.findById(userId).orElseThrow(() -> new WeGoException(USER_NOT_FOUND));
-
-		boolean existsCheckFlag = travelUserRepository.existsByTravelIdAndUserId(travelId, userId);
+		Boolean existsCheckFlag = travelUserQuery.isUserParticipating(travelId, userId);
 
 		if (existsCheckFlag) {
 			throw new WeGoException(ALREADY_PARTICIPATED_TRAVEL);
 		}
 
-		TravelUser travelUser = TravelUser.builder()
-			.role(ParticipantRole.ATTENDEE)
-			.user(user)
-			.travel(travel)
-			.build();
+		User user = userFactory.findUser(userId);
+		Travel travel = travelQuery.findTravel(travelId);
 
-		travelUserRepository.save(travelUser);
+		travelUserCommander.createAttendee(travel, user);
 	}
 
 	@Transactional
 	public void deleteTravelByOrganizer(Long travelId, Long userId) {
-		TravelUser travelUser = travelUserRepository.findByTravelIdAndUserId(travelId, userId)
-			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+		TravelUser travelUser = travelUserQuery.findTravelUser(travelId, userId);
 
 		if (travelUser.getRole() != ParticipantRole.ORGANIZER) {
 			throw new WeGoException(INSUFFICIENT_TRAVEL_PERMISSION);
 		}
 
-		travelUserRepository.delete(travelUser);
-		travelRepository.delete(travelUser.getTravel());
+		travelUserCommander.deleteTravelUser(travelUser);
+		travelCommander.deleteTravel(travelUser.getTravel());
 	}
 
 	@Transactional
 	public void deleteTravelByAttendee(Long travelId, Long userId) {
-		TravelUser travelUser = travelUserRepository.findByTravelIdAndUserId(travelId, userId)
-			.orElseThrow(() -> new WeGoException(TRAVEL_NOT_FOUND));
+		TravelUser travelUser = travelUserQuery.findTravelUser(travelId, userId);
 
 		if (travelUser.getRole() != ParticipantRole.ATTENDEE) {
 			throw new WeGoException(NOT_PARTICIPATED_TRAVEL);
 		}
 
-		travelUserRepository.delete(travelUser);
+		travelUserCommander.deleteTravelUser(travelUser);
 	}
 
+	@Transactional
+	public void addBookmark(Long userId, Long travelId) {
+		User user = userFactory.findUser(userId);
+		Travel travel = travelQuery.findTravel(travelId);
+
+		Boolean existsCheckFlag = bookmarkQuery.isUserParticipating(user.getId(), travel.getId());
+
+		if (existsCheckFlag) {
+			throw new WeGoException(BOOKMARK_ALREADY_EXIST);
+		}
+
+		bookmarkCommander.createBookmark(user, travel);
+	}
+
+	@Transactional
+	public void deleteBookmark(Long userId, Long travelId) {
+		User user = userFactory.findUser(userId);
+		Travel travel = travelQuery.findTravel(travelId);
+
+		Bookmark bookmark = bookmarkQuery.findBookmark(user.getId(), travel.getId())
+			.orElseThrow(() -> new WeGoException(BOOKMARK_NOT_FOUND));
+
+		bookmarkCommander.deleteBookmark(bookmark);
+	}
 }
