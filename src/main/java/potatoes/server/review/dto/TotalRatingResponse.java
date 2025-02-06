@@ -1,7 +1,7 @@
 package potatoes.server.review.dto;
 
 public record TotalRatingResponse(
-	TotalCountReviews reviews,
+	TotalCountReviews reviewRatings,
 	float totalRating
 ) {
 }
